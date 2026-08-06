@@ -16,7 +16,7 @@ export default async function AccountPage(){
   const roleNames = (roles || []).map((r: any) => r.name)
 
   return (
-    <div className="pt-24">
+    <div className="container py-20">
       <h2 className="text-2xl font-semibold">Account</h2>
       <p className="mt-2">Email: {session.user.email}</p>
       <p className="mt-2">Roles: {roleNames.join(', ') || '—'}</p>

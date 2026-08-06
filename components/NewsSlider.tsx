@@ -232,7 +232,7 @@ export default function NewsSlider({ latestNews, announcements }: NewsSliderProp
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
         <div className="text-sm text-gray-300">Use left/right arrows, swipe on mobile, or keyboard focus to navigate.</div>
-        <a href="/news" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-red-500">
+        <a href="/news" className="btn btn-primary">
           View All News
         </a>
       </div>

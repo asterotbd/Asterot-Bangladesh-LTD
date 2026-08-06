@@ -20,7 +20,7 @@ export default async function AdminPage(){
   if (!has) redirect('/account')
 
   return (
-    <div className="pt-24">
+    <div className="py-16">
       <h2 className="text-2xl font-semibold">Admin Dashboard</h2>
       <p className="mt-4">Welcome, {session.user.email}</p>
       <p className="mt-2 text-sm text-gray-400">Roles: {roleNames.join(', ') || '—'}</p>

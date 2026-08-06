@@ -43,7 +43,7 @@ export default function EventsPage() {
               <p className="text-sm uppercase tracking-[0.35em] text-primary">Featured event</p>
               <h2 className="mt-4 text-2xl font-semibold">{upcomingEvents[0].title}</h2>
               <p className="mt-4 text-gray-300 leading-7">{upcomingEvents[0].description}</p>
-              <a href="/registration" className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <a href="/registration" className="btn btn-primary">
                 Register your interest
               </a>
             </div>
@@ -61,28 +61,28 @@ export default function EventsPage() {
           </div>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Link href="/events/upcoming" className="group card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
+            <Link href="/events/upcoming" className="group card-surface flex flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-2xl">📅</span>
               <h3 className="mt-5 text-xl font-semibold tracking-tight">Upcoming Events</h3>
-              <p className="mt-3 text-sm leading-6 text-gray-400">See what Asterot has coming next — tournaments, conferences and more.</p>
+              <p className="mt-3 flex-1 text-sm leading-6 text-gray-400">See what Asterot has coming next — tournaments, conferences and more.</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-1">
                 View Upcoming <span aria-hidden="true">→</span>
               </span>
             </Link>
 
-            <Link href="/events/past" className="group card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
+            <Link href="/events/past" className="group card-surface flex flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-2xl">🕘</span>
               <h3 className="mt-5 text-xl font-semibold tracking-tight">Past Events</h3>
-              <p className="mt-3 text-sm leading-6 text-gray-400">Highlights from events we have already delivered.</p>
+              <p className="mt-3 flex-1 text-sm leading-6 text-gray-400">Highlights from events we have already delivered.</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-1">
                 View Past <span aria-hidden="true">→</span>
               </span>
             </Link>
 
-            <Link href="/events/documentation" className="group card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
+            <Link href="/events/documentation" className="group card-surface flex flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
               <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/15 text-2xl">🎬</span>
               <h3 className="mt-5 text-xl font-semibold tracking-tight">Event Documentation</h3>
-              <p className="mt-3 text-sm leading-6 text-gray-400">Photos and videos from our events and programs.</p>
+              <p className="mt-3 flex-1 text-sm leading-6 text-gray-400">Photos and videos from our events and programs.</p>
               <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-1">
                 View Gallery <span aria-hidden="true">→</span>
               </span>
@@ -91,10 +91,10 @@ export default function EventsPage() {
         </RevealSection>
 
         {/* Event categories */}
-        <RevealSection className="pb-16">
-          <div className="section-grid gap-6">
+        <RevealSection className="pb-16 sm:pb-20">
+          <div className="section-grid">
             {eventCategories.map(card => (
-              <article key={card.title} className="rounded-3xl border border-white/10 bg-white/5 p-8 transition hover:border-primary hover:bg-white/10">
+              <article key={card.title} className="card rounded-[2rem] border border-white/10 bg-white/5 p-8 transition hover:border-primary hover:bg-white/10">
                 <h2 className="text-2xl font-semibold">{card.title}</h2>
                 <p className="mt-3 text-gray-300 leading-7">{card.description}</p>
               </article>
@@ -103,19 +103,19 @@ export default function EventsPage() {
         </RevealSection>
 
         {/* Quick stats */}
-        <RevealSection className="pb-16">
-          <div className="section-grid gap-6">
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
+        <RevealSection className="pb-16 sm:pb-20">
+          <div className="section-grid">
+            <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8">
               <p className="text-4xl font-black text-primary">{upcomingEvents.length}</p>
               <h3 className="mt-2 font-semibold">Upcoming & Featured</h3>
               <p className="mt-2 text-sm text-gray-400">Events on the horizon</p>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
+            <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8">
               <p className="text-4xl font-black text-primary">{pastEvents.length}</p>
               <h3 className="mt-2 font-semibold">Past Events</h3>
               <p className="mt-2 text-sm text-gray-400">Delivered highlights</p>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-black/40 p-8">
+            <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8">
               <p className="text-4xl font-black text-primary">{documentationItems.length}</p>
               <h3 className="mt-2 font-semibold">Documentation</h3>
               <p className="mt-2 text-sm text-gray-400">Photo & video entries</p>

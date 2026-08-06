@@ -9,7 +9,7 @@ export default function ViewLocationButton() {
       <button
         type="button"
         onClick={() => setClicked(true)}
-        className="btn-smooth inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
+        className="btn btn-ghost"
       >
         View Location
         <span aria-hidden="true">↗</span>

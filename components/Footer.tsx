@@ -82,7 +82,7 @@ export default function Footer() {
 
           <Link
             href="/contact"
-            className="btn-smooth mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-black transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
+            className="btn btn-primary mt-10"
           >
             Contact Us
             <span aria-hidden="true">→</span>

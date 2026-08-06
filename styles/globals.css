@@ -84,15 +84,12 @@ h6 {
   padding-inline: var(--page-gutter);
 }
 
-.responsive-grid {
-  display: grid;
-  gap: clamp(1.25rem, 2vw, 2rem);
-  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
-}
+/* ===== Consistent grid system ===== */
+/* Gap is identical everywhere; min column widths differ by use case. */
 
 .card-grid {
   display: grid;
-  gap: clamp(1rem, 1.5vw, 1.75rem);
+  gap: clamp(1.25rem, 2vw, 2rem);
   grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
 }
 
@@ -175,6 +172,71 @@ h6 {
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.16);
 }
 
+/* ===== Standard card primitives ===== */
+.card {
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
+}
+
+.card-inner {
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.card-pad {
+  padding: clamp(1.5rem, 2.5vw, 2.5rem);
+}
+
+/* ===== Standard buttons ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  transition: transform 220ms ease, background-color 220ms ease, box-shadow 220ms ease, color 220ms ease, border-color 220ms ease;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: #000;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+  background: #FF2D6D;
+}
+
+.btn-ghost {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 0.9375rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+
 .btn-smooth {
   transition: transform 220ms ease, background-color 220ms ease, box-shadow 220ms ease, color 220ms ease;
 }
@@ -230,7 +292,7 @@ h6 {
 
 .gallery-grid {
   display: grid;
-  gap: clamp(1rem, 1.5vw, 1.75rem);
+  gap: clamp(1.25rem, 2vw, 2rem);
   grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
 }
 

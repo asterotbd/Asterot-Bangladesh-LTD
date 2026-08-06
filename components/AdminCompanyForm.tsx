@@ -4,6 +4,10 @@ import Button from './Button'
 
 type Company = any
 
+function inputClass() {
+  return 'mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25'
+}
+
 export default function AdminCompanyForm(){
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -34,20 +38,20 @@ export default function AdminCompanyForm(){
   return (
     <div className="w-full max-w-[min(70rem,100%)]">
       {error && <div className="text-red-400">{error}</div>}
-      <label className="block mb-2">Company Name (EN)
-        <input value={company.name_en||''} onChange={e=>onChange('name_en', e.target.value)} className="w-full p-2 bg-black border border-gray-700 rounded mt-1" />
+      <label className="block mb-2 text-sm font-medium text-gray-300">Company Name (EN)
+        <input value={company.name_en||''} onChange={e=>onChange('name_en', e.target.value)} className={inputClass()} />
       </label>
-      <label className="block mb-2">Founded Date
-        <input type="date" value={company.founded_date||''} onChange={e=>onChange('founded_date', e.target.value)} className="w-full p-2 bg-black border border-gray-700 rounded mt-1" />
+      <label className="block mb-2 text-sm font-medium text-gray-300">Founded Date
+        <input type="date" value={company.founded_date||''} onChange={e=>onChange('founded_date', e.target.value)} className={inputClass()} />
       </label>
-      <label className="block mb-2">Tagline (EN)
-        <input value={company.tagline_en||''} onChange={e=>onChange('tagline_en', e.target.value)} className="w-full p-2 bg-black border border-gray-700 rounded mt-1" />
+      <label className="block mb-2 text-sm font-medium text-gray-300">Tagline (EN)
+        <input value={company.tagline_en||''} onChange={e=>onChange('tagline_en', e.target.value)} className={inputClass()} />
       </label>
-      <label className="block mb-4">Slogan (EN)
-        <input value={company.slogan_en||''} onChange={e=>onChange('slogan_en', e.target.value)} className="w-full p-2 bg-black border border-gray-700 rounded mt-1" />
+      <label className="block mb-4 text-sm font-medium text-gray-300">Slogan (EN)
+        <input value={company.slogan_en||''} onChange={e=>onChange('slogan_en', e.target.value)} className={inputClass()} />
       </label>
-      <label className="block mb-4">Short Description (EN)
-        <textarea value={company.short_description_en||''} onChange={e=>onChange('short_description_en', e.target.value)} className="w-full p-2 bg-black border border-gray-700 rounded mt-1" rows={4} />
+      <label className="block mb-4 text-sm font-medium text-gray-300">Short Description (EN)
+        <textarea value={company.short_description_en||''} onChange={e=>onChange('short_description_en', e.target.value)} className={inputClass()} rows={4} />
       </label>
       <div className="flex gap-2">
         <Button onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>

@@ -98,7 +98,7 @@ const sections: Section[] = [
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-black pt-28 text-white">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.10),_transparent_28%),linear-gradient(180deg,#050507_0%,#09090f_100%)] pt-28 text-white">
       <Container>
         <article className="mx-auto max-w-4xl py-10 sm:py-16">
           <Link href="/" className="text-sm text-gray-400 transition-colors hover:text-white">← Back to home</Link>

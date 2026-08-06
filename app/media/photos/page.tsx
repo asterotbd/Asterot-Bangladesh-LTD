@@ -38,7 +38,7 @@ export default function MediaPhotosPage() {
 
       {/* Photos */}
       <Container>
-        <RevealSection className="py-16">
+        <RevealSection className="py-16 sm:py-20">
           <MediaToolbar
             categories={categories}
             activeCategory={activeCategory}
@@ -57,13 +57,13 @@ export default function MediaPhotosPage() {
         </RevealSection>
 
         {/* Cross-link to videos */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Looking for video?</h2>
               <p className="mt-2 text-gray-400">Watch our latest projects, stories, and behind-the-scenes moments.</p>
             </div>
-            <Link href="/media/videos" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+            <Link href="/media/videos" className="btn btn-primary">
               Browse Videos
             </Link>
           </div>

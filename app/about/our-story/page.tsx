@@ -28,8 +28,8 @@ export default function OurStoryPage() {
 
       {/* Story content */}
       <Container>
-        <RevealSection className="py-16">
-          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-xl shadow-black/10 sm:p-14">
+        <RevealSection className="py-16 sm:py-20">
+          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-14">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Who we are</p>
             <div className="mt-6 space-y-5 text-gray-300 leading-8">
               {storyParagraphs.map((para, index) => (
@@ -43,17 +43,17 @@ export default function OurStoryPage() {
         </RevealSection>
 
         {/* Continue exploring */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Continue exploring</h2>
               <p className="mt-2 text-gray-400">Discover our mission, values, leadership, and vision for the future.</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link href="/about/mission-vision" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <Link href="/about/mission-vision" className="btn btn-primary">
                 Mission & Vision
               </Link>
-              <Link href="/about/values" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/about/values" className="btn btn-ghost">
                 Our Values
               </Link>
             </div>

@@ -22,10 +22,10 @@ export default function MediaPage() {
           </RevealSection>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2">
-            <RevealSection>
+            <RevealSection className="h-full">
               <Link
                 href="/media/photos"
-                className="group relative block overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 sm:p-10"
+                className="group card-surface flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-7 w-7 text-primary">
@@ -34,7 +34,7 @@ export default function MediaPage() {
                   </svg>
                 </div>
                 <h3 className="mt-6 text-2xl font-semibold tracking-tight">Photos</h3>
-                <p className="mt-3 text-gray-400">
+                <p className="mt-3 flex-1 text-gray-400">
                   Gallery of our projects, people, and moments. Filter by category and switch between grid and masonry views.
                 </p>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors group-hover:text-accent">
@@ -44,10 +44,10 @@ export default function MediaPage() {
               </Link>
             </RevealSection>
 
-            <RevealSection>
+            <RevealSection className="h-full">
               <Link
                 href="/media/videos"
-                className="group relative block overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 transition-all duration-500 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 sm:p-10"
+                className="group card-surface flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-7 w-7 text-primary">
@@ -55,7 +55,7 @@ export default function MediaPage() {
                   </svg>
                 </div>
                 <h3 className="mt-6 text-2xl font-semibold tracking-tight">Videos</h3>
-                <p className="mt-3 text-gray-400">
+                <p className="mt-3 flex-1 text-gray-400">
                   Our latest projects, stories, events, and behind-the-scenes moments. Filter by category and switch between grid and list views.
                 </p>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors group-hover:text-accent">

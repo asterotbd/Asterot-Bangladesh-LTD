@@ -6,9 +6,9 @@ type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primar
 export default function Button({ variant='primary', className, ...props }: Props){
   return (
     <button
-      className={clsx('btn-smooth px-4 py-2 rounded-md font-semibold disabled:opacity-60', {
-        'bg-primary text-black': variant === 'primary',
-        'bg-transparent border border-gray-700 text-white': variant === 'ghost'
+      className={clsx('btn disabled:opacity-60', {
+        'btn-primary': variant === 'primary',
+        'btn-ghost': variant === 'ghost'
       }, className)}
       {...props}
     />

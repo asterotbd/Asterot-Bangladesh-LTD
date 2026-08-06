@@ -29,7 +29,7 @@ export default function LeadershipPage() {
 
       {/* Leadership grid */}
       <Container>
-        <RevealSection className="py-16">
+        <RevealSection className="py-16 sm:py-20">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {leadershipMembers.map(member => (
               <LeadershipPortrait key={member.name} name={member.name} role={member.role} image={member.image} />
@@ -38,17 +38,17 @@ export default function LeadershipPage() {
         </RevealSection>
 
         {/* Continue exploring */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Continue exploring</h2>
               <p className="mt-2 text-gray-400">Learn about our story and the future we are building.</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link href="/about/our-story" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <Link href="/about/our-story" className="btn btn-primary">
                 Our Story
               </Link>
-              <Link href="/about/future-vision" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/about/future-vision" className="btn btn-ghost">
                 Future Vision
               </Link>
             </div>

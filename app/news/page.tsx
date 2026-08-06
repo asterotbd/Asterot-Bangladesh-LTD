@@ -26,20 +26,20 @@ export default function NewsPage() {
 
       {/* News articles list */}
       <Container>
-        <RevealSection className="py-16">
+        <RevealSection className="py-16 sm:py-20">
           <div className="grid gap-6 sm:grid-cols-2">
             {newsArticles.map(article => (
               <Link
                 key={article.slug}
                 href={`/news/${article.slug}`}
-                className="group card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 transition hover:border-primary hover:bg-white/10"
+                className="group card-surface flex flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 transition hover:border-primary hover:bg-white/10"
               >
                 <div className="flex items-center gap-3">
                   <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-primary">{article.category}</span>
                   <span className="text-xs text-gray-400">{article.date}</span>
                 </div>
                 <h2 className="mt-5 text-xl font-semibold tracking-tight group-hover:text-primary">{article.title}</h2>
-                <p className="mt-3 text-sm leading-6 text-gray-400">{article.excerpt}</p>
+                <p className="mt-3 flex-1 text-sm leading-6 text-gray-400">{article.excerpt}</p>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-transform duration-200 group-hover:translate-x-1">
                   Read More <span aria-hidden="true">→</span>
                 </span>
@@ -49,10 +49,10 @@ export default function NewsPage() {
         </RevealSection>
 
         {/* News categories */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <p className="text-sm uppercase tracking-[0.35em] text-primary">News Categories</p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight">Browse by category</h2>
-          <div className="gallery-grid mt-8">
+          <div className="card-grid mt-8">
             {categories.map(category => {
               const count = newsArticles.filter(a => a.category === category).length
               return (

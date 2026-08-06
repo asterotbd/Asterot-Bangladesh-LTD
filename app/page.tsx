@@ -51,8 +51,8 @@ export default function Home() {
               <h1 className="max-w-[min(70ch,100%)] fluid-heading font-black leading-tight tracking-tight">Asterot Bangladesh Limited</h1>
               <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">Asterot delivers premium event production across sports, corporate programs, concerts, tournaments, conferences, branding and marketing activations in Bangladesh.</p>
               <div className="flex flex-wrap gap-4">
-                <a href="/events" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">Explore Events</a>
-                <a href="/about" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Learn About Us</a>
+                <a href="/events" className="btn btn-primary">Explore Events</a>
+                <a href="/about" className="btn btn-ghost">Learn About Us</a>
               </div>
             </div>
 
@@ -76,9 +76,9 @@ export default function Home() {
             </div>
           </div>
         </Container>
-</section>
+      </section>
 
-      <section className="py-6 sm:py-8">
+      <section className="py-12 sm:py-16">
         <Container>
           <div className="rounded-full border border-white/10 bg-[rgba(13,13,18,0.55)] px-6 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-[14px] backdrop-saturate-150 sm:px-8">
             <CompaniesMarquee heading="Companies We've Worked With" />
@@ -87,13 +87,13 @@ export default function Home() {
       </section>
 
       <Container>
-        <section className="py-16">
+        <section className="py-16 sm:py-20">
           <RevealSection>
             <NewsSlider latestNews={latestNews} announcements={announcements} />
           </RevealSection>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-2xl shadow-black/20 card-surface">
+        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 card-surface sm:p-10">
           <div className="mx-auto max-w-[min(70ch,100%)] text-center">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">About Asterot</p>
             <h2 className="mt-4 text-3xl font-semibold">Asterot Bangladesh Limited organizes premium events in Bangladesh</h2>
@@ -102,12 +102,12 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section-grid py-16">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
+        <section className="section-grid py-16 sm:py-20">
+          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 sm:p-10">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Core services</p>
             <h2 className="mt-4 text-3xl font-semibold">Capabilities</h2>
             <p className="mt-4 text-gray-300">Asterot provides a full range of event management capabilities for sports, corporate, entertainment and brand-focused programs.</p>
-            <div className="gallery-grid mt-8 gap-4">
+            <div className="gallery-grid mt-8">
               {services.map(service => (
                 <div key={service.title} className="rounded-3xl border border-white/10 bg-black/40 p-5">
                   <h3 className="font-semibold">{service.title}</h3>
@@ -116,7 +116,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="rounded-3xl border border-white/10 bg-black/40 p-10">
+          <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8 shadow-2xl shadow-black/20 sm:p-10">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Featured events</p>
             <h2 className="mt-4 text-3xl font-semibold">Event categories</h2>
             <p className="mt-4 text-gray-300">Asterot’s event portfolio centers on sports tournaments, corporate gatherings, entertainment programs and branding activations.</p>
@@ -128,7 +128,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-12 text-center shadow-2xl shadow-black/20">
+        <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center shadow-2xl shadow-black/20 sm:p-12">
           <div className="ambient-layer">
             <div className="ambient-glow" />
           </div>
@@ -136,8 +136,8 @@ export default function Home() {
           <h2 className="mt-4 text-balance text-4xl font-semibold">Let's deliver your next great event</h2>
           <p className="mx-auto mt-6 max-w-[min(65ch,100%)] text-gray-300">From tournaments and conferences to concerts and brand activations, we handle the planning and production end to end.</p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a href="/events" className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-black transition hover:bg-accent">View Events</a>
-            <a href="/contact" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-7 py-3 text-sm font-semibold text-white transition hover:bg-white/10">Contact Us</a>
+            <a href="/events" className="btn btn-primary">View Events</a>
+            <a href="/contact" className="btn btn-ghost">Contact Us</a>
           </div>
         </section>
       </Container>

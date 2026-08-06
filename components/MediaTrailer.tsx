@@ -15,7 +15,7 @@ export default function MediaTrailer() {
   const [trailerOpen, setTrailerOpen] = useState(false)
 
   return (
-    <section className="relative overflow-hidden bg-black pt-28 sm:pt-32">
+    <section className="relative overflow-hidden bg-black pt-28 pb-16 sm:pt-32 sm:pb-20">
       <div className="ambient-layer">
         <div className="ambient-glow" />
         <div className="ambient-dots" />
@@ -65,7 +65,7 @@ export default function MediaTrailer() {
                 <button
                   type="button"
                   onClick={() => setTrailerOpen(true)}
-                  className="btn-smooth group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-black hover:bg-accent"
+                  className="btn btn-primary group"
                 >
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/20 transition-transform duration-300 group-hover:scale-110">
                     <PlayIcon className="h-4 w-4 translate-x-px" />

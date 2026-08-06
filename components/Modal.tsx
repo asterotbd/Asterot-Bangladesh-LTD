@@ -10,7 +10,7 @@ export default function Modal({ open, onClose, children }: { open: boolean, onCl
   if(!open) return null
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="bg-gray-900 p-6 rounded-md w-full" style={{ maxInlineSize: 'min(45rem, 100%)' }}>{children}</div>
+      <div className="w-full rounded-[1.5rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/40" style={{ maxInlineSize: 'min(45rem, 100%)' }}>{children}</div>
       <button onClick={onClose} className="sr-only">Close</button>
     </div>
   )

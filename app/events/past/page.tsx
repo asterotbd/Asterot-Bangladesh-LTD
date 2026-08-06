@@ -24,7 +24,7 @@ export default function PastEventsPage() {
 
       {/* Past events */}
       <Container>
-        <RevealSection className="py-16">
+        <RevealSection className="py-16 sm:py-20">
           <div className="grid gap-6 sm:grid-cols-2">
             {pastEvents.map(event => (
               <article key={event.title} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
@@ -45,17 +45,17 @@ export default function PastEventsPage() {
         </RevealSection>
 
         {/* Continue exploring */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Explore more events</h2>
               <p className="mt-2 text-gray-400">See what is coming next and view event documentation.</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link href="/events/upcoming" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <Link href="/events/upcoming" className="btn btn-primary">
                 Upcoming Events
               </Link>
-              <Link href="/events/documentation" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/events/documentation" className="btn btn-ghost">
                 Documentation
               </Link>
             </div>

@@ -28,7 +28,7 @@ export default function ValuesPage() {
 
       {/* Values grid */}
       <Container>
-        <RevealSection className="py-16">
+        <RevealSection className="py-16 sm:py-20">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {values.map(value => (
               <div key={value.title} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
@@ -40,17 +40,17 @@ export default function ValuesPage() {
         </RevealSection>
 
         {/* Continue exploring */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Continue exploring</h2>
               <p className="mt-2 text-gray-400">Meet the leadership team and see our vision for the future.</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link href="/about/leadership" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <Link href="/about/leadership" className="btn btn-primary">
                 Leadership
               </Link>
-              <Link href="/about/future-vision" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/about/future-vision" className="btn btn-ghost">
                 Future Vision
               </Link>
             </div>

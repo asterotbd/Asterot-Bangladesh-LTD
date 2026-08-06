@@ -14,7 +14,7 @@ export default async function AdminCompanyPage(){
   if (!roles.some(r=>['super_admin','admin'].includes(r))) redirect('/account')
 
   return (
-    <div className="pt-24 pb-8">
+    <div className="py-16">
       <h1 className="text-2xl font-semibold mb-4">Company — Content</h1>
       <AdminCompanyForm />
     </div>

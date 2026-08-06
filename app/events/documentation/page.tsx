@@ -54,14 +54,14 @@ export default function EventDocumentationPage() {
         </RevealSection>
 
         {/* Gallery grid */}
-        <RevealSection className="py-10">
+        <RevealSection className="pt-10 pb-16 sm:pb-20">
           <div className="gallery-grid">
             {filteredItems.map(item => (
-              <article key={item.title} className="card-surface overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-xl shadow-black/10">
+              <article key={item.title} className="card-surface flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-xl shadow-black/10">
                 <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.12),_transparent_60%)]">
                   <span className="text-5xl">{item.type === 'Photo' ? '📷' : '🎬'}</span>
                 </div>
-                <div className="p-6">
+                <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{item.type}</span>
                   </div>
@@ -74,17 +74,17 @@ export default function EventDocumentationPage() {
         </RevealSection>
 
         {/* Continue exploring */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">Explore more events</h2>
               <p className="mt-2 text-gray-400">See upcoming programs and past highlights.</p>
             </div>
             <div className="flex flex-wrap gap-4">
-              <Link href="/events/upcoming" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+              <Link href="/events/upcoming" className="btn btn-primary">
                 Upcoming Events
               </Link>
-              <Link href="/events/past" className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <Link href="/events/past" className="btn btn-ghost">
                 Past Events
               </Link>
             </div>

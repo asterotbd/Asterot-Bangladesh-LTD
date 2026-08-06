@@ -125,7 +125,7 @@ export default function ContactPage() {
     <main className="bg-black text-white">
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.16),_transparent_26%),linear-gradient(180deg,#050507_0%,#09090f_100%)] pt-28 pb-10 sm:pt-32 sm:pb-14">
+      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.16),_transparent_26%),linear-gradient(180deg,#050507_0%,#09090f_100%)] py-24">
         <div className="ambient-layer">
           <div className="ambient-glow" />
           <div className="ambient-dots" />
@@ -146,7 +146,7 @@ export default function ContactPage() {
       </section>
 
       {/* Main contact: info + form */}
-      <section className="relative py-12 sm:py-16">
+      <section className="relative py-16 sm:py-20">
         <div className="ambient-layer">
           <div className="absolute -right-20 top-24 h-64 w-64 rounded-full bg-primary/10 blur-3xl ambient-float" />
         </div>
@@ -229,7 +229,7 @@ export default function ContactPage() {
       </section>
 
       {/* What can we help you with? */}
-      <section className="py-12 sm:py-16">
+      <section className="py-16 sm:py-20">
         <Container>
           <RevealSection>
             <div className="max-w-2xl">
@@ -240,13 +240,13 @@ export default function ContactPage() {
               {helpCards.map(card => (
                 <div
                   key={card.title}
-                  className="card-surface rounded-2xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10"
+                  className="card-surface flex flex-col rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10"
                 >
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
                     <card.Icon />
                   </span>
                   <h3 className="mt-5 text-lg font-semibold tracking-tight">{card.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-gray-400">{card.description}</p>
+                  <p className="mt-2 flex-1 text-sm leading-6 text-gray-400">{card.description}</p>
                 </div>
               ))}
             </div>

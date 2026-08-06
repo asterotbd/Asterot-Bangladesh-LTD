@@ -17,7 +17,7 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
           <section className="py-28 text-center">
             <h1 className="text-4xl font-bold">Article not found</h1>
             <p className="mt-4 text-gray-300">The article you are looking for does not exist.</p>
-            <Link href="/news" className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+            <Link href="/news" className="btn btn-primary mt-8">
               Back to News
             </Link>
           </section>
@@ -49,8 +49,8 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
 
       {/* Article content */}
       <Container>
-        <RevealSection className="py-16">
-          <article className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-xl shadow-black/10 sm:p-14">
+        <RevealSection className="py-16 sm:py-20">
+          <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-14">
             <div className="space-y-5 text-gray-300 leading-8">
               {article.content.map((para, index) => (
                 <p key={index}>{para}</p>
@@ -60,13 +60,13 @@ export default function NewsArticlePage({ params }: { params: { slug: string } }
         </RevealSection>
 
         {/* Back to news */}
-        <RevealSection className="pb-16">
+        <RevealSection className="pb-16 sm:pb-20">
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-[2rem] border border-white/10 bg-black/40 p-8">
             <div>
               <h2 className="text-2xl font-semibold">More news</h2>
               <p className="mt-2 text-gray-400">Browse the latest updates and announcements.</p>
             </div>
-            <Link href="/news" className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition hover:bg-accent">
+            <Link href="/news" className="btn btn-primary">
               Back to News
             </Link>
           </div>

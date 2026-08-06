@@ -25,16 +25,16 @@ export default function LoginPage(){
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-[clamp(1rem,2vw,1.5rem)] pt-24 pb-[clamp(2rem,4vw,4rem)]">
-      <form onSubmit={submit} className="w-full max-w-[min(44rem,100%)] bg-[#111111] p-[clamp(1.25rem,2.5vw,2.5rem)] rounded-[1.25rem] shadow-lg shadow-black/30">
+    <div className="min-h-screen flex items-center justify-center px-[clamp(1rem,2vw,1.5rem)] pt-28 pb-[clamp(2rem,4vw,4rem)]">
+      <form onSubmit={submit} className="w-full max-w-[min(44rem,100%)] rounded-[1.5rem] border border-white/10 bg-white/5 p-[clamp(1.25rem,2.5vw,2.5rem)] shadow-xl shadow-black/30">
         <h2 className="text-2xl font-semibold mb-4">Sign In</h2>
-        <label className="block mb-2">Email
-          <input className="w-full mt-1 p-2 bg-black border border-gray-700 rounded" value={email} onChange={e=>setEmail(e.target.value)} required/>
+        <label className="block mb-2 text-sm font-medium text-gray-300">Email
+          <input className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={email} onChange={e=>setEmail(e.target.value)} required/>
         </label>
-        <label className="block mb-4">Password
-          <input type="password" className="w-full mt-1 p-2 bg-black border border-gray-700 rounded" value={password} onChange={e=>setPassword(e.target.value)} required/>
+        <label className="block mb-4 text-sm font-medium text-gray-300">Password
+          <input type="password" className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={password} onChange={e=>setPassword(e.target.value)} required/>
         </label>
-        {error && <div className="text-red-400 mb-2">{error}</div>}
+        {error && <div className="text-red-400 mb-4 text-sm">{error}</div>}
         <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
       </form>
     </div>

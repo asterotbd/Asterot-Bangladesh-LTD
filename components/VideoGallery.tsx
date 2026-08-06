@@ -32,9 +32,13 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
             type="button"
             onClick={() => setActiveVideo(index)}
             aria-label={`Play video: ${item.title}`}
-            className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 focus-visible:outline-offset-4 ${view === 'list' ? 'flex w-full items-stretch gap-0 rounded-[1.5rem]' : ''}`}
+            className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 focus-visible:outline-offset-4 ${
+              view === 'grid'
+                ? 'flex flex-col'
+                : 'flex w-full flex-col sm:flex-row sm:items-stretch sm:rounded-[1.5rem]'
+            }`}
           >
-            <div className={`relative overflow-hidden ${view === 'grid' ? 'aspect-video' : 'w-full max-w-[16rem] shrink-0 sm:w-64 aspect-video'}`}>
+            <div className={`relative overflow-hidden ${view === 'grid' ? 'aspect-video' : 'aspect-video w-full sm:w-64 sm:shrink-0'}`}>
               <img
                 src={item.thumb}
                 alt={`Thumbnail for ${item.title}`}
@@ -52,7 +56,7 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
                 {item.duration}
               </span>
             </div>
-            <div className="p-5">
+            <div className={`${view === 'grid' ? 'flex flex-1 flex-col p-5' : 'flex flex-1 flex-col justify-center p-5 sm:p-6'}`}>
               <h3 className="text-base font-semibold leading-snug text-white">{item.title}</h3>
               <p className="mt-2 text-xs uppercase tracking-[0.25em] text-primary">
                 {item.category} <span className="text-gray-500">·</span> {item.date}

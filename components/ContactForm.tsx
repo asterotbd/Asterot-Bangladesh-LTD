@@ -242,7 +242,7 @@ export default function ContactForm() {
         <button
           type="submit"
           disabled={status.type === 'sending'}
-          className="btn-smooth inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
+          className="btn btn-primary w-full disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
         >
           {status.type === 'sending' ? 'Sending...' : 'Send Message'}
           {status.type !== 'sending' ? <span aria-hidden="true">→</span> : null}
