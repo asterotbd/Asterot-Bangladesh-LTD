@@ -29,7 +29,7 @@ export const upcomingProject: UpcomingProject = {
   description: 'An upcoming sports tournament delivered in partnership with Orion Group — bringing competitive energy, team spirit, and community engagement to audiences across Bangladesh.',
   statusLabel: 'Coming Soon',
   posterSrc: '/images/media/trailer/upcoming-poster.svg',
-  trailerSrc: '/media/coming-soon-trailer.mov'
+  trailerSrc: '/media/coming-soon-trailer.mp4'
 }
 
 export const mediaPhotos: MediaPhoto[] = [
