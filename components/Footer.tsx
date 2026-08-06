@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import BrandLogo from './BrandLogo'
 
 const COMPANY = {
   name: 'Asterot Bangladesh Limited',
@@ -50,51 +49,44 @@ const socials = [
 export default function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#0b0b0c] text-left">
-      {/* Brand + contact */}
-      <div className="container py-10 sm:py-12">
-        <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-8">
-          {/* Brand */}
-          <div className="max-w-xl lg:col-span-7">
-            <BrandLogo size="footer" />
-            <p className="mt-5 text-xl font-semibold leading-snug tracking-tight text-white sm:text-2xl">
-              Let&apos;s Create Something Meaningful.
-            </p>
-            <p className="mt-3 max-w-[46ch] text-sm leading-relaxed text-gray-400">
-              Ideas, stories, and experiences worth remembering &mdash; crafted for people and
-              communities across Bangladesh.
-            </p>
+      {/* Big brand wordmark + horizontal contact */}
+      <div className="container py-14 sm:py-16">
+        <div className="flex flex-col items-center">
+          <p className="text-center text-[clamp(2.75rem,9vw,7rem)] font-bold uppercase leading-none tracking-tight text-white">
+            Asterot
+          </p>
+          <p className="mt-3 text-center text-[clamp(0.8rem,2vw,1.35rem)] font-semibold uppercase tracking-[0.35em] text-gray-400 sm:mt-4">
+            Bangladesh Limited
+          </p>
+
+          <div className="mt-10 flex w-full flex-col items-center justify-center gap-6 border-t border-white/10 pt-10 sm:flex-row sm:gap-0 sm:pt-12">
+            <div className="flex flex-col items-center gap-1.5 text-center sm:px-10">
+              <span className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">Email</span>
+              <a href={COMPANY.emailHref} className="text-sm text-gray-300 transition-colors hover:text-white focus-visible:text-white sm:text-base">
+                {COMPANY.email}
+              </a>
+            </div>
+            <div className="hidden h-6 w-px bg-white/10 sm:block" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-1.5 text-center sm:px-10">
+              <span className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">Phone</span>
+              <a href={COMPANY.phoneHref} className="text-sm text-gray-300 transition-colors hover:text-white focus-visible:text-white sm:text-base">
+                {COMPANY.phone}
+              </a>
+            </div>
+            <div className="hidden h-6 w-px bg-white/10 sm:block" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-1.5 text-center sm:px-10">
+              <span className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">Location</span>
+              <p className="text-sm text-gray-300 sm:text-base">{COMPANY.location}</p>
+            </div>
           </div>
 
-          {/* Contact */}
-          <div className="lg:col-span-5 lg:justify-self-end">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">Get in touch</p>
-            <ul className="mt-5 space-y-4 text-sm">
-              <li className="space-y-1">
-                <span className="block text-xs uppercase tracking-[0.15em] text-gray-500">Email</span>
-                <a href={COMPANY.emailHref} className="text-gray-300 transition-colors hover:text-white focus-visible:text-white">
-                  {COMPANY.email}
-                </a>
-              </li>
-              <li className="space-y-1">
-                <span className="block text-xs uppercase tracking-[0.15em] text-gray-500">Phone</span>
-                <a href={COMPANY.phoneHref} className="text-gray-300 transition-colors hover:text-white focus-visible:text-white">
-                  {COMPANY.phone}
-                </a>
-              </li>
-              <li className="space-y-1">
-                <span className="block text-xs uppercase tracking-[0.15em] text-gray-500">Location</span>
-                <p className="text-gray-300">{COMPANY.location}</p>
-              </li>
-            </ul>
-
-            <Link
-              href="/contact"
-              className="btn-smooth mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
-            >
-              Contact Us
-              <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+          <Link
+            href="/contact"
+            className="btn-smooth mt-10 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold text-black transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-white"
+          >
+            Contact Us
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </div>
 
