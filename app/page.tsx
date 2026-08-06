@@ -92,23 +92,11 @@ export default function Home() {
         </section>
 
         <section className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-2xl shadow-black/20 card-surface">
-          <div className="section-grid">
-            <div>
-              <p className="text-sm uppercase tracking-[0.35em] text-primary">About Asterot</p>
-              <h2 className="mt-4 text-3xl font-semibold">Asterot Bangladesh Limited organizes premium events in Bangladesh</h2>
-              <p className="mt-4 text-gray-300">Asterot runs professional events, sports competitions, corporate programs, tournaments, conferences, entertainment productions, branding and marketing activities.</p>
-              <p className="mt-4 text-gray-400">The company delivers structured event management with a premium focus on partner support and audience experience.</p>
-            </div>
-            <div className="gallery-grid">
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-                <h3 className="font-semibold">Leadership</h3>
-                <p className="mt-3 text-gray-300">Chairman: Jaky All Naiem Jihan | Managing Director: Sahadat Hosen Sakib</p>
-              </div>
-              <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-                <h3 className="font-semibold">Partnerships</h3>
-                <p className="mt-3 text-gray-300">Asterot has worked with Orion Group sponsorship for the Student Uprising Memorial Cup Tournament.</p>
-              </div>
-            </div>
+          <div className="mx-auto max-w-[min(70ch,100%)] text-center">
+            <p className="text-sm uppercase tracking-[0.35em] text-primary">About Asterot</p>
+            <h2 className="mt-4 text-3xl font-semibold">Asterot Bangladesh Limited organizes premium events in Bangladesh</h2>
+            <p className="mt-4 text-gray-300">Asterot runs professional events, sports competitions, corporate programs, tournaments, conferences, entertainment productions, branding and marketing activities.</p>
+            <p className="mt-4 text-gray-400">The company delivers structured event management with a premium focus on partner support and audience experience.</p>
           </div>
         </section>
 
@@ -135,21 +123,6 @@ export default function Home() {
                 <li key={item} className="rounded-3xl border border-white/10 bg-white/5 p-4">{item}</li>
               ))}
             </ul>
-          </div>
-        </section>
-
-        <section className="gallery-grid py-16">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
-            <h3 className="text-xl font-semibold">Mission</h3>
-            <p className="mt-4 text-gray-300">To create premium event experiences that awaken leadership and inspire audiences across Bangladesh.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-10">
-            <h3 className="text-xl font-semibold">Vision</h3>
-            <p className="mt-4 text-gray-300">To be recognized for professional event delivery, strong partnerships, and strategic programming that supports growth and meaningful impact.</p>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-black/40 p-10">
-            <h3 className="text-xl font-semibold">Future plans</h3>
-            <p className="mt-4 text-gray-300">Asterot intends to build out strategic partnerships and future CSR initiatives over time.</p>
           </div>
         </section>
 
