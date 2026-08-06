@@ -27,7 +27,7 @@ export const leadershipMembers: LeadershipMember[] = [
   {
     name: 'Faysal Mahmud',
     role: 'Director',
-    image: '/images/leadership/director-2.svg',
+    image: '/images/leadership/faysal-mahmud.jpg',
     bio: 'Supporting organizational leadership and helping shape Asterot\'s growth across industries.'
   },
   {
