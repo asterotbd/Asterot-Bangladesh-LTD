@@ -26,6 +26,12 @@ const newsMenu = [
   { label: 'Articles / Updates', href: '/news' }
 ]
 
+const mediaMenu = [
+  { label: 'Media Overview', href: '/media' },
+  { label: 'Photos', href: '/media/photos' },
+  { label: 'Videos', href: '/media/videos' }
+]
+
 function DropdownMenuLink({ href, label, active }: { href: string, label: string, active?: boolean }) {
   return (
     <Link
@@ -133,6 +139,7 @@ export default function Navbar(){
     if (section === 'events') return eventsMenu
     if (section === 'news') return newsMenu
     if (section === 'about') return aboutMenu
+    if (section === 'media') return mediaMenu
     return null
   }
 
@@ -177,7 +184,14 @@ export default function Navbar(){
             {renderDropdown('news')}
           </div>
 
-          <DesktopNavLink href="/media" label="Media" active={activeSection === 'media'} />
+          <div
+            className="dropdown-root"
+            onMouseEnter={() => handleOpenDropdown('media')}
+            onMouseLeave={handleCloseDropdown}
+          >
+            <DesktopNavLink href="/media" label="Media" active={activeSection === 'media'} dropdown />
+            {renderDropdown('media')}
+          </div>
 
           <div
             className="dropdown-root"
@@ -232,7 +246,7 @@ export default function Navbar(){
           <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} />
           <MobileAccordion title="News" open={activeSection === 'news'} items={newsMenu} pathname={pathname} />
 
-          <MobileLink href="/media" label="Media" active={activeSection === 'media'} />
+          <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} />
 
           <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} />
 

@@ -1,7 +1,12 @@
 "use client"
 import { useCallback, useEffect, useState } from 'react'
 import MediaModal from './MediaModal'
-import { mediaPhotos } from '../lib/media'
+import { mediaPhotos, type MediaPhoto } from '../lib/media'
+
+type PhotoGalleryProps = {
+  items?: MediaPhoto[]
+  view?: 'masonry' | 'grid'
+}
 
 function CameraIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
@@ -30,17 +35,17 @@ function Chevron({ direction }: { direction: 'left' | 'right' }) {
   )
 }
 
-export default function PhotoGallery() {
+export default function PhotoGallery({ items = mediaPhotos, view = 'masonry' }: PhotoGalleryProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const open = activeIndex !== null
 
   const showPrev = useCallback(() => {
-    setActiveIndex(current => (current === null ? current : (current - 1 + mediaPhotos.length) % mediaPhotos.length))
-  }, [])
+    setActiveIndex(current => (current === null ? current : (current - 1 + items.length) % items.length))
+  }, [items.length])
 
   const showNext = useCallback(() => {
-    setActiveIndex(current => (current === null ? current : (current + 1) % mediaPhotos.length))
-  }, [])
+    setActiveIndex(current => (current === null ? current : (current + 1) % items.length))
+  }, [items.length])
 
   useEffect(() => {
     if (!open) return
@@ -58,25 +63,33 @@ export default function PhotoGallery() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, showPrev, showNext])
 
-  const activePhoto = activeIndex !== null ? mediaPhotos[activeIndex] : null
+  const activePhoto = activeIndex !== null ? items[activeIndex] : null
+
+  const gridClass = view === 'grid'
+    ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'
+    : 'columns-1 gap-6 sm:columns-2 lg:columns-3 [column-fill:balance]'
+
+  const cardClass = view === 'grid'
+    ? 'group relative mb-0 block w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 focus-visible:outline-offset-4 aspect-[4/3]'
+    : 'group relative mb-6 block w-full break-inside-avoid overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 focus-visible:outline-offset-4'
 
   return (
     <>
-      <div className="columns-1 gap-6 sm:columns-2 lg:columns-3 [column-fill:balance]">
-        {mediaPhotos.map((photo, index) => (
+      <div className={gridClass}>
+        {items.map((photo, index) => (
           <button
             key={photo.id}
             type="button"
             onClick={() => setActiveIndex(index)}
             aria-label={`View photo: ${photo.title}`}
-            className="group relative mb-6 block w-full break-inside-avoid overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 focus-visible:outline-offset-4"
+            className={cardClass}
           >
             <img
               src={photo.src}
               alt={photo.alt}
               loading="lazy"
               decoding="async"
-              className="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              className={`w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] ${view === 'grid' ? 'absolute inset-0 h-full' : ''}`}
             />
             <span
               aria-hidden="true"
@@ -123,7 +136,7 @@ export default function PhotoGallery() {
                 <p className="mt-1 text-sm uppercase tracking-[0.25em] text-primary">{activePhoto.category}</p>
               </div>
               <p className="shrink-0 text-sm tabular-nums text-gray-400">
-                {activeIndex !== null ? activeIndex + 1 : 0} / {mediaPhotos.length}
+                {activeIndex !== null ? activeIndex + 1 : 0} / {items.length}
               </p>
             </div>
           </div>

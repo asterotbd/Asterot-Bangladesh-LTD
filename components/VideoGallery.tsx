@@ -1,7 +1,12 @@
 "use client"
 import { useState } from 'react'
 import MediaModal from './MediaModal'
-import { mediaVideos } from '../lib/media'
+import { mediaVideos, type MediaVideo } from '../lib/media'
+
+type VideoGalleryProps = {
+  items?: MediaVideo[]
+  view?: 'grid' | 'list'
+}
 
 function PlayIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
@@ -11,23 +16,25 @@ function PlayIcon({ className = 'h-6 w-6' }: { className?: string }) {
   )
 }
 
-export default function VideoGallery() {
+export default function VideoGallery({ items = mediaVideos, view = 'grid' }: VideoGalleryProps) {
   const [activeVideo, setActiveVideo] = useState<number | null>(null)
   const open = activeVideo !== null
-  const video = activeVideo !== null ? mediaVideos[activeVideo] : null
+  const video = activeVideo !== null ? items[activeVideo] : null
 
   return (
     <>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {mediaVideos.map((item, index) => (
+      <div className={view === 'grid'
+        ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4'
+        : 'flex flex-col gap-4'}>
+        {items.map((item, index) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setActiveVideo(index)}
             aria-label={`Play video: ${item.title}`}
-            className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 focus-visible:outline-offset-4"
+            className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 focus-visible:outline-offset-4 ${view === 'list' ? 'flex w-full items-stretch gap-0 rounded-[1.5rem]' : ''}`}
           >
-            <div className="relative aspect-video overflow-hidden">
+            <div className={`relative overflow-hidden ${view === 'grid' ? 'aspect-video' : 'w-full max-w-[16rem] shrink-0 sm:w-64 aspect-video'}`}>
               <img
                 src={item.thumb}
                 alt={`Thumbnail for ${item.title}`}
