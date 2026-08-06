@@ -1,0 +1,95 @@
+"use client"
+import { useState } from 'react'
+import MediaModal from './MediaModal'
+import { mediaVideos } from '../lib/media'
+
+function PlayIcon({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+      <path d="M8 5.14v13.72c0 .8.87 1.3 1.56.88l10.56-6.86a1.04 1.04 0 0 0 0-1.76L9.56 4.26A1.04 1.04 0 0 0 8 5.14Z" />
+    </svg>
+  )
+}
+
+export default function VideoGallery() {
+  const [activeVideo, setActiveVideo] = useState<number | null>(null)
+  const open = activeVideo !== null
+  const video = activeVideo !== null ? mediaVideos[activeVideo] : null
+
+  return (
+    <>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {mediaVideos.map((item, index) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setActiveVideo(index)}
+            aria-label={`Play video: ${item.title}`}
+            className="group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 text-left shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30 focus-visible:outline-offset-4"
+          >
+            <div className="relative aspect-video overflow-hidden">
+              <img
+                src={item.thumb}
+                alt={`Thumbnail for ${item.title}`}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.05]"
+              />
+              <span aria-hidden="true" className="absolute inset-0 bg-black/35 transition-opacity duration-300 group-hover:bg-black/50" />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-white/30 bg-black/55 text-white shadow-lg shadow-black/40 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-black">
+                  <PlayIcon className="h-6 w-6 translate-x-0.5" />
+                </span>
+              </span>
+              <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium tabular-nums text-white">
+                {item.duration}
+              </span>
+            </div>
+            <div className="p-5">
+              <h3 className="text-base font-semibold leading-snug text-white">{item.title}</h3>
+              <p className="mt-2 text-xs uppercase tracking-[0.25em] text-primary">
+                {item.category} <span className="text-gray-500">·</span> {item.date}
+              </p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <MediaModal open={open} onClose={() => setActiveVideo(null)} label={`Video player: ${video?.title ?? ''}`}>
+        {video ? (
+          <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50">
+            <div className="relative aspect-video w-full bg-black">
+              {video.src ? (
+                <video controls autoPlay playsInline className="h-full w-full" poster={video.thumb}>
+                  <track kind="captions" label="Captions" srcLang="en" />
+                </video>
+              ) : (
+                <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
+                  <img src={video.thumb} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                  <div className="relative flex flex-col items-center text-center">
+                    <span className="inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white">
+                      <PlayIcon className="h-7 w-7 translate-x-0.5" />
+                    </span>
+                    <p className="mt-4 text-sm font-semibold text-white">{video.title}</p>
+                    <p className="mt-2 max-w-[min(40ch,100%)] px-6 text-sm text-gray-400">
+                      This video will premiere here soon. It will play automatically once it&apos;s published.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center justify-between gap-4 p-5">
+              <div className="min-w-0">
+                <h3 className="text-lg font-semibold text-white">{video.title}</h3>
+                <p className="mt-1 text-xs uppercase tracking-[0.25em] text-primary">
+                  {video.category} <span className="text-gray-500">·</span> {video.date}
+                </p>
+              </div>
+              <p className="shrink-0 text-sm tabular-nums text-gray-400">{video.duration}</p>
+            </div>
+          </div>
+        ) : null}
+      </MediaModal>
+    </>
+  )
+}
