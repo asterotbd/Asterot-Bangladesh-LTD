@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 
 export type NewsItem = {
   id: string
@@ -196,11 +197,12 @@ export default function NewsSlider({ latestNews, announcements }: NewsSliderProp
               >
                 {item.featured_image?.public_url ? (
                   <div className="overflow-hidden rounded-[1.5rem] bg-slate-950">
-                    <img
+                    <Image
                       src={item.featured_image.public_url}
                       alt={item.featured_image.alt_en ?? item.title_en}
+                      width={800}
+                      height={400}
                       className="h-48 w-full object-cover transition duration-500 hover:scale-[1.02]"
-                      loading="lazy"
                     />
                   </div>
                 ) : (

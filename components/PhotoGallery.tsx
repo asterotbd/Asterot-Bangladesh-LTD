@@ -1,5 +1,6 @@
 "use client"
 import { useCallback, useEffect, useState } from 'react'
+import Image from 'next/image'
 import MediaModal from './MediaModal'
 import { mediaPhotos, type MediaPhoto } from '../lib/media'
 
@@ -84,13 +85,17 @@ export default function PhotoGallery({ items = mediaPhotos, view = 'masonry' }: 
             aria-label={`View photo: ${photo.title}`}
             className={cardClass}
           >
-            <img
-              src={photo.src}
-              alt={photo.alt}
-              loading="lazy"
-              decoding="async"
-              className={`w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04] ${view === 'grid' ? 'absolute inset-0 h-full' : ''}`}
-            />
+            <div className={`relative overflow-hidden ${view === 'grid' ? 'absolute inset-0 h-full' : ''}`}>
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill={view === 'grid'}
+                width={view === 'grid' ? undefined : 800}
+                height={view === 'grid' ? undefined : 600}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className={`${view === 'grid' ? '' : 'h-auto w-full'} object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]`}
+              />
+            </div>
             <span
               aria-hidden="true"
               className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
@@ -112,7 +117,7 @@ export default function PhotoGallery({ items = mediaPhotos, view = 'masonry' }: 
         {activePhoto ? (
           <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50">
             <div className="relative">
-              <img src={activePhoto.src} alt={activePhoto.alt} className="max-h-[70vh] w-full bg-black object-contain" />
+              <Image src={activePhoto.src} alt={activePhoto.alt} width={1600} height={1200} className="max-h-[70vh] w-full bg-black object-contain" />
               <button
                 type="button"
                 onClick={showPrev}

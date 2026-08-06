@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 type BrandLogoProps = {
   className?: string
@@ -14,12 +15,12 @@ export default function BrandLogo({ className = '', size = 'navigation', priorit
 
   return (
     <Link href="/" aria-label="Asterot home" className={`inline-flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 ${className}`}>
-      <img
+      <Image
         src="/brand/asterot-logo-white.svg"
         alt="Asterot Bangladesh Limited"
-        width={size === 'footer' ? '44' : '22'}
-        height={size === 'footer' ? '64' : '32'}
-        fetchPriority={priority ? 'high' : 'auto'}
+        width={size === 'footer' ? 44 : 22}
+        height={size === 'footer' ? 64 : 32}
+        priority={priority}
         className={`${imageClass} w-auto object-contain`}
       />
       <span className={`font-semibold uppercase text-white ${textClass}`}>Asterot</span>

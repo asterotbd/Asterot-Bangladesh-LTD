@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import Image from 'next/image'
 import { leadershipMembers } from '../lib/leadership'
 
 type Props = {
@@ -29,12 +30,13 @@ export default function LeadershipPortrait({ name, role, image }: Props) {
       <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-white/10 via-white/5 to-black">
         {showImage ? (
           // Real photo with grayscale -> color hover
-          <img
+          <Image
             src={image}
             alt={name}
             onError={() => setImgError(true)}
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover grayscale transition-all duration-500 ease-out group-hover:grayscale-0 group-hover:scale-[1.04]"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover grayscale transition-all duration-500 ease-out group-hover:grayscale-0 group-hover:scale-[1.04]"
           />
         ) : (
           // Local placeholder: large initials on a premium gradient

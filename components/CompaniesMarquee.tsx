@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 /**
  * A single company/partner logo entry for the marquee.
@@ -57,10 +58,11 @@ type LogoItemProps = {
 
 function LogoItem({ logo }: LogoItemProps) {
   const content = logo.src ? (
-    <img
+    <Image
       src={logo.src}
       alt={logo.alt ?? logo.name}
-      loading="lazy"
+      width={64}
+      height={40}
       className="marquee__logo-image"
     />
   ) : (

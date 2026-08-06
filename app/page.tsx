@@ -136,7 +136,7 @@ export default function Home() {
             <div className="ambient-glow" />
           </div>
           <p className="text-sm uppercase tracking-[0.35em] text-primary">Partner with Asterot</p>
-          <h2 className="mt-4 text-balance text-4xl font-semibold">Let's deliver your next great event</h2>
+          <h2 className="mt-4 text-balance text-4xl font-semibold">{"Let's deliver your next great event"}</h2>
           <p className="mx-auto mt-6 max-w-[min(65ch,100%)] text-gray-300">From tournaments and conferences to concerts and brand activations, we handle the planning and production end to end.</p>
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <a href="/events" className="btn btn-primary">View Events</a>

@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import Image from 'next/image'
 import MediaModal from './MediaModal'
 import { upcomingProject } from '../lib/media'
 
@@ -25,11 +26,14 @@ export default function MediaTrailer() {
         <div className="relative overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/50">
           {/* Poster / video area */}
           <div className="relative aspect-video w-full overflow-hidden">
-            <img
+            <Image
               src={upcomingProject.posterSrc}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover"
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover"
             />
 
             {/* Cinematic overlay for readability */}
@@ -82,12 +86,11 @@ export default function MediaTrailer() {
         <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50">
           <div className="relative aspect-video w-full bg-black">
             {upcomingProject.trailerSrc ? (
-              <video controls autoPlay playsInline className="h-full w-full" poster={upcomingProject.posterSrc}>
-                <track kind="captions" label="Captions" srcLang="en" />
+              <video controls autoPlay playsInline preload="metadata" className="h-full w-full" poster={upcomingProject.posterSrc}>
               </video>
             ) : (
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
-                <img src={upcomingProject.posterSrc} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-40" />
+                <Image src={upcomingProject.posterSrc} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover opacity-40" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" aria-hidden="true" />
                 <div className="relative flex flex-col items-center text-center">
                   <span className="inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white">
