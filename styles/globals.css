@@ -124,6 +124,41 @@ h6 {
   100% { transform: translate3d(0, 0, 0) rotate(0deg); }
 }
 
+/* ===== Featured event cinematic effects ===== */
+
+@keyframes featured-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes particle-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12% { opacity: var(--particle-opacity, 0.7); }
+  82% { opacity: var(--particle-opacity, 0.7); }
+  100% { transform: translate3d(var(--particle-drift, 12px), -72vh, 0); opacity: 0; }
+}
+
+.featured-gradient {
+  background-size: 200% 200%;
+  animation: featured-gradient-shift 16s ease-in-out infinite;
+}
+
+.featured-particle {
+  position: absolute;
+  bottom: -0.5rem;
+  width: var(--particle-size, 4px);
+  height: var(--particle-size, 4px);
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #ff8fab, #ff165a 60%, transparent);
+  box-shadow: 0 0 10px 1px rgba(255, 22, 90, 0.55);
+  opacity: 0;
+  animation: particle-rise var(--particle-duration, 14s) linear infinite;
+  animation-delay: var(--particle-delay, 0s);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
 .ambient-layer {
   position: absolute;
   inset: 0;
@@ -274,6 +309,8 @@ h6 {
   .ambient-dots,
   .ambient-glow,
   .ambient-float,
+  .featured-gradient,
+  .featured-particle,
   .card-surface,
   .btn-smooth,
   .image-hover-scale,

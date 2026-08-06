@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import BrandLogo from './BrandLogo'
 
 const eventsMenu = [
+  { label: 'The Awakening Cup', href: '/events/awakening-cup' },
   { label: 'All Events', href: '/events' },
   { label: 'Upcoming Events', href: '/events/upcoming' },
   { label: 'Past Events', href: '/events/past' },
