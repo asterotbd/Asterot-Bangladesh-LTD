@@ -33,10 +33,11 @@ const mediaMenu = [
   { label: 'Videos', href: '/media/videos' }
 ]
 
-function DropdownMenuLink({ href, label, active }: { href: string, label: string, active?: boolean }) {
+function DropdownMenuLink({ href, label, active, onClick }: { href: string, label: string, active?: boolean, onClick?: () => void }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={`block rounded-lg px-3 py-2 text-sm transition-colors ${active ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
     >
       {label}
@@ -92,6 +93,7 @@ export default function Navbar(){
 
   useEffect(() => {
     setMobileOpen(false)
+    setOpenDropdown(null)
   }, [pathname])
 
   useEffect(() => {
@@ -150,7 +152,7 @@ export default function Navbar(){
     return (
       <div className="nav-dropdown-panel">
         {items.map(item => (
-          <DropdownMenuLink key={`${item.href}-${item.label}`} href={item.href} label={item.label} active={pathname === item.href} />
+          <DropdownMenuLink key={`${item.href}-${item.label}`} href={item.href} label={item.label} active={pathname === item.href} onClick={handleCloseDropdown} />
         ))}
       </div>
     )
