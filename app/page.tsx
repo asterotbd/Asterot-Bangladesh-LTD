@@ -78,9 +78,11 @@ export default function Home() {
         </Container>
 </section>
 
-      <section className="border-y border-white/10 bg-white/5 py-6 sm:py-8">
+      <section className="py-6 sm:py-8">
         <Container>
-          <CompaniesMarquee heading="Companies We've Worked With" />
+          <div className="rounded-full border border-white/10 bg-[rgba(13,13,18,0.55)] px-6 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-[14px] backdrop-saturate-150 sm:px-8">
+            <CompaniesMarquee heading="Companies We've Worked With" />
+          </div>
         </Container>
       </section>
 
