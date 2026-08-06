@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Asterot — Next.js + TypeScript + Tailwind scaffold
 
 This repository contains the initial scaffold for the Asterot Bangladesh Limited website.
@@ -49,3 +50,7 @@ Storage
 
 See `db/storage/README.md` for recommended storage buckets and CLI commands to create them.
 
+=======
+# Asterot-Bangladesh-LTD
+Asterot Bangladesh Limited
+>>>>>>> 623caf771b377d0b53b9d42ffbfe99419f8a8486

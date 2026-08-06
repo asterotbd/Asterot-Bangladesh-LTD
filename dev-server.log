@@ -9,3 +9,9 @@
  ✓ Ready in 2.1s
  ○ Compiling /page ...
  ✓ Compiled /page in 3.2s (1054 modules)
+ ○ Compiling /about/page ...
+ ✓ Compiled /about/page in 627ms (1058 modules)
+ ✓ Compiled /events/page in 174ms (1047 modules)
+ ✓ Compiled /news/page in 181ms (1049 modules)
+ ○ Compiling /contact/page ...
+ ✓ Compiled /contact/page in 737ms (1198 modules)
