@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
+import SpotlightSlideshow from '../../../components/SpotlightSlideshow'
 import PhotoGallery from '../../../components/PhotoGallery'
 import MediaToolbar, { GridViewIcon, MasonryViewIcon } from '../../../components/MediaToolbar'
 import { mediaPhotos } from '../../../lib/media'
@@ -35,6 +36,20 @@ export default function MediaPhotosPage() {
           </div>
         </Container>
       </section>
+
+      {/* Spotlight */}
+      <Container>
+        <RevealSection className="py-16 sm:py-20">
+          <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-3">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.35em] text-primary">Spotlight</span>
+              <h2 className="fluid-title font-black leading-tight tracking-tight">A Story of Growth</h2>
+            </div>
+            <p className="max-w-[min(52ch,100%)] text-gray-400 sm:text-right">Six chapters. One journey. From falling to fighting, rising to building — growing together until we can.</p>
+          </div>
+          <SpotlightSlideshow />
+        </RevealSection>
+      </Container>
 
       {/* Photos */}
       <Container>
