@@ -42,7 +42,7 @@ export default function SpotlightSlideshow({ className = '' }: SpotlightSlidesho
       role="group"
       aria-roledescription="Spotlight slideshow"
       aria-label="Photo spotlight slideshow"
-      className={`group relative overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-xl shadow-black/30 ${className}`}
+      className={`group relative mx-auto w-full max-w-[min(100%,64vh)] overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-xl shadow-black/30 ${className}`}
     >
       <div className="relative aspect-[4/5] w-full">
         {spotlightImages.map((image, index) => (
