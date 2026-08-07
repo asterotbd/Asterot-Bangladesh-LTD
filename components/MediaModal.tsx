@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useRef } from 'react'
+import { useScrollLock } from '../hooks/useScrollLock'
 
 type MediaModalProps = {
   open: boolean
@@ -11,17 +12,16 @@ type MediaModalProps = {
 export default function MediaModal({ open, onClose, label, children }: MediaModalProps) {
   const closeRef = useRef<HTMLButtonElement | null>(null)
   const previousActive = useRef<HTMLElement | null>(null)
-  // Keep onClose in a ref so inline parent callbacks don't retrigger the
-  // effect (which would tear down and re-apply the body scroll lock).
+  // Keep onClose in a ref so inline parent callbacks don't retrigger the effect.
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+
+  useScrollLock(open)
 
   useEffect(() => {
     if (!open) return
 
-    const previousOverflow = document.body.style.overflow
     previousActive.current = document.activeElement as HTMLElement | null
-    document.body.style.overflow = 'hidden'
     closeRef.current?.focus()
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -33,8 +33,6 @@ export default function MediaModal({ open, onClose, label, children }: MediaModa
 
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      // Restore the exact previous value so we never clobber a pre-existing lock.
-      document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', onKeyDown)
       previousActive.current?.focus()
     }

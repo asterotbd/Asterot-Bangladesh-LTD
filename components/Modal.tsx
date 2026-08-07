@@ -1,16 +1,16 @@
 "use client"
 import { useEffect, useRef } from 'react'
+import { useScrollLock } from '../hooks/useScrollLock'
 
 export default function Modal({ open, onClose, children }: { open: boolean, onClose: ()=>void, children: React.ReactNode }){
   // Keep onClose in a ref so inline parent callbacks don't retrigger the effect.
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
+  useScrollLock(open)
+
   useEffect(() => {
     if (!open) return
-
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -20,11 +20,7 @@ export default function Modal({ open, onClose, children }: { open: boolean, onCl
     }
 
     window.addEventListener('keydown', onKeyDown)
-    return () => {
-      // Restore the exact previous value so we never clobber a pre-existing lock.
-      document.body.style.overflow = previousOverflow
-      window.removeEventListener('keydown', onKeyDown)
-    }
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [open])
 
   if(!open) return null

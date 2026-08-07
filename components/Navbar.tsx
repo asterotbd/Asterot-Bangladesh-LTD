@@ -1,10 +1,14 @@
 "use client"
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import BrandLogo from './BrandLogo'
+import { useDismiss } from '../hooks/useDismiss'
+import { useScrollLock } from '../hooks/useScrollLock'
 
-const eventsMenu = [
+type MenuItem = { label: string, href: string }
+
+const eventsMenu: MenuItem[] = [
   { label: 'The Awakening Cup', href: '/events/awakening-cup' },
   { label: 'All Events', href: '/events' },
   { label: 'Upcoming Events', href: '/events/upcoming' },
@@ -12,7 +16,7 @@ const eventsMenu = [
   { label: 'Event Documentation', href: '/events/documentation' }
 ]
 
-const aboutMenu = [
+const aboutMenu: MenuItem[] = [
   { label: 'Overview', href: '/about' },
   { label: 'Our Story', href: '/about/our-story' },
   { label: 'Mission & Vision', href: '/about/mission-vision' },
@@ -21,26 +25,35 @@ const aboutMenu = [
   { label: 'Future Vision', href: '/about/future-vision' }
 ]
 
-const newsMenu = [
+const newsMenu: MenuItem[] = [
   { label: 'Latest News', href: '/news' },
   { label: 'Announcements', href: '/news' },
   { label: 'Articles / Updates', href: '/news' }
 ]
 
-const mediaMenu = [
+const mediaMenu: MenuItem[] = [
   { label: 'Media Overview', href: '/media' },
   { label: 'Photos', href: '/media/photos' },
   { label: 'Videos', href: '/media/videos' }
 ]
 
-const MENUS: Record<string, { label: string, href: string }[]> = {
+const MENUS: Record<string, MenuItem[]> = {
   events: eventsMenu,
   news: newsMenu,
   media: mediaMenu,
   about: aboutMenu
 }
 
-function DropdownMenuLink({ href, label, active, onNavigate }: { href: string, label: string, active?: boolean, onNavigate: () => void }) {
+const NAV_ITEMS: { label: string, href: string, section?: string }[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Events', href: '/events', section: 'events' },
+  { label: 'News', href: '/news', section: 'news' },
+  { label: 'Media', href: '/media', section: 'media' },
+  { label: 'About Us', href: '/about', section: 'about' },
+  { label: 'Contact', href: '/contact' }
+]
+
+const DropdownMenuLink = memo(function DropdownMenuLink({ href, label, active, onNavigate }: { href: string, label: string, active: boolean, onNavigate: () => void }) {
   return (
     <Link
       href={href}
@@ -50,22 +63,30 @@ function DropdownMenuLink({ href, label, active, onNavigate }: { href: string, l
       {label}
     </Link>
   )
-}
+})
 
-function DesktopNavLink({
-  href, label, active, dropdown, onFocus
+const DesktopNavLink = memo(function DesktopNavLink({
+  href, label, active, dropdown, open, triggerId, onFocus, onClick
 }: {
-  href: string,
-  label: string,
-  active: boolean,
-  dropdown?: boolean,
+  href: string
+  label: string
+  active: boolean
+  dropdown?: boolean
+  open?: boolean
+  triggerId?: string
   onFocus?: () => void
+  onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void
 }) {
   return (
     <div className="relative nav-dropdown-wrap">
       <Link
         href={href}
+        data-nav-trigger={triggerId}
         onFocus={onFocus}
+        onClick={onClick}
+        aria-haspopup={dropdown ? 'true' : undefined}
+        aria-expanded={dropdown ? open : undefined}
+        aria-controls={dropdown && triggerId ? `nav-dropdown-${triggerId}` : undefined}
         className={`nav-link inline-flex items-center gap-1.5 py-2 text-sm font-medium ${active ? 'is-active' : ''}`}
       >
         {label}
@@ -73,17 +94,36 @@ function DesktopNavLink({
       </Link>
     </div>
   )
-}
+})
 
-export default function Navbar(){
+export default function Navbar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [supportsHover, setSupportsHover] = useState(true)
   const lastY = useRef(0)
   const ticking = useRef(false)
   const headerRef = useRef<HTMLElement | null>(null)
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null)
+  const toggleRef = useRef<HTMLButtonElement | null>(null)
+  const suppressFocusOpen = useRef(false)
+
+  useEffect(() => {
+    setSupportsHover(window.matchMedia('(hover: hover)').matches)
+  }, [])
+
+  // Lock background scrolling while the mobile drawer is open.
+  useScrollLock(mobileOpen)
+
+  // Keep the closed drawer out of the tab order and pointer hit-testing.
+  useEffect(() => {
+    const menu = mobileMenuRef.current
+    if (!menu) return
+    if (mobileOpen) menu.removeAttribute('inert')
+    else menu.setAttribute('inert', '')
+  }, [mobileOpen])
 
   const activeSection = useMemo(() => {
     if (pathname === '/') return 'home'
@@ -103,11 +143,39 @@ export default function Navbar(){
     setMobileOpen(false)
   }, [])
 
-  // Close mobile menu + dropdowns on navigation
+  const closeAllMenus = useCallback(() => {
+    setOpenDropdown(null)
+    setMobileOpen(false)
+  }, [])
+
+  // Close the mobile menu and dropdowns on navigation.
   useEffect(() => {
     closeMobile()
     closeDropdown()
   }, [pathname, closeMobile, closeDropdown])
+
+  const onEscape = useCallback(() => {
+    const sectionToFocus = openDropdown
+    const wasMobileOpen = mobileOpen
+    setOpenDropdown(null)
+    setMobileOpen(false)
+    if (sectionToFocus) {
+      const trigger = headerRef.current?.querySelector<HTMLAnchorElement>(`[data-nav-trigger="${sectionToFocus}"]`)
+      if (trigger) {
+        suppressFocusOpen.current = true
+        trigger.focus()
+        // Safety net: never leave the flag set if the focus event was missed.
+        window.setTimeout(() => { suppressFocusOpen.current = false }, 0)
+      }
+    } else if (wasMobileOpen) {
+      toggleRef.current?.focus()
+    }
+  }, [openDropdown, mobileOpen])
+
+  useDismiss(headerRef, Boolean(openDropdown || mobileOpen), {
+    onOutside: closeAllMenus,
+    onEscape
+  })
 
   // Scroll behavior (hide on scroll down, show on scroll up)
   useEffect(() => {
@@ -143,47 +211,62 @@ export default function Navbar(){
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Close dropdown on outside click and Escape key
-  useEffect(() => {
-    if (!openDropdown && !mobileOpen) return
+  const handleHoverOpen = useCallback((section: string) => {
+    if (!supportsHover) return
+    setOpenDropdown(section)
+  }, [supportsHover])
 
-    const onPointerDown = (event: MouseEvent | TouchEvent) => {
-      const target = event.target as Node
-      if (headerRef.current && !headerRef.current.contains(target)) {
-        closeDropdown()
-        closeMobile()
+  const handleHoverClose = useCallback(() => {
+    if (!supportsHover) return
+    setOpenDropdown(null)
+  }, [supportsHover])
+
+  const handleTriggerFocus = useCallback((section: string) => {
+    if (suppressFocusOpen.current) {
+      suppressFocusOpen.current = false
+      return
+    }
+    if (!supportsHover) return
+    setOpenDropdown(section)
+  }, [supportsHover])
+
+  const handleTriggerClick = useCallback((section: string) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (supportsHover) return
+    // Touch devices have no hover, so tapping a dropdown trigger opens/closes
+    // the panel instead of navigating straight away.
+    event.preventDefault()
+    setOpenDropdown(prev => (prev === section ? null : section))
+  }, [supportsHover])
+
+  const sectionHandlers = useMemo(() => {
+    const map: Record<string, {
+      onHoverOpen: () => void
+      onTriggerFocus: () => void
+      onTriggerClick: (event: React.MouseEvent<HTMLAnchorElement>) => void
+    }> = {}
+    for (const section of Object.keys(MENUS)) {
+      map[section] = {
+        onHoverOpen: () => handleHoverOpen(section),
+        onTriggerFocus: () => handleTriggerFocus(section),
+        onTriggerClick: handleTriggerClick(section)
       }
     }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeDropdown()
-        closeMobile()
-      }
-    }
-
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('touchstart', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('touchstart', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [openDropdown, mobileOpen, closeDropdown, closeMobile])
-
-  const handleOpenDropdown = useCallback((name: string) => {
-    setOpenDropdown(name)
-  }, [])
+    return map
+  }, [handleHoverOpen, handleTriggerFocus, handleTriggerClick])
 
   const renderDropdown = (section: string) => {
     const items = MENUS[section]
     if (!items || openDropdown !== section) return null
     return (
-      <div className={`nav-dropdown-panel ${openDropdown === section ? 'is-open' : ''}`}>
+      <div id={`nav-dropdown-${section}`} className={`nav-dropdown-panel ${openDropdown === section ? 'is-open' : ''}`}>
         {items.map(item => (
-          <DropdownMenuLink key={`${item.href}-${item.label}`} href={item.href} label={item.label} active={pathname === item.href} onNavigate={closeDropdown} />
+          <DropdownMenuLink
+            key={`${item.href}-${item.label}`}
+            href={item.href}
+            label={item.label}
+            active={pathname === item.href}
+            onNavigate={closeDropdown}
+          />
         ))}
       </div>
     )
@@ -198,49 +281,40 @@ export default function Navbar(){
 
         {/* Desktop links */}
         <div className="navbar-links">
-          <DesktopNavLink href="/" label="Home" active={activeSection === 'home'} />
-
-          <div
-            className="dropdown-root"
-            onMouseEnter={() => handleOpenDropdown('events')}
-            onMouseLeave={closeDropdown}
-            onFocus={() => handleOpenDropdown('events')}
-          >
-            <DesktopNavLink href="/events" label="Events" active={activeSection === 'events'} dropdown onFocus={() => handleOpenDropdown('events')} />
-            {renderDropdown('events')}
-          </div>
-
-          <div
-            className="dropdown-root"
-            onMouseEnter={() => handleOpenDropdown('news')}
-            onMouseLeave={closeDropdown}
-            onFocus={() => handleOpenDropdown('news')}
-          >
-            <DesktopNavLink href="/news" label="News" active={activeSection === 'news'} dropdown onFocus={() => handleOpenDropdown('news')} />
-            {renderDropdown('news')}
-          </div>
-
-          <div
-            className="dropdown-root"
-            onMouseEnter={() => handleOpenDropdown('media')}
-            onMouseLeave={closeDropdown}
-            onFocus={() => handleOpenDropdown('media')}
-          >
-            <DesktopNavLink href="/media" label="Media" active={activeSection === 'media'} dropdown onFocus={() => handleOpenDropdown('media')} />
-            {renderDropdown('media')}
-          </div>
-
-          <div
-            className="dropdown-root"
-            onMouseEnter={() => handleOpenDropdown('about')}
-            onMouseLeave={closeDropdown}
-            onFocus={() => handleOpenDropdown('about')}
-          >
-            <DesktopNavLink href="/about" label="About Us" active={activeSection === 'about'} dropdown onFocus={() => handleOpenDropdown('about')} />
-            {renderDropdown('about')}
-          </div>
-
-          <DesktopNavLink href="/contact" label="Contact" active={activeSection === 'contact'} />
+          {NAV_ITEMS.map(item => {
+            if (!item.section) {
+              return (
+                <DesktopNavLink
+                  key={item.label}
+                  href={item.href}
+                  label={item.label}
+                  active={activeSection === item.label.toLowerCase()}
+                />
+              )
+            }
+            const section = item.section
+            const handlers = sectionHandlers[section]
+            return (
+              <div
+                key={section}
+                className="dropdown-root"
+                onMouseEnter={handlers.onHoverOpen}
+                onMouseLeave={handleHoverClose}
+              >
+                <DesktopNavLink
+                  href={item.href}
+                  label={item.label}
+                  active={activeSection === section}
+                  dropdown
+                  open={openDropdown === section}
+                  triggerId={section}
+                  onFocus={handlers.onTriggerFocus}
+                  onClick={handlers.onTriggerClick}
+                />
+                {renderDropdown(section)}
+              </div>
+            )
+          })}
         </div>
 
         {/* Desktop actions */}
@@ -255,6 +329,7 @@ export default function Navbar(){
 
         {/* Mobile toggle */}
         <button
+          ref={toggleRef}
           type="button"
           className="navbar-toggle"
           aria-label="Toggle menu"
@@ -273,6 +348,7 @@ export default function Navbar(){
 
       {/* Mobile menu */}
       <div
+        ref={mobileMenuRef}
         id="mobile-menu"
         className={`mobile-menu ${mobileOpen ? 'is-open' : ''}`}
         aria-hidden={!mobileOpen}
@@ -283,7 +359,6 @@ export default function Navbar(){
           <MobileAccordion title="Events" open={activeSection === 'events'} items={eventsMenu} pathname={pathname} onNavigate={closeMobile} />
           <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} onNavigate={closeMobile} />
           <MobileAccordion title="News" open={activeSection === 'news'} items={newsMenu} pathname={pathname} onNavigate={closeMobile} />
-
           <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} onNavigate={closeMobile} />
 
           <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} onNavigate={closeMobile} />
@@ -302,7 +377,7 @@ export default function Navbar(){
   )
 }
 
-function MobileLink({ href, label, active, onNavigate }: { href: string, label: string, active: boolean, onNavigate: () => void }) {
+const MobileLink = memo(function MobileLink({ href, label, active, onNavigate }: { href: string, label: string, active: boolean, onNavigate: () => void }) {
   return (
     <Link
       href={href}
@@ -312,16 +387,23 @@ function MobileLink({ href, label, active, onNavigate }: { href: string, label: 
       {label}
     </Link>
   )
-}
+})
 
-function MobileAccordion({ title, open, items, pathname, onNavigate }: {
-  title: string,
-  open: boolean,
-  items: { label: string, href: string }[],
-  pathname: string,
+const MobileAccordion = memo(function MobileAccordion({ title, open, items, pathname, onNavigate }: {
+  title: string
+  open: boolean
+  items: MenuItem[]
+  pathname: string
   onNavigate: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
+
+  // Reset manual expansion once the section is no longer active so stale
+  // accordion state never survives a navigation.
+  useEffect(() => {
+    if (!open) setExpanded(false)
+  }, [open])
+
   const isExpanded = expanded || (open && items.length > 0)
   return (
     <div className="border-b border-white/10">
@@ -345,4 +427,4 @@ function MobileAccordion({ title, open, items, pathname, onNavigate }: {
       </div>
     </div>
   )
-}
+})
