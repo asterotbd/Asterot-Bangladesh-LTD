@@ -25,12 +25,6 @@ const aboutMenu: MenuItem[] = [
   { label: 'Future Vision', href: '/about/future-vision' }
 ]
 
-const newsMenu: MenuItem[] = [
-  { label: 'Latest News', href: '/news' },
-  { label: 'Announcements', href: '/news' },
-  { label: 'Articles / Updates', href: '/news' }
-]
-
 const mediaMenu: MenuItem[] = [
   { label: 'Media Overview', href: '/media' },
   { label: 'Photos', href: '/media/photos' },
@@ -39,7 +33,6 @@ const mediaMenu: MenuItem[] = [
 
 const MENUS: Record<string, MenuItem[]> = {
   events: eventsMenu,
-  news: newsMenu,
   media: mediaMenu,
   about: aboutMenu
 }
@@ -47,7 +40,6 @@ const MENUS: Record<string, MenuItem[]> = {
 const NAV_ITEMS: { label: string, href: string, section?: string }[] = [
   { label: 'Home', href: '/' },
   { label: 'Events', href: '/events', section: 'events' },
-  { label: 'News', href: '/news', section: 'news' },
   { label: 'Media', href: '/media', section: 'media' },
   { label: 'About Us', href: '/about', section: 'about' },
   { label: 'Contact', href: '/contact' }
@@ -129,7 +121,6 @@ export default function Navbar() {
     if (pathname === '/') return 'home'
     if (pathname.startsWith('/events')) return 'events'
     if (pathname.startsWith('/media')) return 'media'
-    if (pathname.startsWith('/news')) return 'news'
     if (pathname.startsWith('/about') || pathname.startsWith('/mission-vision')) return 'about'
     if (pathname.startsWith('/contact')) return 'contact'
     return ''
@@ -358,7 +349,6 @@ export default function Navbar() {
 
           <MobileAccordion title="Events" open={activeSection === 'events'} items={eventsMenu} pathname={pathname} onNavigate={closeMobile} />
           <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} onNavigate={closeMobile} />
-          <MobileAccordion title="News" open={activeSection === 'news'} items={newsMenu} pathname={pathname} onNavigate={closeMobile} />
           <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} onNavigate={closeMobile} />
 
           <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} onNavigate={closeMobile} />
