@@ -11,10 +11,15 @@ type MediaModalProps = {
 export default function MediaModal({ open, onClose, label, children }: MediaModalProps) {
   const closeRef = useRef<HTMLButtonElement | null>(null)
   const previousActive = useRef<HTMLElement | null>(null)
+  // Keep onClose in a ref so inline parent callbacks don't retrigger the
+  // effect (which would tear down and re-apply the body scroll lock).
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
 
   useEffect(() => {
     if (!open) return
 
+    const previousOverflow = document.body.style.overflow
     previousActive.current = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
     closeRef.current?.focus()
@@ -22,17 +27,18 @@ export default function MediaModal({ open, onClose, label, children }: MediaModa
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
-        onClose()
+        onCloseRef.current()
       }
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = ''
+      // Restore the exact previous value so we never clobber a pre-existing lock.
+      document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', onKeyDown)
       previousActive.current?.focus()
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 

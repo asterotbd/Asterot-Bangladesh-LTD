@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import BrandLogo from './BrandLogo'
@@ -33,11 +33,18 @@ const mediaMenu = [
   { label: 'Videos', href: '/media/videos' }
 ]
 
-function DropdownMenuLink({ href, label, active, onClick }: { href: string, label: string, active?: boolean, onClick?: () => void }) {
+const MENUS: Record<string, { label: string, href: string }[]> = {
+  events: eventsMenu,
+  news: newsMenu,
+  media: mediaMenu,
+  about: aboutMenu
+}
+
+function DropdownMenuLink({ href, label, active, onNavigate }: { href: string, label: string, active?: boolean, onNavigate: () => void }) {
   return (
     <Link
       href={href}
-      onClick={onClick}
+      onClick={onNavigate}
       className={`block rounded-lg px-3 py-2 text-sm transition-colors ${active ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
     >
       {label}
@@ -46,23 +53,19 @@ function DropdownMenuLink({ href, label, active, onClick }: { href: string, labe
 }
 
 function DesktopNavLink({
-  href, label, active, dropdown, onMouseEnter, onMouseLeave
+  href, label, active, dropdown, onFocus
 }: {
   href: string,
   label: string,
   active: boolean,
   dropdown?: boolean,
-  onMouseEnter?: () => void,
-  onMouseLeave?: () => void
+  onFocus?: () => void
 }) {
   return (
-    <div
-      className="relative nav-dropdown-wrap"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
+    <div className="relative nav-dropdown-wrap">
       <Link
         href={href}
+        onFocus={onFocus}
         className={`nav-link inline-flex items-center gap-1.5 py-2 text-sm font-medium ${active ? 'is-active' : ''}`}
       >
         {label}
@@ -80,6 +83,7 @@ export default function Navbar(){
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const lastY = useRef(0)
   const ticking = useRef(false)
+  const headerRef = useRef<HTMLElement | null>(null)
 
   const activeSection = useMemo(() => {
     if (pathname === '/') return 'home'
@@ -91,11 +95,21 @@ export default function Navbar(){
     return ''
   }, [pathname])
 
-  useEffect(() => {
-    setMobileOpen(false)
+  const closeDropdown = useCallback(() => {
     setOpenDropdown(null)
-  }, [pathname])
+  }, [])
 
+  const closeMobile = useCallback(() => {
+    setMobileOpen(false)
+  }, [])
+
+  // Close mobile menu + dropdowns on navigation
+  useEffect(() => {
+    closeMobile()
+    closeDropdown()
+  }, [pathname, closeMobile, closeDropdown])
+
+  // Scroll behavior (hide on scroll down, show on scroll up)
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -129,37 +143,54 @@ export default function Navbar(){
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const handleOpenDropdown = (name: string) => {
+  // Close dropdown on outside click and Escape key
+  useEffect(() => {
+    if (!openDropdown && !mobileOpen) return
+
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node
+      if (headerRef.current && !headerRef.current.contains(target)) {
+        closeDropdown()
+        closeMobile()
+      }
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeDropdown()
+        closeMobile()
+      }
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('touchstart', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('touchstart', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [openDropdown, mobileOpen, closeDropdown, closeMobile])
+
+  const handleOpenDropdown = useCallback((name: string) => {
     setOpenDropdown(name)
-  }
-
-  const handleCloseDropdown = () => {
-    setOpenDropdown(null)
-  }
-
-  const dropdownFor = (section: string) => {
-    if (openDropdown !== section) return null
-    if (section === 'events') return eventsMenu
-    if (section === 'news') return newsMenu
-    if (section === 'about') return aboutMenu
-    if (section === 'media') return mediaMenu
-    return null
-  }
+  }, [])
 
   const renderDropdown = (section: string) => {
-    const items = dropdownFor(section)
-    if (!items) return null
+    const items = MENUS[section]
+    if (!items || openDropdown !== section) return null
     return (
-      <div className="nav-dropdown-panel">
+      <div className={`nav-dropdown-panel ${openDropdown === section ? 'is-open' : ''}`}>
         {items.map(item => (
-          <DropdownMenuLink key={`${item.href}-${item.label}`} href={item.href} label={item.label} active={pathname === item.href} onClick={handleCloseDropdown} />
+          <DropdownMenuLink key={`${item.href}-${item.label}`} href={item.href} label={item.label} active={pathname === item.href} onNavigate={closeDropdown} />
         ))}
       </div>
     )
   }
 
   return (
-    <header className={`navbar-shell ${scrolled ? 'is-scrolled' : ''} ${hidden ? 'is-hidden' : ''}`}>
+    <header ref={headerRef} className={`navbar-shell ${scrolled ? 'is-scrolled' : ''} ${hidden ? 'is-hidden' : ''}`}>
       <nav className="container navbar-inner navbar-pill" aria-label="Main navigation">
         <div className="flex items-center gap-3">
           <BrandLogo priority />
@@ -172,36 +203,40 @@ export default function Navbar(){
           <div
             className="dropdown-root"
             onMouseEnter={() => handleOpenDropdown('events')}
-            onMouseLeave={handleCloseDropdown}
+            onMouseLeave={closeDropdown}
+            onFocus={() => handleOpenDropdown('events')}
           >
-            <DesktopNavLink href="/events" label="Events" active={activeSection === 'events'} dropdown />
+            <DesktopNavLink href="/events" label="Events" active={activeSection === 'events'} dropdown onFocus={() => handleOpenDropdown('events')} />
             {renderDropdown('events')}
           </div>
 
           <div
             className="dropdown-root"
             onMouseEnter={() => handleOpenDropdown('news')}
-            onMouseLeave={handleCloseDropdown}
+            onMouseLeave={closeDropdown}
+            onFocus={() => handleOpenDropdown('news')}
           >
-            <DesktopNavLink href="/news" label="News" active={activeSection === 'news'} dropdown />
+            <DesktopNavLink href="/news" label="News" active={activeSection === 'news'} dropdown onFocus={() => handleOpenDropdown('news')} />
             {renderDropdown('news')}
           </div>
 
           <div
             className="dropdown-root"
             onMouseEnter={() => handleOpenDropdown('media')}
-            onMouseLeave={handleCloseDropdown}
+            onMouseLeave={closeDropdown}
+            onFocus={() => handleOpenDropdown('media')}
           >
-            <DesktopNavLink href="/media" label="Media" active={activeSection === 'media'} dropdown />
+            <DesktopNavLink href="/media" label="Media" active={activeSection === 'media'} dropdown onFocus={() => handleOpenDropdown('media')} />
             {renderDropdown('media')}
           </div>
 
           <div
             className="dropdown-root"
             onMouseEnter={() => handleOpenDropdown('about')}
-            onMouseLeave={handleCloseDropdown}
+            onMouseLeave={closeDropdown}
+            onFocus={() => handleOpenDropdown('about')}
           >
-            <DesktopNavLink href="/about" label="About Us" active={activeSection === 'about'} dropdown />
+            <DesktopNavLink href="/about" label="About Us" active={activeSection === 'about'} dropdown onFocus={() => handleOpenDropdown('about')} />
             {renderDropdown('about')}
           </div>
 
@@ -243,21 +278,21 @@ export default function Navbar(){
         aria-hidden={!mobileOpen}
       >
         <div className="mobile-menu-inner">
-          <MobileLink href="/" label="Home" active={activeSection === 'home'} />
+          <MobileLink href="/" label="Home" active={activeSection === 'home'} onNavigate={closeMobile} />
 
-          <MobileAccordion title="Events" open={activeSection === 'events'} items={eventsMenu} pathname={pathname} />
-          <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} />
-          <MobileAccordion title="News" open={activeSection === 'news'} items={newsMenu} pathname={pathname} />
+          <MobileAccordion title="Events" open={activeSection === 'events'} items={eventsMenu} pathname={pathname} onNavigate={closeMobile} />
+          <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} onNavigate={closeMobile} />
+          <MobileAccordion title="News" open={activeSection === 'news'} items={newsMenu} pathname={pathname} onNavigate={closeMobile} />
 
-          <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} />
+          <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} onNavigate={closeMobile} />
 
-          <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} />
+          <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} onNavigate={closeMobile} />
 
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
-            <Link href="/login" className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
+            <Link href="/login" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
               Log in
             </Link>
-            <Link href="/registration" className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
+            <Link href="/registration" onClick={closeMobile} className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
               Register Now
             </Link>
           </div>
@@ -267,10 +302,11 @@ export default function Navbar(){
   )
 }
 
-function MobileLink({ href, label, active }: { href: string, label: string, active: boolean }) {
+function MobileLink({ href, label, active, onNavigate }: { href: string, label: string, active: boolean, onNavigate: () => void }) {
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={`block rounded-lg px-4 py-3 text-base font-medium transition ${active ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
     >
       {label}
@@ -278,11 +314,12 @@ function MobileLink({ href, label, active }: { href: string, label: string, acti
   )
 }
 
-function MobileAccordion({ title, open, items, pathname }: {
+function MobileAccordion({ title, open, items, pathname, onNavigate }: {
   title: string,
   open: boolean,
   items: { label: string, href: string }[],
-  pathname: string
+  pathname: string,
+  onNavigate: () => void
 }) {
   const [expanded, setExpanded] = useState(false)
   const isExpanded = expanded || (open && items.length > 0)
@@ -300,12 +337,12 @@ function MobileAccordion({ title, open, items, pathname }: {
       <div className={`overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
         <div className="space-y-1 px-2 pb-2">
           {items.map(item => (
-            <Link key={`${item.href}-${item.label}`} href={item.href} className={`block rounded-lg px-3 py-2.5 text-sm transition ${pathname === item.href ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`}>
+            <Link key={`${item.href}-${item.label}`} href={item.href} onClick={onNavigate} className={`block rounded-lg px-3 py-2.5 text-sm transition ${pathname === item.href ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`}>
               {item.label}
             </Link>
           ))}
         </div>
       </div>
     </div>
-)
+  )
 }

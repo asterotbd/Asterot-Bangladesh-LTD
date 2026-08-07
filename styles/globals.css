@@ -505,7 +505,11 @@ h6 {
   z-index: 2;
 }
 
-/* Premium glass dropdown panel */
+/* Premium glass dropdown panel.
+   Visibility is driven entirely by the React-controlled `.is-open`
+   modifier so the panel never stays mounted/interactive after navigation.
+   (No `:hover`/`:focus-within` pseudo-class control — those kept the panel
+   open and event-blocking when a clicked link retained focus.) */
 .nav-dropdown-panel {
   position: absolute;
   top: calc(100% + 0.5rem);
@@ -527,8 +531,7 @@ h6 {
   z-index: 60;
 }
 
-.dropdown-root:hover .nav-dropdown-panel,
-.dropdown-root:focus-within .nav-dropdown-panel {
+.nav-dropdown-panel.is-open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
