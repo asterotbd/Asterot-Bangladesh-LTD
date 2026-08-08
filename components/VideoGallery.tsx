@@ -83,7 +83,16 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
         {video ? (
           <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50">
             <div className="relative aspect-video w-full bg-black">
-              {video.src ? (
+              {video.youtubeId ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&playsinline=1`}
+                  title={video.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  className="h-full w-full"
+                />
+              ) : video.src ? (
                 <video
                   ref={videoRef}
                   controls
