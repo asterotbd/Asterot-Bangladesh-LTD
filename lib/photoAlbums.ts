@@ -61,7 +61,19 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'Celebrations',
     slug: 'celebrations',
     description: 'A collection of moments from our celebrations.',
-    photos: []
+    photos: [
+      '/media/photos/celebrations/1.JPG',
+      '/media/photos/celebrations/2.jpg',
+      '/media/photos/celebrations/3.JPG',
+      '/media/photos/celebrations/4.JPG',
+      '/media/photos/celebrations/5.JPG',
+      '/media/photos/celebrations/6.JPG',
+      '/media/photos/celebrations/7.JPG',
+      '/media/photos/celebrations/8.JPG',
+      '/media/photos/celebrations/9.JPG',
+      '/media/photos/celebrations/10.JPG',
+      '/media/photos/celebrations/11.JPG'
+    ]
   },
   {
     id: 'opening-ceremony',
