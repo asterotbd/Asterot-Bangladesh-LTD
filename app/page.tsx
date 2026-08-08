@@ -5,6 +5,15 @@ import CompaniesMarquee from '../components/CompaniesMarquee'
 import FeaturedEvent from '../components/FeaturedEvent'
 import { newsArticles } from '../lib/newsData'
 import type { NewsItem } from '../components/NewsSlider'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Asterot Bangladesh Limited',
+  description: 'Igniting Tomorrow\'s Leaders — Awaken Greatness',
+  alternates: {
+    canonical: 'https://www.asterot.com/'
+  }
+}
 
 const services = [
   { title: 'Event Strategy', description: 'Professional planning and production across sports, corporate, entertainment and brand campaigns.' },
