@@ -699,15 +699,14 @@ h6 {
   height: var(--marquee-item-h);
   flex-shrink: 0;
   color: rgba(255, 255, 255, 0.45);
-  opacity: 0.55;
-  filter: grayscale(1);
+  opacity: 1;
   transition: opacity 280ms ease, filter 280ms ease, color 280ms ease;
 }
 
 .marquee__item:hover,
 .marquee__item:focus-visible {
   opacity: 1;
-  filter: grayscale(0);
+  filter: brightness(1.08);
   color: #fff;
 }
 
@@ -745,7 +744,7 @@ h6 {
   .marquee__item:hover,
   .marquee__item:focus-visible {
     opacity: 1;
-    filter: grayscale(0);
+    filter: brightness(1.08);
     color: #fff;
   }
 }
