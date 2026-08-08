@@ -2,6 +2,15 @@ import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import Link from 'next/link'
 import { newsArticles } from '../../lib/newsData'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'News | Asterot Bangladesh Limited',
+  description: 'Latest news, announcements, updates and stories from Asterot Bangladesh Limited.',
+  alternates: {
+    canonical: 'https://www.asterot.com/news'
+  }
+}
 
 const categories = ['Latest News', 'Announcements', 'Articles / Updates'] as const
 

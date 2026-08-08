@@ -40,6 +40,7 @@ const MENUS: Record<string, MenuItem[]> = {
 const NAV_ITEMS: { label: string, href: string, section?: string }[] = [
   { label: 'Home', href: '/' },
   { label: 'Events', href: '/events', section: 'events' },
+  { label: 'News', href: '/news' },
   { label: 'Media', href: '/media', section: 'media' },
   { label: 'About Us', href: '/about', section: 'about' },
   { label: 'Contact', href: '/contact' }
@@ -120,6 +121,7 @@ export default function Navbar() {
   const activeSection = useMemo(() => {
     if (pathname === '/') return 'home'
     if (pathname.startsWith('/events')) return 'events'
+    if (pathname.startsWith('/news')) return 'news'
     if (pathname.startsWith('/media')) return 'media'
     if (pathname.startsWith('/about') || pathname.startsWith('/mission-vision')) return 'about'
     if (pathname.startsWith('/contact')) return 'contact'
@@ -348,8 +350,11 @@ export default function Navbar() {
           <MobileLink href="/" label="Home" active={activeSection === 'home'} onNavigate={closeMobile} />
 
           <MobileAccordion title="Events" open={activeSection === 'events'} items={eventsMenu} pathname={pathname} onNavigate={closeMobile} />
-          <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} onNavigate={closeMobile} />
+
+          <MobileLink href="/news" label="News" active={activeSection === 'news'} onNavigate={closeMobile} />
+
           <MobileAccordion title="Media" open={activeSection === 'media'} items={mediaMenu} pathname={pathname} onNavigate={closeMobile} />
+          <MobileAccordion title="About Us" open={activeSection === 'about'} items={aboutMenu} pathname={pathname} onNavigate={closeMobile} />
 
           <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} onNavigate={closeMobile} />
 

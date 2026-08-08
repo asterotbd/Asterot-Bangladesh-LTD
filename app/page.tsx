@@ -1,12 +1,8 @@
 import Container from '../components/Container'
 import Hero from '../components/Hero'
-import NewsSlider from '../components/NewsSlider'
-import RevealSection from '../components/RevealSection'
 import CompaniesMarquee from '../components/CompaniesMarquee'
 import FeaturedEvent from '../components/FeaturedEvent'
 import BangladeshReach from '../components/BangladeshReach'
-import { newsArticles } from '../lib/newsData'
-import type { NewsItem } from '../components/NewsSlider'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -31,21 +27,7 @@ const featuredEventCategories = [
   'Branding, marketing and sponsorship activations'
 ]
 
-const toNewsItem = (article: typeof newsArticles[number]): NewsItem => ({
-  id: article.slug,
-  title_en: article.title,
-  slug: article.slug,
-  excerpt_en: article.excerpt,
-  published_at: article.date,
-  category: { name_en: article.category },
-  featured_image: null
-})
-
 export default function Home() {
-  const items = newsArticles.map(toNewsItem)
-  const latestNews = items.filter(item => item.category?.name_en?.toLowerCase().includes('latest'))
-  const announcements = items.filter(item => item.category?.name_en?.toLowerCase() === 'announcements')
-
   return (
     <main className="bg-black text-white">
 
@@ -64,13 +46,7 @@ export default function Home() {
       <BangladeshReach />
 
       <Container>
-        <section className="py-16 sm:py-20">
-          <RevealSection>
-            <NewsSlider latestNews={latestNews} announcements={announcements} />
-          </RevealSection>
-        </section>
-
-        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 card-surface sm:p-10">
+        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 pt-16 shadow-2xl shadow-black/20 card-surface sm:p-10 sm:pt-20">
           <div className="mx-auto max-w-[min(70ch,100%)] text-center">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">About Asterot</p>
             <h2 className="mt-4 text-3xl font-semibold">Asterot Bangladesh Limited organizes premium events in Bangladesh</h2>
