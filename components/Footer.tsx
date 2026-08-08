@@ -43,7 +43,7 @@ function YoutubeIcon({ className = 'h-4 w-4' }: SocialIconProps) {
 const socials = [
   { label: 'Facebook', href: 'https://www.facebook.com/603661469488647/', Icon: FacebookIcon },
   { label: 'Instagram', href: 'https://instagram.com', Icon: InstagramIcon },
-  { label: 'YouTube', href: 'https://www.youtube.com/@asterot-gw8dt', Icon: YoutubeIcon }
+  { label: 'YouTube', href: 'https://www.youtube.com/@AsterotBangladesh', Icon: YoutubeIcon }
 ]
 
 export default function Footer() {
