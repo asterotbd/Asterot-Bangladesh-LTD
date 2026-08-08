@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Container from './Container'
 import RevealSection from './RevealSection'
@@ -12,6 +12,16 @@ const DIVISION_COUNT = bangladeshDivisions.length
 export default function BangladeshReach() {
   const reduceMotion = useReducedMotion()
   const [activeIndex, setActiveIndex] = useState(0)
+  const [supportsHover, setSupportsHover] = useState(false)
+  // Single hover state. While the pointer is over a division the automatic
+  // cycle is paused and the active index is locked to that division. Leaving
+  // the map clears it so the cycle resumes from the current division. Desktop
+  // hover only — touch devices keep the automatic animation untouched.
+  const hoveredRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    setSupportsHover(window.matchMedia('(hover: hover)').matches)
+  }, [])
 
   // Single authoritative timing controller. The cycle is driven by exactly one
   // interval that advances an index; it never depends on an SVG animation
@@ -20,6 +30,7 @@ export default function BangladeshReach() {
     if (reduceMotion) return
 
     const advance = () => {
+      if (hoveredRef.current) return
       setActiveIndex(current => (current + 1) % DIVISION_COUNT)
     }
 
@@ -45,6 +56,17 @@ export default function BangladeshReach() {
   }, [reduceMotion])
 
   const active = bangladeshDivisions[activeIndex]
+
+  const handlePointerEnter = (id: string) => {
+    if (!supportsHover || hoveredRef.current === id) return
+    hoveredRef.current = id
+    setActiveIndex(bangladeshDivisions.findIndex(d => d.id === id))
+  }
+
+  const handlePointerLeave = () => {
+    if (!supportsHover || hoveredRef.current === null) return
+    hoveredRef.current = null
+  }
 
   const trailPath = bangladeshDivisions
     .map(d => `${d.cx},${d.cy}`)
@@ -80,6 +102,10 @@ export default function BangladeshReach() {
                 className="relative z-10 w-full overflow-visible"
                 role="img"
                 aria-label="Map of Bangladesh with eight divisions"
+                onPointerLeave={handlePointerLeave}
+                onPointerMove={(event) => {
+                  if (event.target === event.currentTarget) handlePointerLeave()
+                }}
               >
                 <defs>
                   <linearGradient id="bd-active-fill" x1="0" y1="0" x2="0" y2="1">
@@ -108,6 +134,7 @@ export default function BangladeshReach() {
                     strokeDasharray="3 30"
                     className="bd-route"
                     opacity="0.55"
+                    pointerEvents="none"
                   />
                 )}
 
@@ -116,12 +143,15 @@ export default function BangladeshReach() {
                   <path
                     key={division.id}
                     d={division.path}
+                    data-division={division.id}
+                    aria-label={`${division.name} division`}
                     fill="#0B0B12"
                     stroke={division.id === active.id ? '#BA1E45' : 'rgba(255,255,255,0.12)'}
                     strokeWidth={division.id === active.id ? 4 : 2.5}
                     fillOpacity={division.id === active.id ? 1 : 1}
-                    className="transition-[stroke,stroke-width] duration-700"
+                    className="cursor-pointer transition-[stroke,stroke-width] duration-700"
                     opacity={division.id === active.id ? 1 : 0.85}
+                    onPointerEnter={() => handlePointerEnter(division.id)}
                   />
                 ))}
 
@@ -135,6 +165,7 @@ export default function BangladeshReach() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.9, ease: EASE }}
+                  pointerEvents="none"
                 />
 
                 {/* Soft pulse from active center */}
@@ -148,6 +179,7 @@ export default function BangladeshReach() {
                     initial={{ scale: 0.4, opacity: 0.9 }}
                     animate={{ scale: 3, opacity: 0 }}
                     transition={{ duration: 1.8, ease: 'easeOut' }}
+                    pointerEvents="none"
                   />
                 )}
 
@@ -161,6 +193,7 @@ export default function BangladeshReach() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
+                  pointerEvents="none"
                 />
               </svg>
 
