@@ -854,7 +854,7 @@ h6 {
 /* ===== Bangladesh reach map ===== */
 
 @keyframes bd-route-dash {
-  to { stroke-dashoffset: -120; }
+  to { stroke-dashoffset: -132; }
 }
 
 .bd-route {

@@ -67,7 +67,7 @@ export default function BangladeshReach() {
               <div aria-hidden="true" className="absolute inset-0 -z-0 bg-[radial-gradient(circle_at_50%_50%,rgba(186,30,69,0.12),transparent_68%)]" />
 
               <svg
-                viewBox="0 0 200 230"
+                viewBox="160 30 700 950"
                 className="relative z-10 w-full overflow-visible"
                 role="img"
                 aria-label="Map of Bangladesh with eight divisions"
@@ -81,7 +81,7 @@ export default function BangladeshReach() {
                     <stop offset="0%" stopColor="#BA1E45" stopOpacity="0.5" />
                     <stop offset="100%" stopColor="#BA1E45" stopOpacity="0" />
                   </radialGradient>
-                  <linearGradient id="bd-route-stroke" x1="0" y1="0" x2="200" y2="230" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="bd-route-stroke" x1="0" y1="0" x2="700" y2="950" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="#fff" stopOpacity="0" />
                     <stop offset="50%" stopColor="#BA1E45" stopOpacity="0.8" />
                     <stop offset="100%" stopColor="#fff" stopOpacity="0" />
@@ -94,9 +94,9 @@ export default function BangladeshReach() {
                     points={trailPath}
                     fill="none"
                     stroke="url(#bd-route-stroke)"
-                    strokeWidth="0.6"
+                    strokeWidth="2"
                     strokeLinecap="round"
-                    strokeDasharray="1 9"
+                    strokeDasharray="3 30"
                     className="bd-route"
                     opacity="0.55"
                   />
@@ -107,7 +107,7 @@ export default function BangladeshReach() {
                   d={bangladeshSilhouette}
                   fill="#0A0A0F"
                   stroke="rgba(255,255,255,0.08)"
-                  strokeWidth="0.8"
+                  strokeWidth="3"
                 />
 
                 {/* All divisions, subdued */}
@@ -117,7 +117,7 @@ export default function BangladeshReach() {
                     d={division.path}
                     fill="#0B0B12"
                     stroke={division.id === activeId ? '#BA1E45' : 'rgba(255,255,255,0.12)'}
-                    strokeWidth={division.id === activeId ? 1.2 : 0.7}
+                    strokeWidth={division.id === activeId ? 4 : 2.5}
                     fillOpacity={division.id === activeId ? 1 : 1}
                     className="transition-[stroke,stroke-width] duration-700"
                     opacity={division.id === activeId ? 1 : 0.85}
@@ -144,7 +144,7 @@ export default function BangladeshReach() {
                       key={`pulse-${active.id}`}
                       cx={active.cx}
                       cy={active.cy}
-                      r={7}
+                      r={24}
                       fill="url(#bd-pulse)"
                       initial={{ scale: 0.4, opacity: 0.9 }}
                       animate={{ scale: 3, opacity: 0 }}
@@ -158,7 +158,7 @@ export default function BangladeshReach() {
                   key={`point-${active.id}`}
                   cx={active.cx}
                   cy={active.cy}
-                  r={1.6}
+                  r={5.5}
                   fill="#fff"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
