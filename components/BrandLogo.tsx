@@ -16,9 +16,9 @@ export default function BrandLogo({ className = '', size = 'navigation', priorit
   return (
     <Link href="/" aria-label="Asterot home" className={`inline-flex items-center gap-3 transition-opacity duration-200 hover:opacity-90 ${className}`}>
       <Image
-        src="/brand/asterot-logo-white.svg"
+        src="/brand/asterot-logo-white.png"
         alt="Asterot Bangladesh Limited"
-        width={size === 'footer' ? 44 : 22}
+        width={size === 'footer' ? 64 : 32}
         height={size === 'footer' ? 64 : 32}
         priority={priority}
         className={`${imageClass} w-auto object-contain`}
