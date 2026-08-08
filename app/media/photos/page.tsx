@@ -1,24 +1,10 @@
-"use client"
-import { useMemo, useState } from 'react'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import SpotlightSlideshow from '../../../components/SpotlightSlideshow'
-import PhotoGallery from '../../../components/PhotoGallery'
-import MediaToolbar, { GridViewIcon, MasonryViewIcon } from '../../../components/MediaToolbar'
-import { mediaPhotos } from '../../../lib/media'
+import PhotoAlbumsGrid from '../../../components/PhotoAlbumsGrid'
 import Link from 'next/link'
 
-const categories = ['All', ...Array.from(new Set(mediaPhotos.map(photo => photo.category)))]
-
 export default function MediaPhotosPage() {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [activeView, setActiveView] = useState<'grid' | 'masonry'>('masonry')
-
-  const filtered = useMemo(
-    () => activeCategory === 'All' ? mediaPhotos : mediaPhotos.filter(photo => photo.category === activeCategory),
-    [activeCategory]
-  )
-
   return (
     <main className="bg-black text-white">
 
@@ -54,21 +40,14 @@ export default function MediaPhotosPage() {
       {/* Photos */}
       <Container>
         <RevealSection className="py-16 sm:py-20">
-          <MediaToolbar
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            viewOptions={[
-              { id: 'masonry', label: 'Masonry', icon: <MasonryViewIcon /> },
-              { id: 'grid', label: 'Grid', icon: <GridViewIcon /> }
-            ]}
-            activeView={activeView}
-            onViewChange={view => setActiveView(view as 'grid' | 'masonry')}
-            resultCount={filtered.length}
-          />
-          <div className="mt-10">
-            <PhotoGallery items={filtered} view={activeView} />
+          <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between">
+            <div className="space-y-3">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.35em] text-primary">Photo Albums</span>
+              <h2 className="fluid-title font-black leading-tight tracking-tight">Browse Our Albums</h2>
+            </div>
+            <p className="max-w-[min(52ch,100%)] text-gray-400 sm:text-right">Organized collections from tournaments, events, celebrations, and everything in between.</p>
           </div>
+          <PhotoAlbumsGrid />
         </RevealSection>
 
         {/* Cross-link to videos */}
