@@ -39,17 +39,15 @@ type CompaniesMarqueeProps = {
 const DEFAULT_HEADING = "Companies We've Worked With"
 
 /**
- * PLACEHOLDER LOGOS — no real partner assets exist yet.
- * Replace these entries with real company logos by providing `src` (and
- * optionally `href` / `alt`). Do not invent company names here.
+ * SPONSOR LOGOS — the real partner logos shown in the marquee.
+ * Add or replace entries with `src` (a public URL/path) and optionally
+ * `href` / `alt`. Do not invent company names here.
  */
-const PLACEHOLDER_LOGOS: MarqueeLogo[] = [
-  { id: 'placeholder-1', name: 'Partner Logo 01' },
-  { id: 'placeholder-2', name: 'Partner Logo 02' },
-  { id: 'placeholder-3', name: 'Partner Logo 03' },
-  { id: 'placeholder-4', name: 'Partner Logo 04' },
-  { id: 'placeholder-5', name: 'Partner Logo 05' },
-  { id: 'placeholder-6', name: 'Partner Logo 06' }
+const SPONSOR_LOGOS: MarqueeLogo[] = [
+  { id: 'sponsor-1', name: 'Company 1', src: '/media/photos/logo/sponsor-logo/1.png' },
+  { id: 'sponsor-2', name: 'Company 2', src: '/media/photos/logo/sponsor-logo/2.png' },
+  { id: 'sponsor-3', name: 'Company 3', src: '/media/photos/logo/sponsor-logo/3.png' },
+  { id: 'sponsor-4', name: 'Company 4', src: '/media/photos/logo/sponsor-logo/4.png' }
 ]
 
 type LogoItemProps = {
@@ -90,7 +88,7 @@ function LogoItem({ logo }: LogoItemProps) {
 
 export default function CompaniesMarquee({
   heading = DEFAULT_HEADING,
-  logos = PLACEHOLDER_LOGOS,
+  logos = SPONSOR_LOGOS,
   className = '',
   duration = 45,
   gap
