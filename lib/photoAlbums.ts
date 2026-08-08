@@ -12,7 +12,29 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'Tournament',
     slug: 'tournament',
     description: 'A collection of moments from our tournaments.',
-    photos: []
+    photos: [
+      '/media/photos/tournament/1.jpeg',
+      '/media/photos/tournament/2.JPG',
+      '/media/photos/tournament/3.jpeg',
+      '/media/photos/tournament/4.JPG',
+      '/media/photos/tournament/5.jpeg',
+      '/media/photos/tournament/6.JPG',
+      '/media/photos/tournament/7.JPG',
+      '/media/photos/tournament/8.JPG',
+      '/media/photos/tournament/9.JPG',
+      '/media/photos/tournament/10.JPG',
+      '/media/photos/tournament/11.jpeg',
+      '/media/photos/tournament/12.JPG',
+      '/media/photos/tournament/13.jpeg',
+      '/media/photos/tournament/14.jpeg',
+      '/media/photos/tournament/15.JPG',
+      '/media/photos/tournament/16.JPG',
+      '/media/photos/tournament/17.JPG',
+      '/media/photos/tournament/18.JPG',
+      '/media/photos/tournament/19.jpeg',
+      '/media/photos/tournament/20.JPG',
+      '/media/photos/tournament/21.jpeg'
+    ]
   },
   {
     id: 'corporate-events',
