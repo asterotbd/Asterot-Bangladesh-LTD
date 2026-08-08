@@ -1,76 +1,142 @@
 "use client"
 import Link from 'next/link'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
 
 const EASE = [0.22, 1, 0.36, 1]
 
-const headlineLines = ['IGNITING', "TOMORROW'S", 'LEADERS']
+function ArrowIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
+      <path d="M5 12h14" />
+      <path d="M13 6l6 6-6 6" />
+    </svg>
+  )
+}
+
+function OrbitalMark() {
+  return (
+    <div className="relative mx-auto h-[min(30rem,56vw)] w-[min(30rem,56vw)] max-w-full" aria-hidden="true">
+      {/* Fine crosshair grid */}
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/[0.05]" />
+      <span className="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-white/[0.05]" />
+
+      {/* Thin circular / orbital elements */}
+      <span className="absolute inset-8 rounded-full border border-white/[0.07]" />
+      <span className="hero-orbit absolute inset-[5.5rem] rounded-full border border-white/[0.05] [border-style:dashed]" />
+      <span className="absolute inset-32 rounded-full border border-white/[0.04]" />
+
+      {/* Accent points */}
+      <span className="absolute left-1/2 top-9 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#BA1E45]" />
+      <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/40" />
+      <span className="absolute bottom-16 right-16 h-1.5 w-1.5 rounded-full bg-[#BA1E45]/70" />
+
+      {/* Small typographic detail */}
+      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[0.6rem] font-medium uppercase tracking-[0.45em] text-white/35">
+        Since the first step
+      </span>
+    </div>
+  )
+}
 
 export default function Hero() {
   const reduceMotion = useReducedMotion()
 
-  const fadeUp = (delay: number) => ({
-    initial: reduceMotion ? false : { opacity: 0, y: 28 },
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 60, damping: 24 })
+  const springY = useSpring(mouseY, { stiffness: 60, damping: 24 })
+  const visualX = useTransform(springX, [-0.5, 0.5], [-8, 8])
+  const visualY = useTransform(springY, [-0.5, 0.5], [-6, 6])
+
+  const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+    if (reduceMotion) return
+    const rect = event.currentTarget.getBoundingClientRect()
+    mouseX.set((event.clientX - rect.left) / rect.width - 0.5)
+    mouseY.set((event.clientY - rect.top) / rect.height - 0.5)
+  }
+
+  const handleMouseLeave = () => {
+    mouseX.set(0)
+    mouseY.set(0)
+  }
+
+  const fadeUp = (delay: number, y = 22) => ({
+    initial: reduceMotion ? false : { opacity: 0, y },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.75, ease: EASE, delay }
+    transition: { duration: 0.8, ease: EASE, delay }
   })
 
   return (
-    <section className="relative flex min-h-[92svh] flex-col overflow-hidden bg-black">
-      {/* Ambient lighting */}
+    <section
+      className="relative flex min-h-[92svh] flex-col overflow-hidden bg-black"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* Restrained ambient backdrop */}
       <div className="absolute inset-0" aria-hidden="true">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(186,30,69,0.18),transparent_36%),radial-gradient(circle_at_72%_18%,rgba(186,30,69,0.07),transparent_30%),linear-gradient(180deg,#000000_0%,#050507_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(186,30,69,0.09),transparent_38%),radial-gradient(circle_at_84%_86%,rgba(186,30,69,0.05),transparent_42%)]" />
       </div>
 
-      <div className="container relative z-10 flex flex-1 flex-col justify-center py-24">
-        {/* Eyebrow */}
-        <motion.div {...fadeUp(0.05)} className="flex items-center gap-4">
-          <motion.span
-            initial={reduceMotion ? false : { scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, ease: EASE, delay: 0.15 }}
-            className="h-px w-10 origin-left bg-[#BA1E45]"
-          />
-          <span className="text-xs font-semibold uppercase tracking-[0.45em] text-primary">
-            Premium Event Experiences
-          </span>
-        </motion.div>
+      <div className="container relative z-10 flex flex-1 items-center py-24">
+        <div className="grid w-full items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-10">
+          {/* Text column */}
+          <div className="max-w-[min(60ch,100%)]">
+            {/* Eyebrow */}
+            <motion.div {...fadeUp(0.05, 14)} className="flex items-center gap-4">
+              <motion.span
+                initial={reduceMotion ? false : { scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
+                className="h-px w-9 origin-left bg-[#BA1E45]"
+              />
+              <span className="text-[0.7rem] font-semibold uppercase tracking-[0.4em] text-white/60">
+                Asterot Bangladesh Limited
+              </span>
+            </motion.div>
 
-        {/* Headline */}
-        <h1 className="mt-6 font-black leading-[0.92] tracking-tight text-white">
-          {headlineLines.map((line, index) => (
-            <motion.span
-              key={line}
-              {...fadeUp(0.12 + index * 0.08)}
-              className="block text-[clamp(3.25rem,10vw,8.5rem)]"
-            >
-              {line}
-            </motion.span>
-          ))}
-        </h1>
+            {/* Headline */}
+            <h1 className="mt-8 font-black tracking-tight text-white">
+              <motion.span
+                {...fadeUp(0.12)}
+                className="block text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95] tracking-[-0.02em]"
+              >
+                Igniting Change
+              </motion.span>
+              <motion.span
+                {...fadeUp(0.2)}
+                className="mt-3 block text-[clamp(1.4rem,3vw,2.4rem)] font-extralight leading-snug tracking-[-0.01em] text-white/70"
+              >
+                with every step.
+              </motion.span>
+            </h1>
 
-        {/* Copy + buttons (left) · vertical accent (right) */}
-        <div className="mt-10 flex items-end justify-between gap-12">
-          <div className="max-w-[min(52ch,100%)]">
-            <motion.p {...fadeUp(0.42)} className="text-lg leading-8 text-gray-300">
-              We create experiences that move people.
+            {/* Supporting copy */}
+            <motion.p {...fadeUp(0.32)} className="mt-9 max-w-[min(52ch,100%)] text-base leading-7 text-gray-400 sm:text-lg sm:leading-8">
+              Asterot is a premium event production company in Bangladesh — orchestrating sports, corporate, and entertainment experiences with precision and polish.
             </motion.p>
-            <motion.div {...fadeUp(0.5)} className="mt-8 flex flex-wrap gap-4">
-              <Link href="/events" className="btn btn-primary">
-                Explore Events
+
+            {/* CTAs */}
+            <motion.div {...fadeUp(0.44)} className="mt-11 flex flex-wrap items-center gap-4">
+              <Link href="/events" className="btn btn-primary btn-smooth group">
+                Explore What We Do
+                <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </Link>
-              <Link href="/about" className="btn btn-ghost">
-                Discover Asterot
+              <Link href="/about" className="btn btn-ghost btn-smooth">
+                Learn More
               </Link>
             </motion.div>
           </div>
 
-          <div className="hidden items-center gap-6 pb-2 lg:flex" aria-hidden="true">
-            <span className="h-16 w-px bg-gradient-to-b from-[#BA1E45]/70 to-white/10" />
-            <span className="text-[0.6rem] font-medium uppercase tracking-[0.5em] text-white/40 [writing-mode:vertical-rl]">
-              Asterot — Premium Event Experiences
-            </span>
-          </div>
+          {/* Abstract visual column (desktop) */}
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.4, ease: EASE, delay: 0.3 }}
+            className="hidden items-center justify-center lg:flex"
+            style={{ x: visualX, y: visualY }}
+          >
+            <OrbitalMark />
+          </motion.div>
         </div>
       </div>
 
@@ -78,18 +144,14 @@ export default function Hero() {
       <motion.div
         initial={reduceMotion ? false : { opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 0.9 }}
-        className="pointer-events-none absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-2 text-white/40"
+        transition={{ duration: 0.9, delay: 0.85 }}
+        className="pointer-events-none absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-3 text-white/40"
         aria-hidden="true"
       >
-        <span className="text-[0.6rem] font-medium uppercase tracking-[0.45em]">SCROLL</span>
-        <motion.span
-          animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-          className="text-xs"
-        >
-          ↓
-        </motion.span>
+        <span className="text-[0.6rem] font-medium uppercase tracking-[0.5em]">SCROLL</span>
+        <span className="relative block h-9 w-px overflow-hidden bg-white/10">
+          <span className="hero-scroll-line absolute inset-x-0 top-0 h-full bg-white/60" />
+        </span>
       </motion.div>
     </section>
   )

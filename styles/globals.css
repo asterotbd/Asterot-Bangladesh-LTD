@@ -750,3 +750,33 @@ h6 {
     color: #fff;
   }
 }
+
+/* ===== Hero — editorial, abstract, no photography ===== */
+
+@keyframes hero-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-orbit {
+  animation: hero-orbit 72s linear infinite;
+  will-change: transform;
+}
+
+@keyframes hero-scroll-line {
+  0% { transform: translateY(-110%); }
+  100% { transform: translateY(320%); }
+}
+
+.hero-scroll-line {
+  animation: hero-scroll-line 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orbit,
+  .hero-scroll-line {
+    animation: none !important;
+    transform: none !important;
+  }
+}
