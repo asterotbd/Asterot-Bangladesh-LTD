@@ -850,3 +850,20 @@ h6 {
     opacity: 0.4;
   }
 }
+
+/* ===== Bangladesh reach map ===== */
+
+@keyframes bd-route-dash {
+  to { stroke-dashoffset: -120; }
+}
+
+.bd-route {
+  animation: bd-route-dash 16s linear infinite;
+  will-change: stroke-dashoffset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bd-route {
+    animation: none !important;
+  }
+}

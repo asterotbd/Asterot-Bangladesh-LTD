@@ -4,6 +4,7 @@ import NewsSlider from '../components/NewsSlider'
 import RevealSection from '../components/RevealSection'
 import CompaniesMarquee from '../components/CompaniesMarquee'
 import FeaturedEvent from '../components/FeaturedEvent'
+import BangladeshReach from '../components/BangladeshReach'
 import { newsArticles } from '../lib/newsData'
 import type { NewsItem } from '../components/NewsSlider'
 import type { Metadata } from 'next'
@@ -59,6 +60,8 @@ export default function Home() {
       </section>
 
       <FeaturedEvent />
+
+      <BangladeshReach />
 
       <Container>
         <section className="py-16 sm:py-20">
