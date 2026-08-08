@@ -1,4 +1,5 @@
 import Container from '../components/Container'
+import Hero from '../components/Hero'
 import NewsSlider from '../components/NewsSlider'
 import RevealSection from '../components/RevealSection'
 import CompaniesMarquee from '../components/CompaniesMarquee'
@@ -47,46 +48,7 @@ export default function Home() {
   return (
     <main className="bg-black text-white">
 
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.18),_transparent_22%),linear-gradient(180deg,#050507_0%,#09090f_100%)] py-24">
-        <div className="ambient-layer">
-          <div className="ambient-glow" />
-          <div className="ambient-dots" />
-          <div className="absolute right-0 top-10 h-36 w-36 rounded-full bg-primary/10 blur-3xl ambient-float" />
-          <div className="absolute left-4 bottom-10 h-28 w-28 rounded-full bg-white/5 blur-3xl ambient-float" />
-        </div>
-        <Container>
-          <div className="hero-grid">
-            <div className="space-y-6">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.35em] text-gray-300">Premium event leadership</span>
-              <h1 className="max-w-[min(70ch,100%)] fluid-heading font-black leading-tight tracking-tight">Asterot Bangladesh Limited</h1>
-              <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">Asterot delivers premium event production across sports, corporate programs, concerts, tournaments, conferences, branding and marketing activations in Bangladesh.</p>
-              <div className="flex flex-wrap gap-4">
-                <a href="/events" className="btn btn-primary">Explore Events</a>
-                <a href="/about" className="btn btn-ghost">Learn About Us</a>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-2xl shadow-black/20">
-              <div className="space-y-6">
-                <div>
-                  <p className="text-sm uppercase tracking-[0.35em] text-primary">Why Asterot</p>
-                  <h2 className="mt-4 text-3xl font-semibold">Events that awaken leadership</h2>
-                  <p className="mt-4 text-gray-300">Asterot focuses on polished execution, strong partner collaboration and modern production for every event.</p>
-                </div>
-
-                <div className="gallery-grid">
-                  {services.map(service => (
-                    <div key={service.title} className="rounded-3xl border border-white/10 bg-black/40 p-5">
-                      <h3 className="font-semibold">{service.title}</h3>
-                      <p className="mt-2 text-sm text-gray-300">{service.description}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
+      <Hero />
 
       <section className="py-12 sm:py-16">
         <Container>
