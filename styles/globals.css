@@ -678,6 +678,7 @@ h6 {
 .marquee__track {
   display: flex;
   width: max-content;
+  will-change: transform;
   animation: marquee-scroll var(--marquee-duration) linear infinite;
 }
 
@@ -690,6 +691,7 @@ h6 {
   align-items: center;
   gap: var(--marquee-gap);
   padding-right: var(--marquee-gap);
+  flex-shrink: 0;
 }
 
 .marquee__item {
@@ -733,7 +735,7 @@ h6 {
     transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(-50%, 0, 0);
+    transform: translate3d(calc(0px - var(--loop-width, 50%)), 0, 0);
   }
 }
 

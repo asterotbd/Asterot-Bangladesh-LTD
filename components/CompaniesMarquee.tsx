@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
 /**
@@ -94,12 +94,39 @@ export default function CompaniesMarquee({
   gap
 }: CompaniesMarqueeProps) {
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [groupCount, setGroupCount] = useState(2)
+  const [loopWidth, setLoopWidth] = useState<number | null>(null)
+  const viewportRef = useRef<HTMLDivElement | null>(null)
+  const groupRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
 
+  // Measure the width of ONE complete logo group and the viewport. The track
+  // needs enough duplicated groups to always cover the viewport (plus one
+  // spare group) so the marquee never shows empty space.
+  useEffect(() => {
+    const viewport = viewportRef.current
+    const group = groupRef.current
+    if (!viewport || !group) return
+
+    const measure = () => {
+      const width = group.offsetWidth
+      if (width <= 0) return
+      setLoopWidth(width)
+      setGroupCount(Math.max(2, Math.ceil(viewport.offsetWidth / width) + 1))
+    }
+
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(viewport)
+    observer.observe(group)
+    return () => observer.disconnect()
+  }, [logos])
+
   const marqueeStyle = {
+    ...(loopWidth ? { '--loop-width': `${loopWidth}px` } : {}),
     ...(typeof duration === 'number' ? { '--marquee-duration': `${duration}s` } : {}),
     ...(gap ? { '--marquee-gap': gap } : {})
   } as React.CSSProperties
@@ -121,18 +148,20 @@ export default function CompaniesMarquee({
   return (
     <section className={className} aria-label={heading}>
       <p className="text-center text-xs uppercase tracking-[0.4em] text-primary sm:text-sm">{heading}</p>
-      <div className="marquee mt-6" style={marqueeStyle}>
+      <div className="marquee mt-6" ref={viewportRef} style={marqueeStyle}>
         <div className="marquee__track">
-          <div className="marquee__group">
-            {logos.map(logo => (
-              <LogoItem key={logo.id} logo={logo} />
-            ))}
-          </div>
-          <div className="marquee__group" aria-hidden="true">
-            {logos.map(logo => (
-              <LogoItem key={`${logo.id}-clone`} logo={logo} />
-            ))}
-          </div>
+          {Array.from({ length: groupCount }, (_, groupIndex) => (
+            <div
+              key={groupIndex}
+              className="marquee__group"
+              ref={groupIndex === 0 ? groupRef : undefined}
+              aria-hidden={groupIndex > 0 ? 'true' : undefined}
+            >
+              {logos.map(logo => (
+                <LogoItem key={`${logo.id}-${groupIndex}`} logo={logo} />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>
