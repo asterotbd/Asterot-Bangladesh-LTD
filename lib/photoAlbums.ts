@@ -19,7 +19,21 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'Corporate Events',
     slug: 'corporate-events',
     description: 'A collection of moments from our corporate events.',
-    photos: []
+    photos: [
+      '/media/photos/corporate-events/AUM09214.jpg',
+      '/media/photos/corporate-events/AUM09255.jpg',
+      '/media/photos/corporate-events/AUM09320.jpg',
+      '/media/photos/corporate-events/AUM09330.jpg',
+      '/media/photos/corporate-events/AUM09331.jpg',
+      '/media/photos/corporate-events/AUM09334.jpg',
+      '/media/photos/corporate-events/AUM09353.jpg',
+      '/media/photos/corporate-events/AUM09395.jpg',
+      '/media/photos/corporate-events/AUM09405.jpg',
+      '/media/photos/corporate-events/AUM09505.jpg',
+      '/media/photos/corporate-events/AUM09506.jpg',
+      '/media/photos/corporate-events/AUM09550.jpg',
+      '/media/photos/corporate-events/AUM09568.jpg'
+    ]
   },
   {
     id: 'other-events',
