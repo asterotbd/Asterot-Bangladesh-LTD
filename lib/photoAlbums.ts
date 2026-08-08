@@ -43,8 +43,6 @@ export const photoAlbums: PhotoAlbum[] = [
     description: 'A collection of moments from our corporate events.',
     photos: [
       '/media/photos/corporate-events/AUM09214.jpg',
-      '/media/photos/corporate-events/AUM09255.jpg',
-      '/media/photos/corporate-events/AUM09320.jpg',
       '/media/photos/corporate-events/AUM09330.jpg',
       '/media/photos/corporate-events/AUM09331.jpg',
       '/media/photos/corporate-events/AUM09334.jpg',
