@@ -6,7 +6,7 @@ export const metadata = {
   title: 'Asterot Bangladesh Limited',
   description: 'Igniting Tomorrow\'s Leaders — Awaken Greatness',
   icons: {
-    icon: '/brand/asterot-logo-white.png'
+    icon: '/favicon.png'
   }
 }
 
