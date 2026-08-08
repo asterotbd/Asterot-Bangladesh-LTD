@@ -3,11 +3,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import Container from './Container'
 import RevealSection from './RevealSection'
-import {
-  bangladeshDivisions,
-  bangladeshSequence,
-  bangladeshSilhouette
-} from '../lib/bangladesh'
+import { bangladeshDivisions, bangladeshSequence } from '../lib/bangladesh'
 
 const HOLD_MS = 2800
 const EASE = [0.22, 1, 0.36, 1]
@@ -102,15 +98,7 @@ export default function BangladeshReach() {
                   />
                 )}
 
-                {/* Base silhouette */}
-                <path
-                  d={bangladeshSilhouette}
-                  fill="#0A0A0F"
-                  stroke="rgba(255,255,255,0.08)"
-                  strokeWidth="3"
-                />
-
-                {/* All divisions, subdued */}
+                {/* All divisions — together they form the complete country outline */}
                 {bangladeshDivisions.map(division => (
                   <path
                     key={division.id}
