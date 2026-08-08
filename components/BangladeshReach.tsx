@@ -1,40 +1,53 @@
 "use client"
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import Container from './Container'
 import RevealSection from './RevealSection'
-import { bangladeshDivisions, bangladeshSequence } from '../lib/bangladesh'
+import { bangladeshDivisions } from '../lib/bangladesh'
 
 const HOLD_MS = 2800
 const EASE = [0.22, 1, 0.36, 1]
-
-function getDivision(id: string) {
-  return bangladeshDivisions.find(d => d.id === id) ?? bangladeshDivisions[0]
-}
+const DIVISION_COUNT = bangladeshDivisions.length
 
 export default function BangladeshReach() {
   const reduceMotion = useReducedMotion()
-  const [activeId, setActiveId] = useState(bangladeshSequence[0])
+  const [activeIndex, setActiveIndex] = useState(0)
 
+  // Single authoritative timing controller. The cycle is driven by exactly one
+  // interval that advances an index; it never depends on an SVG animation
+  // completing, so a failed/interrupted animation can never stop the sequence.
   useEffect(() => {
     if (reduceMotion) return
-    const timer = window.setInterval(() => {
-      setActiveId(current => {
-        const index = bangladeshSequence.indexOf(current)
-        return bangladeshSequence[(index + 1) % bangladeshSequence.length]
-      })
-    }, HOLD_MS)
-    return () => window.clearInterval(timer)
+
+    const advance = () => {
+      setActiveIndex(current => (current + 1) % DIVISION_COUNT)
+    }
+
+    let timer = window.setInterval(advance, HOLD_MS)
+
+    // Pause while the tab is hidden and resume from the current division when
+    // the user returns. Always clear before (re)creating so there can never be
+    // two timers running at once.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        window.clearInterval(timer)
+      } else {
+        window.clearInterval(timer)
+        timer = window.setInterval(advance, HOLD_MS)
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [reduceMotion])
 
-  const active = getDivision(activeId)
-  const activeIndex = bangladeshSequence.indexOf(activeId)
+  const active = bangladeshDivisions[activeIndex]
 
-  const trailPath = bangladeshSequence
-    .map(id => {
-      const d = getDivision(id)
-      return `${d.cx},${d.cy}`
-    })
+  const trailPath = bangladeshDivisions
+    .map(d => `${d.cx},${d.cy}`)
     .join(' ')
 
   return (
@@ -104,42 +117,39 @@ export default function BangladeshReach() {
                     key={division.id}
                     d={division.path}
                     fill="#0B0B12"
-                    stroke={division.id === activeId ? '#BA1E45' : 'rgba(255,255,255,0.12)'}
-                    strokeWidth={division.id === activeId ? 4 : 2.5}
-                    fillOpacity={division.id === activeId ? 1 : 1}
+                    stroke={division.id === active.id ? '#BA1E45' : 'rgba(255,255,255,0.12)'}
+                    strokeWidth={division.id === active.id ? 4 : 2.5}
+                    fillOpacity={division.id === active.id ? 1 : 1}
                     className="transition-[stroke,stroke-width] duration-700"
-                    opacity={division.id === activeId ? 1 : 0.85}
+                    opacity={division.id === active.id ? 1 : 0.85}
                   />
                 ))}
 
-                {/* Active division illumination */}
-                <AnimatePresence mode="wait">
-                  <motion.path
-                    key={active.id}
-                    d={active.path}
-                    fill="url(#bd-active-fill)"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.9, ease: EASE }}
-                  />
-                </AnimatePresence>
+                {/* Active division illumination — keyed remount fades the new
+                    highlight in; no exit animation is awaited, so the old one is
+                    replaced immediately and exactly one division is ever active. */}
+                <motion.path
+                  key={active.id}
+                  d={active.path}
+                  fill="url(#bd-active-fill)"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.9, ease: EASE }}
+                />
 
                 {/* Soft pulse from active center */}
-                <AnimatePresence>
-                  {!reduceMotion && (
-                    <motion.circle
-                      key={`pulse-${active.id}`}
-                      cx={active.cx}
-                      cy={active.cy}
-                      r={24}
-                      fill="url(#bd-pulse)"
-                      initial={{ scale: 0.4, opacity: 0.9 }}
-                      animate={{ scale: 3, opacity: 0 }}
-                      transition={{ duration: 1.8, ease: 'easeOut' }}
-                    />
-                  )}
-                </AnimatePresence>
+                {!reduceMotion && (
+                  <motion.circle
+                    key={`pulse-${active.id}`}
+                    cx={active.cx}
+                    cy={active.cy}
+                    r={24}
+                    fill="url(#bd-pulse)"
+                    initial={{ scale: 0.4, opacity: 0.9 }}
+                    animate={{ scale: 3, opacity: 0 }}
+                    transition={{ duration: 1.8, ease: 'easeOut' }}
+                  />
+                )}
 
                 {/* Active center point */}
                 <motion.circle
@@ -162,18 +172,15 @@ export default function BangladeshReach() {
                     Asterot in
                   </p>
                   <div className="relative mt-1 flex h-10 items-center justify-center overflow-hidden">
-                    <AnimatePresence mode="wait">
-                      <motion.p
-                        key={active.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.6, ease: EASE }}
-                        className="text-2xl font-black tracking-[0.22em] text-white"
-                      >
-                        {active.name}
-                      </motion.p>
-                    </AnimatePresence>
+                    <motion.p
+                      key={active.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, ease: EASE }}
+                      className="text-2xl font-black tracking-[0.22em] text-white"
+                    >
+                      {active.name}
+                    </motion.p>
                   </div>
                 </div>
                 <span aria-hidden="true" className="h-px w-8 bg-white/15" />
@@ -183,7 +190,7 @@ export default function BangladeshReach() {
               <p className="mt-3 text-center text-xs tabular-nums tracking-[0.3em] text-white/35">
                 {String(activeIndex + 1).padStart(2, '0')}
                 <span className="mx-1.5 text-white/20">/</span>
-                {String(bangladeshSequence.length).padStart(2, '0')}
+                {String(DIVISION_COUNT).padStart(2, '0')}
               </p>
             </div>
           </div>
