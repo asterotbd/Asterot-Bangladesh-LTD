@@ -1,6 +1,7 @@
 "use client"
 import Link from 'next/link'
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion'
+import { motion, useMotionValue, useReducedMotion, useSpring } from 'framer-motion'
+import HeroKineticVisual from './HeroKineticVisual'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -13,40 +14,13 @@ function ArrowIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
   )
 }
 
-function OrbitalMark() {
-  return (
-    <div className="relative mx-auto h-[min(30rem,56vw)] w-[min(30rem,56vw)] max-w-full" aria-hidden="true">
-      {/* Fine crosshair grid */}
-      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-white/[0.05]" />
-      <span className="absolute top-1/2 left-0 h-px w-full -translate-y-1/2 bg-white/[0.05]" />
-
-      {/* Thin circular / orbital elements */}
-      <span className="absolute inset-8 rounded-full border border-white/[0.07]" />
-      <span className="hero-orbit absolute inset-[5.5rem] rounded-full border border-white/[0.05] [border-style:dashed]" />
-      <span className="absolute inset-32 rounded-full border border-white/[0.04]" />
-
-      {/* Accent points */}
-      <span className="absolute left-1/2 top-9 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#BA1E45]" />
-      <span className="absolute left-1/2 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/40" />
-      <span className="absolute bottom-16 right-16 h-1.5 w-1.5 rounded-full bg-[#BA1E45]/70" />
-
-      {/* Small typographic detail */}
-      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[0.6rem] font-medium uppercase tracking-[0.45em] text-white/35">
-        Since the first step
-      </span>
-    </div>
-  )
-}
-
 export default function Hero() {
   const reduceMotion = useReducedMotion()
 
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-  const springX = useSpring(mouseX, { stiffness: 60, damping: 24 })
-  const springY = useSpring(mouseY, { stiffness: 60, damping: 24 })
-  const visualX = useTransform(springX, [-0.5, 0.5], [-8, 8])
-  const visualY = useTransform(springY, [-0.5, 0.5], [-6, 6])
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 24 })
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 24 })
 
   const handleMouseMove = (event: React.MouseEvent<HTMLElement>) => {
     if (reduceMotion) return
@@ -133,9 +107,8 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1.4, ease: EASE, delay: 0.3 }}
             className="hidden items-center justify-center lg:flex"
-            style={{ x: visualX, y: visualY }}
           >
-            <OrbitalMark />
+            <HeroKineticVisual mouseX={springX} mouseY={springY} />
           </motion.div>
         </div>
       </div>

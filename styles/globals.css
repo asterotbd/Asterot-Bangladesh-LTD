@@ -753,16 +753,6 @@ h6 {
 
 /* ===== Hero — editorial, abstract, no photography ===== */
 
-@keyframes hero-orbit {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.hero-orbit {
-  animation: hero-orbit 72s linear infinite;
-  will-change: transform;
-}
-
 @keyframes hero-scroll-line {
   0% { transform: translateY(-110%); }
   100% { transform: translateY(320%); }
@@ -773,10 +763,90 @@ h6 {
   will-change: transform;
 }
 
+/* ===== Hero kinetic light sculpture ===== */
+
+@keyframes kinetic-arc-a {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes kinetic-arc-b {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes kinetic-arc-c {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes kinetic-pulse {
+  0% { stroke-dashoffset: 640; opacity: 0; }
+  8% { opacity: 0.9; }
+  55% { stroke-dashoffset: 120; opacity: 0.9; }
+  100% { stroke-dashoffset: 30; opacity: 0; }
+}
+
+@keyframes kinetic-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -10px, 0); }
+}
+
+.kinetic-arc-a {
+  animation: kinetic-arc-a 26s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  will-change: transform;
+}
+
+.kinetic-arc-b {
+  animation: kinetic-arc-b 38s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  will-change: transform;
+}
+
+.kinetic-arc-c {
+  animation: kinetic-arc-c 30s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+  will-change: transform;
+}
+
+.kinetic-pulse {
+  stroke-dasharray: 180 520;
+  animation: kinetic-pulse 7s cubic-bezier(0.45, 0, 0.35, 1) infinite;
+  will-change: stroke-dashoffset, opacity;
+}
+
+.kinetic-particle {
+  animation: kinetic-drift var(--drift-duration, 12s) ease-in-out infinite;
+  animation-delay: var(--drift-delay, 0s);
+  will-change: transform, opacity;
+}
+
+.kinetic-particle::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  filter: blur(3px);
+  opacity: 0.55;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .hero-orbit,
-  .hero-scroll-line {
+  .hero-scroll-line,
+  .kinetic-arc-a,
+  .kinetic-arc-b,
+  .kinetic-arc-c,
+  .kinetic-pulse,
+  .kinetic-particle {
     animation: none !important;
     transform: none !important;
+  }
+  .kinetic-pulse {
+    stroke-dashoffset: 380;
+    opacity: 0.4;
   }
 }
