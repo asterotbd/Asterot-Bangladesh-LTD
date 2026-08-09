@@ -5,7 +5,11 @@ export type NewsArticle = {
   excerpt: string
   content: string[]
   date: string
+  image: string
+  featured: boolean
 }
+
+export const newsCategories = ['Latest News', 'Announcements', 'Articles / Updates'] as const
 
 export const newsArticles: NewsArticle[] = [
   {
@@ -18,7 +22,9 @@ export const newsArticles: NewsArticle[] = [
       'Asterot focuses on sports events and tournaments, corporate conferences and programs, entertainment productions and live performances, as well as branding and marketing activations. Each event is designed with clear goals, strong production and measurable outcomes.',
       'The organization is committed to working closely with sponsors, stakeholders and teams to deliver seamless experiences and trusted results. As Asterot grows, it will continue to expand its event portfolio and publish specific schedules and announcements.'
     ],
-    date: '2025'
+    date: '2025',
+    image: '/media/photos/corporate-events/AUM09214.jpg',
+    featured: true
   },
   {
     slug: 'student-uprising-memorial-cup-tournament-announcement',
@@ -30,7 +36,9 @@ export const newsArticles: NewsArticle[] = [
       'The tournament is designed to bring competitive energy and community engagement, uniting teams and audiences around the spirit of sport and shared purpose. Asterot supports this type of strategic event partnership and tournament delivery.',
       'Further details about the tournament schedule, teams and participation will be published as they become available. Those interested in registering can visit the registration page.'
     ],
-    date: '2025'
+    date: '2025',
+    image: '/media/photos/tournament/1.jpeg',
+    featured: true
   },
   {
     slug: 'corporate-leadership-conference-coming-soon',
@@ -42,7 +50,9 @@ export const newsArticles: NewsArticle[] = [
       'The conference will bring together voices across business, leadership and innovation, creating a space for connection, learning and growth. Sessions will focus on practical leadership, strategic thinking and building meaningful professional networks.',
       'More details about the conference agenda, speakers and registration will be announced soon. Stay tuned for updates.'
     ],
-    date: '2025'
+    date: '2025',
+    image: '/media/photos/corporate-events/AUM09330.jpg',
+    featured: true
   },
   {
     slug: 'brand-launch-and-opening-ceremony-highlights',
@@ -54,6 +64,8 @@ export const newsArticles: NewsArticle[] = [
       'The event marked the beginning of Asterot\'s journey as a premium event organization and set the tone for the experiences the company aims to deliver across sports, corporate, entertainment and marketing categories.',
       'Photo and video documentation from the launch will be made available in the event documentation section.'
     ],
-    date: '2025'
+    date: '2025',
+    image: '/media/photos/celebrations/1.JPG',
+    featured: true
   }
 ]
