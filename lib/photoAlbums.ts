@@ -86,7 +86,18 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'The Crew',
     slug: 'the-crew',
     description: 'A collection of moments featuring the crew.',
-    photos: []
+    photos: [
+      '/media/photos/the-crew/1.jpg',
+      '/media/photos/the-crew/2.jpg',
+      '/media/photos/the-crew/3.png',
+      '/media/photos/the-crew/4.jpeg',
+      '/media/photos/the-crew/5.png',
+      '/media/photos/the-crew/6.jpg',
+      '/media/photos/the-crew/7.jpeg',
+      '/media/photos/the-crew/8.jpeg',
+      '/media/photos/the-crew/9.jpeg',
+      '/media/photos/the-crew/10.jpg'
+    ]
   },
   {
     id: 'celebrations',
