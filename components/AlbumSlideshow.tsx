@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useReducedMotion } from 'framer-motion'
 
 const SLIDE_DURATION = 5000
 const FADE_DURATION = 900
@@ -13,14 +14,15 @@ type AlbumSlideshowProps = {
 
 export default function AlbumSlideshow({ photos, alt, priority = false }: AlbumSlideshowProps) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
-    if (photos.length < 2) return
+    if (photos.length < 2 || reduceMotion) return
     const timer = window.setInterval(() => {
       setActiveIndex(index => (index + 1) % photos.length)
     }, SLIDE_DURATION)
     return () => window.clearInterval(timer)
-  }, [photos.length])
+  }, [photos.length, reduceMotion])
 
   if (photos.length === 0) return null
 

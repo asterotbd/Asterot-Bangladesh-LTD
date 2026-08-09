@@ -1,7 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { pastEvents } from '../../../lib/events'
+
+export const metadata: Metadata = {
+  title: 'Past Events',
+  description: 'Past events delivered by Asterot Bangladesh Limited — brand launches, sports days and community programs.',
+  alternates: {
+    canonical: 'https://www.asterot.com/events/past'
+  }
+}
 
 export default function PastEventsPage() {
   return (

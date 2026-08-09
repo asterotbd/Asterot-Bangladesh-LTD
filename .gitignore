@@ -10,6 +10,12 @@ node_modules
 # logs
 dev-server.log
 npm-debug.log*
+prod-server.log
+prod-server-err.log
+prod-server-out.log
+
+# supabase local tooling
+supabase/.temp
 
 # local env files
 .env

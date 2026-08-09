@@ -3,6 +3,15 @@ import RevealSection from '../../../components/RevealSection'
 import SpotlightSlideshow from '../../../components/SpotlightSlideshow'
 import PhotoAlbumsGrid from '../../../components/PhotoAlbumsGrid'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Photos',
+  description: 'Photo albums from Asterot Bangladesh Limited events — tournaments, corporate events, backstage stories, the crew and more.',
+  alternates: {
+    canonical: 'https://www.asterot.com/media/photos'
+  }
+}
 
 export default function MediaPhotosPage() {
   return (

@@ -1,7 +1,6 @@
 "use client"
 import { useState } from 'react'
 import Image from 'next/image'
-import { leadershipMembers } from '../lib/leadership'
 
 type Props = {
   name: string

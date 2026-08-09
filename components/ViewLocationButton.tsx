@@ -1,26 +1,17 @@
-"use client"
-import { useState } from 'react'
+const MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=5B%2F5%20Razia%20Sultana%20Road%2C%20Mohammadpur%2C%20Dhaka'
 
 export default function ViewLocationButton() {
-  const [clicked, setClicked] = useState(false)
-
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => setClicked(true)}
+      <a
+        href={MAPS_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="btn btn-ghost"
       >
         View Location
         <span aria-hidden="true">↗</span>
-      </button>
-
-      <p
-        aria-live="polite"
-        className={`mt-3 text-sm text-gray-400 transition-opacity duration-300 ${clicked ? 'opacity-100' : 'opacity-0'}`}
-      >
-        Interactive map coming soon. For now, you can find us at 5B/5 Razia Sultana Road, Mohammadpur, Dhaka.
-      </p>
+      </a>
     </div>
   )
 }

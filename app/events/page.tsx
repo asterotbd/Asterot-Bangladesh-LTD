@@ -1,7 +1,16 @@
 import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { upcomingEvents, pastEvents, documentationItems } from '../../lib/events'
+
+export const metadata: Metadata = {
+  title: 'Events',
+  description: 'Explore Asterot Bangladesh Limited\'s events — sports tournaments, corporate programs, entertainment shows and brand activations across Bangladesh.',
+  alternates: {
+    canonical: 'https://www.asterot.com/events'
+  }
+}
 
 const eventCategories = [
   {

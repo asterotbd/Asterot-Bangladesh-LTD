@@ -2,6 +2,15 @@ import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import ContactForm from '../../components/ContactForm'
 import ViewLocationButton from '../../components/ViewLocationButton'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Contact Asterot Bangladesh Limited — email, phone and location in Dhaka for event inquiries and partnerships.',
+  alternates: {
+    canonical: 'https://www.asterot.com/contact'
+  }
+}
 
 function IconBase({ className = 'h-5 w-5', children }: { className?: string; children: React.ReactNode }) {
   return (

@@ -1,7 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { mission, vision, promise } from '../../../lib/about'
+
+export const metadata: Metadata = {
+  title: 'Mission & Vision',
+  description: 'Asterot Bangladesh Limited\'s mission and vision — empowering young people and communities through opportunities, experiences and innovative solutions.',
+  alternates: {
+    canonical: 'https://www.asterot.com/about/mission-vision'
+  }
+}
 
 export default function MissionVisionPage() {
   return (

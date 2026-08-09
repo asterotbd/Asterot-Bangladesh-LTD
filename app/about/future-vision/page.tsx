@@ -1,7 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { futureVisionParagraphs, futureVisionTagline } from '../../../lib/about'
+
+export const metadata: Metadata = {
+  title: 'Future Vision',
+  description: 'Asterot Bangladesh Limited\'s roadmap — from its foundation in Dhaka to expansion across Bangladesh and beyond.',
+  alternates: {
+    canonical: 'https://www.asterot.com/about/future-vision'
+  }
+}
 
 const roadmapStages = [
   {

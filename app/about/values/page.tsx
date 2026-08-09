@@ -1,7 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { values } from '../../../lib/about'
+
+export const metadata: Metadata = {
+  title: 'Our Values',
+  description: 'The values of Asterot Bangladesh Limited — youth, innovation, excellence, integrity, impact and growth.',
+  alternates: {
+    canonical: 'https://www.asterot.com/about/values'
+  }
+}
 
 export default function ValuesPage() {
   return (

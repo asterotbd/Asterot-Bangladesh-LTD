@@ -1,13 +1,12 @@
-import { createServerComponentSupabaseClient } from '@supabase/auth-helpers-nextjs'
-import { headers, cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getUserRoles } from '../../../lib/auth'
+import createServerClient from '../../../lib/supabaseServer'
 import AdminCompanyForm from '../../../components/AdminCompanyForm'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminCompanyPage(){
-  const supabase = createServerComponentSupabaseClient({ headers: () => headers(), cookies: () => cookies() })
+  const supabase = createServerClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session || !session.user) redirect('/admin/login')
   const roles = await getUserRoles(session.user.id)

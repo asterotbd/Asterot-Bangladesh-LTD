@@ -16,7 +16,10 @@ export function generateMetadata({ params }: AlbumPageProps): Metadata {
   if (!album) return { title: 'Album Not Found' }
   return {
     title: `${album.title} — Photos | Asterot`,
-    description: album.description
+    description: album.description,
+    alternates: {
+      canonical: `https://www.asterot.com/media/photos/${album.slug}`
+    }
   }
 }
 

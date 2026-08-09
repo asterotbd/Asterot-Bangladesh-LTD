@@ -1,5 +1,5 @@
 "use client"
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useScrollLock } from '../hooks/useScrollLock'
@@ -32,7 +32,20 @@ function Chevron({ direction }: { direction: 'left' | 'right' }) {
 
 export default function PhotoLightbox({ photos, index, onClose, onIndexChange, label }: PhotoLightboxProps) {
   const open = index !== null
+  const closeRef = useRef<HTMLButtonElement | null>(null)
+  const previousActiveRef = useRef<HTMLElement | null>(null)
   useScrollLock(open)
+
+  // Move focus into the dialog when it opens and restore it when it closes.
+  useEffect(() => {
+    if (open) {
+      previousActiveRef.current = document.activeElement as HTMLElement | null
+      closeRef.current?.focus()
+    } else if (previousActiveRef.current) {
+      previousActiveRef.current.focus()
+      previousActiveRef.current = null
+    }
+  }, [open])
 
   const showPrev = useCallback(() => {
     if (index === null || photos.length === 0) return
@@ -108,6 +121,7 @@ export default function PhotoLightbox({ photos, index, onClose, onIndexChange, l
             type="button"
             onClick={onClose}
             aria-label="Close viewer"
+            ref={closeRef}
             className="absolute right-4 top-4 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white transition hover:bg-white/15"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-5 w-5">

@@ -2,6 +2,15 @@ import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import MediaTrailer from '../../components/MediaTrailer'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Media',
+  description: 'Photos and videos from Asterot Bangladesh Limited events — tournaments, corporate programs, celebrations and live experiences.',
+  alternates: {
+    canonical: 'https://www.asterot.com/media'
+  }
+}
 
 export default function MediaPage() {
   return (
@@ -35,7 +44,7 @@ export default function MediaPage() {
                 </div>
                 <h3 className="mt-6 text-2xl font-semibold tracking-tight">Photos</h3>
                 <p className="mt-3 flex-1 text-gray-400">
-                  Gallery of our projects, people, and moments. Filter by category and switch between grid and masonry views.
+                  Gallery of our projects, people, and moments — organized into albums for every occasion.
                 </p>
                 <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors group-hover:text-accent">
                   Browse Photos

@@ -87,6 +87,7 @@ export default function MediaTrailer() {
           <div className="relative aspect-video w-full bg-black">
             {upcomingProject.trailerSrc ? (
               <video controls autoPlay playsInline preload="metadata" className="h-full w-full" poster={upcomingProject.posterSrc}>
+                <source src={upcomingProject.trailerSrc} type="video/mp4" />
               </video>
             ) : (
               <div className="relative flex h-full w-full items-center justify-center overflow-hidden">

@@ -57,18 +57,23 @@ export default function EventDocumentationPage() {
         <RevealSection className="pt-10 pb-16 sm:pb-20">
           <div className="gallery-grid">
             {filteredItems.map(item => (
-              <article key={item.title} className="card-surface flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-xl shadow-black/10">
+              <Link
+                key={item.title}
+                href={item.type === 'Photo' ? '/media/photos' : '/media/videos'}
+                className="card-surface group flex flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 shadow-xl shadow-black/10 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-black/30"
+              >
                 <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(255,22,90,0.12),_transparent_60%)]">
                   <span className="text-5xl">{item.type === 'Photo' ? '📷' : '🎬'}</span>
                 </div>
                 <div className="flex flex-1 flex-col p-6">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between gap-3">
                     <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{item.type}</span>
+                    <span aria-hidden="true" className="text-sm text-primary transition-transform duration-300 group-hover:translate-x-1">→</span>
                   </div>
                   <h2 className="mt-4 text-lg font-semibold tracking-tight">{item.title}</h2>
                   <p className="mt-2 text-sm leading-6 text-gray-400">{item.caption}</p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         </RevealSection>

@@ -13,8 +13,8 @@ import Image from 'next/image'
  */
 export type MarqueeLogo = {
   id: string
-  /** Accessible / display name for the logo. */
-  name: string
+  /** Accessible / display name for the logo. Omit when the partner is not named publicly. */
+  name?: string
   /** Public URL/path to the logo image. Omit to render a placeholder. */
   src?: string
   /** Optional override for the `<img>` alt text (falls back to `name`). */
@@ -44,10 +44,10 @@ const DEFAULT_HEADING = "Companies We've Worked With"
  * `href` / `alt`. Do not invent company names here.
  */
 const SPONSOR_LOGOS: MarqueeLogo[] = [
-  { id: 'sponsor-1', name: 'Company 1', src: '/media/photos/logo/sponsor-logo/1.png' },
-  { id: 'sponsor-2', name: 'Company 2', src: '/media/photos/logo/sponsor-logo/2.png' },
-  { id: 'sponsor-3', name: 'Company 3', src: '/media/photos/logo/sponsor-logo/3.png' },
-  { id: 'sponsor-4', name: 'Company 4', src: '/media/photos/logo/sponsor-logo/4.png' }
+  { id: 'sponsor-1', src: '/media/photos/logo/sponsor-logo/1.png' },
+  { id: 'sponsor-2', src: '/media/photos/logo/sponsor-logo/2.png' },
+  { id: 'sponsor-3', src: '/media/photos/logo/sponsor-logo/3.png' },
+  { id: 'sponsor-4', src: '/media/photos/logo/sponsor-logo/4.png' }
 ]
 
 type LogoItemProps = {
@@ -58,13 +58,13 @@ function LogoItem({ logo }: LogoItemProps) {
   const content = logo.src ? (
     <Image
       src={logo.src}
-      alt={logo.alt ?? logo.name}
+      alt={logo.alt ?? logo.name ?? ''}
       width={64}
       height={40}
       className="marquee__logo-image"
     />
   ) : (
-    <span className="marquee__logo-placeholder">{logo.name}</span>
+    <span className="marquee__logo-placeholder">{logo.name ?? ''}</span>
   )
 
   if (logo.href) {
@@ -72,7 +72,7 @@ function LogoItem({ logo }: LogoItemProps) {
       <a
         href={logo.href}
         className="marquee__item"
-        aria-label={logo.name}
+        aria-label={logo.alt ?? logo.name ?? 'Partner link'}
       >
         {content}
       </a>
@@ -80,7 +80,7 @@ function LogoItem({ logo }: LogoItemProps) {
   }
 
   return (
-    <div className="marquee__item" aria-hidden={undefined}>
+    <div className="marquee__item">
       {content}
     </div>
   )

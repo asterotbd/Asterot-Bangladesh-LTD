@@ -1,5 +1,14 @@
 import Link from 'next/link'
 import Container from '../../components/Container'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Privacy policy for the Asterot Bangladesh Limited website.',
+  alternates: {
+    canonical: 'https://www.asterot.com/privacy'
+  }
+}
 
 type Section = {
   title: string

@@ -76,6 +76,7 @@ export default function MediaToolbar({
             key={category}
             type="button"
             onClick={() => onCategoryChange(category)}
+            aria-pressed={activeCategory === category}
             className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
               activeCategory === category
                 ? 'border-primary bg-primary text-black'
@@ -96,6 +97,7 @@ export default function MediaToolbar({
               type="button"
               onClick={() => onViewChange(option.id)}
               aria-label={`${option.label} view`}
+              aria-pressed={activeView === option.id}
               title={option.label}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition ${
                 activeView === option.id ? 'bg-primary text-black' : 'text-gray-400 hover:text-white'

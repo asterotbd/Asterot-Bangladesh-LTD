@@ -1,8 +1,17 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import LeadershipPortrait from '../../../components/LeadershipPortrait'
 import { leadershipMembers } from '../../../lib/leadership'
+
+export const metadata: Metadata = {
+  title: 'Leadership',
+  description: 'Meet the leadership team of Asterot Bangladesh Limited.',
+  alternates: {
+    canonical: 'https://www.asterot.com/about/leadership'
+  }
+}
 
 export default function LeadershipPage() {
   return (

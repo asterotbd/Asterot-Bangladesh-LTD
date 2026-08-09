@@ -24,10 +24,15 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
 
   return (
     <>
-      <div className={view === 'grid'
-        ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4'
-        : 'flex flex-col gap-4'}>
-        {items.map((item, index) => (
+      {items.length === 0 ? (
+        <div className="rounded-[1.75rem] border border-dashed border-white/10 bg-white/5 p-12 text-center">
+          <p className="text-gray-400">No videos are available in this category yet.</p>
+        </div>
+      ) : (
+        <div className={view === 'grid'
+          ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4'
+          : 'flex flex-col gap-4'}>
+          {items.map((item, index) => (
           <button
             key={item.title}
             type="button"
@@ -66,8 +71,9 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
               </p>
             </div>
           </button>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       <MediaModal open={open} onClose={() => setActiveVideo(null)} label={`Video player: ${video?.title ?? ''}`}>
         {video ? (
@@ -104,7 +110,9 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
                   {video.category} <span className="text-gray-500">·</span> {video.year}
                 </p>
               </div>
-              <p className="shrink-0 text-sm tabular-nums text-gray-400">{video.duration}</p>
+              {video.duration ? (
+                <p className="shrink-0 text-sm tabular-nums text-gray-400">{video.duration}</p>
+              ) : null}
             </div>
           </div>
         ) : null}

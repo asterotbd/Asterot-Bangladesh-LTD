@@ -1,5 +1,14 @@
 import Link from 'next/link'
 import Container from '../../components/Container'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Terms of service for the Asterot Bangladesh Limited website.',
+  alternates: {
+    canonical: 'https://www.asterot.com/terms'
+  }
+}
 
 type Section = {
   title: string

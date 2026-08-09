@@ -26,11 +26,16 @@ export default function AdminCompanyForm(){
   const save = async () => {
     setSaving(true)
     setError(undefined)
-    const res = await fetch('/api/admin/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(company) })
-    const j = await res.json()
-    if (!res.ok) setError(j.error || 'Save failed')
-    else setCompany(j.data)
-    setSaving(false)
+    try {
+      const res = await fetch('/api/admin/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(company) })
+      const j = await res.json()
+      if (!res.ok) setError(j.error || 'Save failed')
+      else setCompany(j.data)
+    } catch (e) {
+      setError(String(e))
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) return <div>Loading…</div>

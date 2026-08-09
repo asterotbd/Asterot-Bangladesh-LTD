@@ -1,10 +1,25 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { newsArticles } from '../../../lib/newsData'
 
 export function generateStaticParams() {
   return newsArticles.map(article => ({ slug: article.slug }))
+}
+
+export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
+  const article = newsArticles.find(a => a.slug === params.slug)
+  if (!article) {
+    return { title: 'Article Not Found' }
+  }
+  return {
+    title: article.title,
+    description: article.excerpt,
+    alternates: {
+      canonical: `https://www.asterot.com/news/${article.slug}`
+    }
+  }
 }
 
 export default function NewsArticlePage({ params }: { params: { slug: string } }) {

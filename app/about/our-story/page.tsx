@@ -1,7 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { storyParagraphs } from '../../../lib/about'
+
+export const metadata: Metadata = {
+  title: 'Our Story',
+  description: 'The story of Asterot Bangladesh Limited — a youth-driven organization building events and opportunities across Bangladesh.',
+  alternates: {
+    canonical: 'https://www.asterot.com/about/our-story'
+  }
+}
 
 export default function OurStoryPage() {
   return (

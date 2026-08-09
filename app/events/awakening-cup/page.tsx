@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
+import type { Metadata } from 'next'
 import AwakeningCupTeaser from '../../../components/AwakeningCupTeaser'
 import {
   awakeningCup,
@@ -10,6 +11,14 @@ import {
   awakeningStayUpdated,
   awakeningCallout
 } from '../../../lib/awakening'
+
+export const metadata: Metadata = {
+  title: 'The Awakening Cup',
+  description: 'The Awakening Cup — an upcoming Asterot tournament. Details are being revealed in stages.',
+  alternates: {
+    canonical: 'https://www.asterot.com/events/awakening-cup'
+  }
+}
 
 const visionIcons = ['◆', '◎', '▲']
 

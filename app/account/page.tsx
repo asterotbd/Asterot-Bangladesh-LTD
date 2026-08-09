@@ -16,11 +16,11 @@ export default async function AccountPage(){
   const roleNames = (roles || []).map((r: any) => r.name)
 
   return (
-    <div className="container py-20">
-      <h2 className="text-2xl font-semibold">Account</h2>
+    <main className="container py-20">
+      <h1 className="text-2xl font-semibold">Account</h1>
       <p className="mt-2">Email: {session.user.email}</p>
       <p className="mt-2">Roles: {roleNames.join(', ') || '—'}</p>
       <div className="mt-4"><a href="/api/auth/signout" className="text-primary">Logout</a></div>
-    </div>
+    </main>
   )
 }

@@ -29,11 +29,12 @@ export default function SpotlightSlideshow({ className = '' }: SpotlightSlidesho
   const reduceMotion = useReducedMotion()
 
   useEffect(() => {
+    if (reduceMotion) return
     const timer = window.setInterval(() => {
       setActiveIndex(index => (index + 1) % spotlightImages.length)
     }, SLIDE_DURATION)
     return () => window.clearInterval(timer)
-  }, [])
+  }, [reduceMotion])
 
   const active = spotlightImages[activeIndex]
 

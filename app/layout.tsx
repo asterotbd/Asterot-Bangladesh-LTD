@@ -3,10 +3,19 @@ import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 
 export const metadata = {
-  title: 'Asterot Bangladesh Limited',
+  metadataBase: new URL('https://www.asterot.com'),
+  title: {
+    default: 'Asterot Bangladesh Limited',
+    template: '%s | Asterot Bangladesh Limited'
+  },
   description: 'Igniting Tomorrow\'s Leaders — Awaken Greatness',
   icons: {
     icon: '/favicon.png'
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'Asterot Bangladesh Limited',
+    locale: 'en_US'
   }
 }
 

@@ -25,18 +25,18 @@ export default function LoginPage(){
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-[clamp(1rem,2vw,1.5rem)] pt-28 pb-[clamp(2rem,4vw,4rem)]">
+    <main className="min-h-screen flex items-center justify-center px-[clamp(1rem,2vw,1.5rem)] pt-28 pb-[clamp(2rem,4vw,4rem)]">
       <form onSubmit={submit} className="w-full max-w-[min(44rem,100%)] rounded-[1.5rem] border border-white/10 bg-white/5 p-[clamp(1.25rem,2.5vw,2.5rem)] shadow-xl shadow-black/30">
-        <h2 className="text-2xl font-semibold mb-4">Sign In</h2>
-        <label className="block mb-2 text-sm font-medium text-gray-300">Email
-          <input className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={email} onChange={e=>setEmail(e.target.value)} required/>
+        <h1 className="text-2xl font-semibold mb-4">Sign In</h1>
+        <label className="block mb-2 text-sm font-medium text-gray-300" htmlFor="login-email">Email
+          <input id="login-email" name="email" type="email" autoComplete="email" className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={email} onChange={e=>setEmail(e.target.value)} required/>
         </label>
-        <label className="block mb-4 text-sm font-medium text-gray-300">Password
-          <input type="password" className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={password} onChange={e=>setPassword(e.target.value)} required/>
+        <label className="block mb-4 text-sm font-medium text-gray-300" htmlFor="login-password">Password
+          <input id="login-password" name="password" type="password" autoComplete="current-password" className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25" value={password} onChange={e=>setPassword(e.target.value)} required/>
         </label>
         {error && <div className="text-red-400 mb-4 text-sm">{error}</div>}
         <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
       </form>
-    </div>
+    </main>
   )
 }
