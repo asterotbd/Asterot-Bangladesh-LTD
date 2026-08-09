@@ -45,7 +45,7 @@ export const mediaPhotos: MediaPhoto[] = [
 ]
 
 export const mediaVideos: MediaVideo[] = [
-  { id: 'coming-soon-trailer', title: 'Coming Soon Trailer', category: 'Trailer', date: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumb: '/images/media/videos/coming-soon-trailer.svg' },
+  { id: 'coming-soon-trailer', title: 'Coming Soon Trailer', category: 'Trailer', date: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumb: 'https://img.youtube.com/vi/g8g4JZXI2kc/maxresdefault.jpg' },
   { id: 'opening-ceremony-highlights', title: 'Opening Ceremony Highlights', category: 'Corporate', date: '2025', duration: '2:45', thumb: '/images/media/videos/opening-ceremony-highlights.svg' },
   { id: 'memorial-cup-aftermovie', title: 'Memorial Cup Aftermovie', category: 'Sports', date: '2025', duration: '4:12', thumb: '/images/media/videos/memorial-cup-aftermovie.svg' },
   { id: 'backstage-stories', title: 'Backstage Stories', category: 'Behind the Scenes', date: '2025', duration: '3:08', thumb: '/images/media/videos/backstage-stories.svg' },
