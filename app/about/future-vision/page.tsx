@@ -5,16 +5,16 @@ import { futureVisionParagraphs, futureVisionTagline } from '../../../lib/about'
 
 const roadmapStages = [
   {
-    phase: 'Current',
+    phase: 'Completed',
     title: 'Foundation in Dhaka',
     description: 'Building a strong event management presence in Dhaka, delivering premium sports, corporate, and entertainment events.',
-    status: 'current'
+    status: 'completed'
   },
   {
-    phase: 'Next',
+    phase: 'Current',
     title: 'Expansion Across Bangladesh',
     description: 'Strengthening regional presence and partnerships across Bangladesh, creating opportunities in more communities.',
-    status: 'planned'
+    status: 'current'
   },
   {
     phase: 'Future',
