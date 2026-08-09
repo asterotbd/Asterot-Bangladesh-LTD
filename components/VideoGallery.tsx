@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import MediaModal from './MediaModal'
 import { mediaVideos, type MediaVideo } from '../lib/media'
@@ -21,18 +21,6 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
   const [activeVideo, setActiveVideo] = useState<number | null>(null)
   const open = activeVideo !== null
   const video = activeVideo !== null ? items[activeVideo] : null
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-
-  useEffect(() => {
-    if (!open || !videoRef.current) return
-    const el = videoRef.current
-    const attempt = () => {
-      const p = el.play()
-      if (p) p.catch(() => { /* autoplay blocked; user can press play */ })
-    }
-    attempt()
-    return () => { el.pause() }
-  }, [open, activeVideo])
 
   return (
     <>
@@ -41,7 +29,7 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
         : 'flex flex-col gap-4'}>
         {items.map((item, index) => (
           <button
-            key={item.id}
+            key={item.title}
             type="button"
             onClick={() => setActiveVideo(index)}
             aria-label={`Play video: ${item.title}`}
@@ -53,7 +41,7 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
           >
             <div className={`relative overflow-hidden ${view === 'grid' ? 'aspect-video' : 'aspect-video w-full sm:w-64 sm:shrink-0'}`}>
               <Image
-                src={item.thumb}
+                src={item.thumbnail}
                 alt={`Thumbnail for ${item.title}`}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -65,14 +53,16 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
                   <PlayIcon className="h-6 w-6 translate-x-0.5" />
                 </span>
               </span>
-              <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium tabular-nums text-white">
-                {item.duration}
-              </span>
+              {item.duration ? (
+                <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-2.5 py-1 text-xs font-medium tabular-nums text-white">
+                  {item.duration}
+                </span>
+              ) : null}
             </div>
             <div className={`${view === 'grid' ? 'flex flex-1 flex-col p-5' : 'flex flex-1 flex-col justify-center p-5 sm:p-6'}`}>
               <h3 className="text-base font-semibold leading-snug text-white">{item.title}</h3>
               <p className="mt-2 text-xs uppercase tracking-[0.25em] text-primary">
-                {item.category} <span className="text-gray-500">·</span> {item.date}
+                {item.category} <span className="text-gray-500">·</span> {item.year}
               </p>
             </div>
           </button>
@@ -92,19 +82,9 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
                   referrerPolicy="strict-origin-when-cross-origin"
                   className="h-full w-full"
                 />
-              ) : video.src ? (
-                <video
-                  ref={videoRef}
-                  controls
-                  autoPlay
-                  playsInline
-                  preload="auto"
-                  className="h-full w-full"
-                  poster={video.thumb}
-                />
               ) : (
                 <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
-                  <Image src={video.thumb} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover opacity-40" />
+                  <Image src={video.thumbnail} alt="" aria-hidden="true" fill sizes="100vw" className="object-cover opacity-40" />
                   <div className="relative flex flex-col items-center text-center">
                     <span className="inline-flex h-16 w-16 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white">
                       <PlayIcon className="h-7 w-7 translate-x-0.5" />
@@ -121,7 +101,7 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
               <div className="min-w-0">
                 <h3 className="text-lg font-semibold text-white">{video.title}</h3>
                 <p className="mt-1 text-xs uppercase tracking-[0.25em] text-primary">
-                  {video.category} <span className="text-gray-500">·</span> {video.date}
+                  {video.category} <span className="text-gray-500">·</span> {video.year}
                 </p>
               </div>
               <p className="shrink-0 text-sm tabular-nums text-gray-400">{video.duration}</p>

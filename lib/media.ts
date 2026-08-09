@@ -7,15 +7,21 @@ export type MediaPhoto = {
 }
 
 export type MediaVideo = {
-  id: string
   title: string
   category: string
-  date: string
-  duration: string
-  src?: string
+  year: string
   youtubeId?: string
-  thumb: string
+  thumbnail: string
+  duration?: string
 }
+
+export const videoCategories = [
+  'Trailers',
+  'Battle Grounds',
+  'The Corporate Edit',
+  'The Highlights',
+  'Inside Asterot'
+]
 
 export type UpcomingProject = {
   title: string
@@ -45,9 +51,5 @@ export const mediaPhotos: MediaPhoto[] = [
 ]
 
 export const mediaVideos: MediaVideo[] = [
-  { id: 'coming-soon-trailer', title: 'Coming Soon Trailer', category: 'Trailer', date: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumb: 'https://img.youtube.com/vi/g8g4JZXI2kc/maxresdefault.jpg' },
-  { id: 'opening-ceremony-highlights', title: 'Opening Ceremony Highlights', category: 'Corporate', date: '2025', duration: '2:45', thumb: '/images/media/videos/opening-ceremony-highlights.svg' },
-  { id: 'memorial-cup-aftermovie', title: 'Memorial Cup Aftermovie', category: 'Sports', date: '2025', duration: '4:12', thumb: '/images/media/videos/memorial-cup-aftermovie.svg' },
-  { id: 'backstage-stories', title: 'Backstage Stories', category: 'Behind the Scenes', date: '2025', duration: '3:08', thumb: '/images/media/videos/backstage-stories.svg' },
-  { id: 'brand-launch-reel', title: 'Brand Launch Reel', category: 'Branding', date: '2025', duration: '1:56', thumb: '/images/media/videos/brand-launch-reel.svg' }
+  { title: 'Coming Soon Trailer', category: 'Trailers', year: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumbnail: 'https://img.youtube.com/vi/g8g4JZXI2kc/maxresdefault.jpg' }
 ]

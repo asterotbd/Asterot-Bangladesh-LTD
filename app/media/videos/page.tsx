@@ -4,17 +4,17 @@ import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import VideoGallery from '../../../components/VideoGallery'
 import MediaToolbar, { GridViewIcon, ListViewIcon } from '../../../components/MediaToolbar'
-import { mediaVideos } from '../../../lib/media'
+import { mediaVideos, videoCategories } from '../../../lib/media'
 import Link from 'next/link'
 
-const categories = ['All', ...Array.from(new Set(mediaVideos.map(video => video.category)))]
+const categories = ['All Videos', ...videoCategories]
 
 export default function MediaVideosPage() {
-  const [activeCategory, setActiveCategory] = useState('All')
+  const [activeCategory, setActiveCategory] = useState('All Videos')
   const [activeView, setActiveView] = useState<'grid' | 'list'>('grid')
 
   const filtered = useMemo(
-    () => activeCategory === 'All' ? mediaVideos : mediaVideos.filter(video => video.category === activeCategory),
+    () => activeCategory === 'All Videos' ? mediaVideos : mediaVideos.filter(video => video.category === activeCategory),
     [activeCategory]
   )
 
