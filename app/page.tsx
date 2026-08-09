@@ -3,6 +3,8 @@ import Hero from '../components/Hero'
 import CompaniesMarquee from '../components/CompaniesMarquee'
 import FeaturedEvent from '../components/FeaturedEvent'
 import BangladeshReach from '../components/BangladeshReach'
+import FAQSection from '../components/FAQSection'
+import { faqPageJsonLd } from '../lib/faq'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -32,6 +34,11 @@ export default function Home() {
     <main className="bg-black text-white">
 
       <Hero />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd) }}
+      />
 
       <section className="py-12 sm:py-16">
         <Container>
@@ -80,6 +87,8 @@ export default function Home() {
             </ul>
           </div>
         </section>
+
+        <FAQSection />
 
         <section className="relative mb-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center shadow-2xl shadow-black/20 sm:mb-12 sm:p-12">
           <div className="ambient-layer">
