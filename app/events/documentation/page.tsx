@@ -40,6 +40,8 @@ export default function EventDocumentationPage() {
             {(['All', 'Photo', 'Video'] as Filter[]).map(f => (
               <button
                 key={f}
+                type="button"
+                aria-pressed={filter === f}
                 onClick={() => setFilter(f)}
                 className={`inline-flex items-center rounded-full px-5 py-2 text-sm font-semibold transition ${
                   filter === f

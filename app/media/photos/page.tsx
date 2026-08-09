@@ -27,7 +27,7 @@ export default function MediaPhotosPage() {
           <div className="max-w-3xl space-y-5">
             <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.35em] text-primary">Media · Photos</span>
             <h1 className="fluid-title font-black leading-tight tracking-tight">Photo Gallery</h1>
-            <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">A look behind the scenes, our projects, people, and moments — filter by category or switch between grid and masonry views.</p>
+            <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">A look behind the scenes, our projects, people, and moments — organized into albums from tournaments, corporate events, celebrations, and more.</p>
           </div>
         </Container>
       </section>

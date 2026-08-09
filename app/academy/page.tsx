@@ -4,7 +4,7 @@ import RevealSection from '../../components/RevealSection'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Academy — Asterot Bangladesh Limited',
+  title: 'Academy',
   description: 'The Asterot Academy is being developed to help young people learn, lead and grow through practical skills and real experiences.',
   alternates: {
     canonical: 'https://www.asterot.com/academy'

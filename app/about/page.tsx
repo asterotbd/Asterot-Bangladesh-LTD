@@ -4,7 +4,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'About Us — Asterot Bangladesh Limited',
+  title: 'About Us',
   description: 'Learn about Asterot, a premium event organization in Bangladesh delivering sports events, corporate programs, entertainment productions, tournaments, conferences and brand activations.',
   alternates: {
     canonical: 'https://www.asterot.com/about'

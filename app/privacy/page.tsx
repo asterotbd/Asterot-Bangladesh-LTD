@@ -21,7 +21,9 @@ const sections: Section[] = [
     title: '1. Purpose and Scope',
     paragraphs: [
       'This Employee Handbook and Company Policy ("Policy") establishes the standards, expectations, workplace practices, and procedures applicable to employees of Asterot Bangladesh Limited ("Asterot," "the Company," "we," or "our").',
-      'The purpose of this Policy is to promote:'
+      'The purpose of this Policy is to promote:',
+      'This Policy applies to employees of Asterot Bangladesh Limited. Certain provisions may also apply to interns, volunteers, temporary staff, contractors, or event personnel where specifically communicated or contractually applicable.',
+      'This Policy is intended to operate consistently with applicable laws and regulations of Bangladesh. Where applicable law provides a different mandatory requirement, the applicable law shall prevail.'
     ],
     items: [
       'Professionalism and integrity',
@@ -35,15 +37,11 @@ const sections: Section[] = [
     ],
   },
   {
-    title: '1. Purpose and Scope',
-    paragraphs: [
-      'This Policy applies to employees of Asterot Bangladesh Limited. Certain provisions may also apply to interns, volunteers, temporary staff, contractors, or event personnel where specifically communicated or contractually applicable.',
-      'This Policy is intended to operate consistently with applicable laws and regulations of Bangladesh. Where applicable law provides a different mandatory requirement, the applicable law shall prevail.'
-    ]
-  },
-  {
     title: '2. Professional Standards and Code of Conduct',
-    paragraphs: ['All employees are expected to conduct themselves professionally and responsibly while representing Asterot. Employees are expected to:'],
+    paragraphs: [
+      'All employees are expected to conduct themselves professionally and responsibly while representing Asterot. Employees are expected to:',
+      'Employees must not engage in fraud, dishonesty, intimidation, harassment, discrimination, violence, serious misconduct, or other unlawful or unethical behavior.'
+    ],
     items: [
       'Act honestly, ethically, and professionally',
       'Treat colleagues, clients, partners, vendors, participants, and members of the public with respect',
@@ -56,12 +54,13 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '2. Professional Standards and Code of Conduct',
-    paragraphs: ['Employees must not engage in fraud, dishonesty, intimidation, harassment, discrimination, violence, serious misconduct, or other unlawful or unethical behavior.']
-  },
-  {
     title: '3. Confidentiality and Protection of Company Information',
-    paragraphs: ['Employees may have access to confidential or proprietary information belonging to Asterot, its clients, partners, employees, vendors, or other parties. Confidential information may include:'],
+    paragraphs: [
+      'Employees may have access to confidential or proprietary information belonging to Asterot, its clients, partners, employees, vendors, or other parties. Confidential information may include:',
+      'Employees must not disclose, copy, misuse, or distribute confidential information without appropriate authorization.',
+      'Confidentiality obligations may continue after an employee leaves the Company where applicable.',
+      'Employees must immediately report suspected loss, unauthorized disclosure, or unauthorized access to confidential information to management or the designated responsible person.'
+    ],
     items: [
       'Business plans',
       'Financial information',
@@ -77,16 +76,11 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '3. Confidentiality and Protection of Company Information',
-    paragraphs: [
-      'Employees must not disclose, copy, misuse, or distribute confidential information without appropriate authorization.',
-      'Confidentiality obligations may continue after an employee leaves the Company where applicable.',
-      'Employees must immediately report suspected loss, unauthorized disclosure, or unauthorized access to confidential information to management or the designated responsible person.'
-    ]
-  },
-  {
     title: '4. Conflict of Interest',
-    paragraphs: ['Employees must avoid situations in which their personal interests conflict, or appear to conflict, with the interests of Asterot. Employees must disclose potential or actual conflicts of interest to management as soon as reasonably possible. Examples may include:'],
+    paragraphs: [
+      'Employees must avoid situations in which their personal interests conflict, or appear to conflict, with the interests of Asterot. Employees must disclose potential or actual conflicts of interest to management as soon as reasonably possible. Examples may include:',
+      'The Company will review disclosed conflicts and determine appropriate measures where necessary.'
+    ],
     items: [
       'Personal financial interests involving Company vendors or clients',
       'Outside activities that interfere with Company responsibilities',
@@ -96,17 +90,15 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '4. Conflict of Interest',
-    paragraphs: ['The Company will review disclosed conflicts and determine appropriate measures where necessary.']
-  },
-  {
     title: '5. Working Hours and Attendance',
     paragraphs: [
       'The Company’s standard office hours are: 10:00 AM to 6:00 PM, Sunday through Thursday.',
       'Friday and Saturday are generally designated as weekly days off, subject to operational requirements, special events, client commitments, or other legitimate business needs.',
       'Employees assigned to events or special operations may be required to work outside standard office hours.',
       'Where additional working hours or event assignments are required, the Company will manage such arrangements in accordance with applicable law and Company procedures.',
-      'Employees are expected to:'
+      'Employees are expected to:',
+      'Arrival after 10:15 AM should ordinarily be communicated to and justified to the employee’s supervisor.',
+      'Repeated unauthorized absence, lateness, or attendance issues may result in appropriate corrective or disciplinary action in accordance with Company policy and applicable law.'
     ],
     items: [
       'Arrive on time',
@@ -117,15 +109,17 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '5. Working Hours and Attendance',
-    paragraphs: [
-      'Arrival after 10:15 AM should ordinarily be communicated to and justified to the employee’s supervisor.',
-      'Repeated unauthorized absence, lateness, or attendance issues may result in appropriate corrective or disciplinary action in accordance with Company policy and applicable law.'
-    ]
-  },
-  {
     title: '6. Dress and Professional Appearance',
-    paragraphs: ['Employees are expected to maintain a clean, professional, and appropriate appearance suitable for their role and responsibilities.', 'Regular Office Work', 'Smart-casual attire is generally appropriate unless a different standard is communicated.', 'Events and Client Meetings', 'Formal, professional, or Company-branded attire may be required depending on the nature of the event, client meeting, or assignment.', 'Event Operations', 'Employees assigned to fieldwork or event operations may be required to wear:'],
+    paragraphs: [
+      'Employees are expected to maintain a clean, professional, and appropriate appearance suitable for their role and responsibilities.',
+      'Regular Office Work',
+      'Smart-casual attire is generally appropriate unless a different standard is communicated.',
+      'Events and Client Meetings',
+      'Formal, professional, or Company-branded attire may be required depending on the nature of the event, client meeting, or assignment.',
+      'Event Operations',
+      'Employees assigned to fieldwork or event operations may be required to wear:',
+      'Specific dress requirements will be communicated before relevant assignments.'
+    ],
     items: [
       'Company-branded clothing',
       'Identification badges',
@@ -134,12 +128,15 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '6. Dress and Professional Appearance',
-    paragraphs: ['Specific dress requirements will be communicated before relevant assignments.']
-  },
-  {
     title: '7. Leave and Time-Off',
-    paragraphs: ['Asterot recognizes the importance of appropriate rest, personal time, and employee wellbeing. The Company’s internal leave structure currently provides:'],
+    paragraphs: [
+      'Asterot recognizes the importance of appropriate rest, personal time, and employee wellbeing. The Company’s internal leave structure currently provides:',
+      'These entitlements are subject to applicable law, employment contracts, Company procedures, and any applicable statutory requirements.',
+      'Employees should normally submit planned leave requests at least 3 days in advance and obtain approval from their immediate supervisor.',
+      'Emergency or unexpected leave should be communicated as soon as reasonably possible.',
+      'For sickness-related absence extending beyond the Company’s applicable threshold, the Company may request reasonable supporting documentation, such as a medical certificate, where permitted by applicable law.',
+      'The Company may review and update leave entitlements and procedures to ensure compliance with applicable legal requirements.'
+    ],
     items: [
       'Annual Leave: 18 working days per year',
       'Sick Leave: 10 working days per year',
@@ -147,18 +144,12 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '7. Leave and Time-Off',
-    paragraphs: [
-      'These entitlements are subject to applicable law, employment contracts, Company procedures, and any applicable statutory requirements.',
-      'Employees should normally submit planned leave requests at least 3 days in advance and obtain approval from their immediate supervisor.',
-      'Emergency or unexpected leave should be communicated as soon as reasonably possible.',
-      'For sickness-related absence extending beyond the Company’s applicable threshold, the Company may request reasonable supporting documentation, such as a medical certificate, where permitted by applicable law.',
-      'The Company may review and update leave entitlements and procedures to ensure compliance with applicable legal requirements.'
-    ]
-  },
-  {
     title: '8. Event Operations and Event Protocol',
-    paragraphs: ['Because Asterot provides event management services, employees assigned to events are expected to follow enhanced operational, safety, and professional standards. All assigned event personnel must:'],
+    paragraphs: [
+      'Because Asterot provides event management services, employees assigned to events are expected to follow enhanced operational, safety, and professional standards. All assigned event personnel must:',
+      'Smoking, alcohol misuse, illegal drug use, or being under the influence of intoxicating substances while performing Company duties or representing Asterot at an event is prohibited, subject to applicable law and Company policy.',
+      'Employees must not engage in behavior that compromises participant safety, event operations, or the Company’s reputation.'
+    ],
     items: [
       'Attend required pre-event briefings',
       'Understand their assigned responsibilities',
@@ -172,15 +163,12 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '8. Event Operations and Event Protocol',
-    paragraphs: [
-      'Smoking, alcohol misuse, illegal drug use, or being under the influence of intoxicating substances while performing Company duties or representing Asterot at an event is prohibited, subject to applicable law and Company policy.',
-      'Employees must not engage in behavior that compromises participant safety, event operations, or the Company’s reputation.'
-    ]
-  },
-  {
     title: '9. Workplace Health and Safety',
-    paragraphs: ['Asterot is committed to maintaining a safe and responsible working environment. Employees must:'],
+    paragraphs: [
+      'Asterot is committed to maintaining a safe and responsible working environment. Employees must:',
+      'Employees should never knowingly place themselves, colleagues, clients, event participants, or members of the public at unnecessary risk.',
+      'The Company may implement additional safety procedures depending on the nature and location of an event or assignment.'
+    ],
     items: [
       'Follow applicable health and safety procedures',
       'Use required safety equipment',
@@ -191,15 +179,14 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '9. Workplace Health and Safety',
-    paragraphs: [
-      'Employees should never knowingly place themselves, colleagues, clients, event participants, or members of the public at unnecessary risk.',
-      'The Company may implement additional safety procedures depending on the nature and location of an event or assignment.'
-    ]
-  },
-  {
     title: '10. Anti-Harassment, Anti-Discrimination and Respectful Workplace',
-    paragraphs: ['Asterot is committed to maintaining a workplace free from harassment, discrimination, intimidation, and abusive conduct. The Company does not tolerate:'],
+    paragraphs: [
+      'Asterot is committed to maintaining a workplace free from harassment, discrimination, intimidation, and abusive conduct. The Company does not tolerate:',
+      'Employees are expected to treat others with dignity and respect regardless of characteristics protected by applicable law.',
+      'Concerns or complaints may be reported to management, HR, or another designated Company representative.',
+      'The Company will seek to handle complaints appropriately, fairly, and as confidentially as reasonably possible.',
+      'Where a complaint is made, the Company may conduct an appropriate review or investigation and take action where warranted.'
+    ],
     items: [
       'Verbal harassment',
       'Physical harassment or violence',
@@ -212,17 +199,13 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '10. Anti-Harassment, Anti-Discrimination and Respectful Workplace',
-    paragraphs: [
-      'Employees are expected to treat others with dignity and respect regardless of characteristics protected by applicable law.',
-      'Concerns or complaints may be reported to management, HR, or another designated Company representative.',
-      'The Company will seek to handle complaints appropriately, fairly, and as confidentially as reasonably possible.',
-      'Where a complaint is made, the Company may conduct an appropriate review or investigation and take action where warranted.'
-    ]
-  },
-  {
     title: '11. Reporting Concerns and Complaints',
-    paragraphs: ['Employees are encouraged to raise workplace concerns promptly rather than allowing problems to escalate. Concerns may include:'],
+    paragraphs: [
+      'Employees are encouraged to raise workplace concerns promptly rather than allowing problems to escalate. Concerns may include:',
+      'Employees should normally report concerns to their immediate supervisor, HR, or designated management representative.',
+      'Where the concern involves the employee’s immediate supervisor, the employee may report it to another appropriate member of management.',
+      'A person who raises a genuine concern in good faith should not be subjected to retaliation for making that report.'
+    ],
     items: [
       'Harassment or discrimination',
       'Workplace safety',
@@ -235,16 +218,13 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '11. Reporting Concerns and Complaints',
-    paragraphs: [
-      'Employees should normally report concerns to their immediate supervisor, HR, or designated management representative.',
-      'Where the concern involves the employee’s immediate supervisor, the employee may report it to another appropriate member of management.',
-      'A person who raises a genuine concern in good faith should not be subjected to retaliation for making that report.'
-    ]
-  },
-  {
     title: '12. Use of Company Property and Resources',
-    paragraphs: ['Company resources must be used responsibly and primarily for legitimate business purposes. Company resources may include:'],
+    paragraphs: [
+      'Company resources must be used responsibly and primarily for legitimate business purposes. Company resources may include:',
+      'Employees must:',
+      'Unauthorized use, intentional damage, theft, misuse, or negligent handling of Company property may result in corrective or disciplinary action, subject to applicable law.',
+      'Any deduction from wages or other financial consequence will only be made where legally permissible and in accordance with applicable law and Company procedures.'
+    ],
     items: [
       'Laptops and computers',
       'Mobile phones',
@@ -255,13 +235,7 @@ const sections: Section[] = [
       'Documents',
       'Event equipment',
       'Vehicles or other operational resources',
-      'Other Company property'
-    ]
-  },
-  {
-    title: '12. Use of Company Property and Resources',
-    paragraphs: ['Employees must:'],
-    items: [
+      'Other Company property',
       'Protect Company property from loss, theft, or unauthorized use',
       'Use Company systems responsibly',
       'Maintain appropriate security practices',
@@ -270,15 +244,11 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '12. Use of Company Property and Resources',
-    paragraphs: [
-      'Unauthorized use, intentional damage, theft, misuse, or negligent handling of Company property may result in corrective or disciplinary action, subject to applicable law.',
-      'Any deduction from wages or other financial consequence will only be made where legally permissible and in accordance with applicable law and Company procedures.'
-    ]
-  },
-  {
     title: '13. Email, Internet and Technology Use',
-    paragraphs: ['Company technology and communication systems are provided primarily for legitimate business purposes. Employees must not use Company systems to:'],
+    paragraphs: [
+      'Company technology and communication systems are provided primarily for legitimate business purposes. Employees must not use Company systems to:',
+      'Employees should exercise professional judgment when using Company communication systems.'
+    ],
     items: [
       'Access or distribute unlawful material',
       'Harass or threaten others',
@@ -290,12 +260,11 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '13. Email, Internet and Technology Use',
-    paragraphs: ['Employees should exercise professional judgment when using Company communication systems.']
-  },
-  {
     title: '14. Social Media and Public Representation',
-    paragraphs: ['Employees should exercise reasonable care when communicating publicly about Asterot, its clients, employees, events, or business activities. Employees must not:'],
+    paragraphs: [
+      'Employees should exercise reasonable care when communicating publicly about Asterot, its clients, employees, events, or business activities. Employees must not:',
+      'Only authorized representatives may issue official Company statements or communications.'
+    ],
     items: [
       'Represent personal opinions as official Company statements',
       'Disclose confidential Company or client information',
@@ -305,12 +274,12 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '14. Social Media and Public Representation',
-    paragraphs: ['Only authorized representatives may issue official Company statements or communications.']
-  },
-  {
     title: '15. Performance and Evaluation',
-    paragraphs: ['Asterot aims to support continuous employee development and professional growth. Employee performance may be evaluated periodically, including consideration of:'],
+    paragraphs: [
+      'Asterot aims to support continuous employee development and professional growth. Employee performance may be evaluated periodically, including consideration of:',
+      'The Company currently intends to conduct formal performance evaluations approximately every six months, subject to operational requirements.',
+      'Performance evaluations may inform decisions regarding development opportunities, responsibilities, promotions, compensation, bonuses, or other employment matters, subject to Company policy, employment agreements, business conditions, and applicable law.'
+    ],
     items: [
       'Quality of work',
       'Productivity',
@@ -324,13 +293,6 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '15. Performance and Evaluation',
-    paragraphs: [
-      'The Company currently intends to conduct formal performance evaluations approximately every six months, subject to operational requirements.',
-      'Performance evaluations may inform decisions regarding development opportunities, responsibilities, promotions, compensation, bonuses, or other employment matters, subject to Company policy, employment agreements, business conditions, and applicable law.'
-    ]
-  },
-  {
     title: '16. Training and Professional Development',
     paragraphs: [
       'Where appropriate, Asterot may provide or facilitate training, orientation, workshops, mentoring, or other professional development opportunities.',
@@ -340,7 +302,11 @@ const sections: Section[] = [
   },
   {
     title: '17. Disciplinary Measures',
-    paragraphs: ['Failure to comply with Company policies or applicable workplace requirements may result in appropriate corrective or disciplinary action. Depending on the circumstances and severity of the matter, possible measures may include:'],
+    paragraphs: [
+      'Failure to comply with Company policies or applicable workplace requirements may result in appropriate corrective or disciplinary action. Depending on the circumstances and severity of the matter, possible measures may include:',
+      'The Company will consider the circumstances and seriousness of an alleged violation before determining an appropriate response.',
+      'Nothing in this section authorizes disciplinary action that is prohibited by applicable law.'
+    ],
     items: [
       'Informal counseling',
       'Verbal warning',
@@ -352,19 +318,13 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '17. Disciplinary Measures',
-    paragraphs: [
-      'The Company will consider the circumstances and seriousness of an alleged violation before determining an appropriate response.',
-      'Nothing in this section authorizes disciplinary action that is prohibited by applicable law.'
-    ]
-  },
-  {
     title: '18. Resignation and Termination',
     paragraphs: [
       'Employees who wish to resign should provide written notice in accordance with their employment agreement and applicable law.',
       'The Company may terminate employment where permitted by applicable law and the applicable employment agreement.',
       'The Company may also take immediate action in serious cases of misconduct where legally permitted.',
-      'Upon separation from the Company, employees must:'
+      'Upon separation from the Company, employees must:',
+      'Final payments, benefits, notice requirements, and other separation matters will be handled in accordance with applicable law, the employee’s employment agreement, and Company procedures.'
     ],
     items: [
       'Return Company property',
@@ -375,12 +335,12 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '18. Resignation and Termination',
-    paragraphs: ['Final payments, benefits, notice requirements, and other separation matters will be handled in accordance with applicable law, the employee’s employment agreement, and Company procedures.']
-  },
-  {
     title: '19. Intellectual Property and Work Product',
-    paragraphs: ['Unless otherwise agreed in writing and subject to applicable law, work created by an employee in the course of their employment for Asterot may belong to the Company to the extent permitted by law. This may include:'],
+    paragraphs: [
+      'Unless otherwise agreed in writing and subject to applicable law, work created by an employee in the course of their employment for Asterot may belong to the Company to the extent permitted by law. This may include:',
+      'Employees must not improperly use, reproduce, or distribute Company-owned or confidential work after leaving the Company.',
+      'Specific intellectual property arrangements may be addressed in employment agreements or separate written agreements.'
+    ],
     items: [
       'Business documents',
       'Event plans',
@@ -394,15 +354,12 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '19. Intellectual Property and Work Product',
-    paragraphs: [
-      'Employees must not improperly use, reproduce, or distribute Company-owned or confidential work after leaving the Company.',
-      'Specific intellectual property arrangements may be addressed in employment agreements or separate written agreements.'
-    ]
-  },
-  {
     title: '20. Personal Information and Employee Privacy',
-    paragraphs: ['Asterot may collect and process personal information necessary for legitimate employment, administrative, operational, legal, and business purposes. This may include information relating to:'],
+    paragraphs: [
+      'Asterot may collect and process personal information necessary for legitimate employment, administrative, operational, legal, and business purposes. This may include information relating to:',
+      'The Company will handle employee information in accordance with applicable law and its applicable privacy and data-handling practices.',
+      'Employees are expected to protect personal information belonging to colleagues, clients, event participants, and other individuals.'
+    ],
     items: [
       'Identity',
       'Contact details',
@@ -417,15 +374,11 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '20. Personal Information and Employee Privacy',
-    paragraphs: [
-      'The Company will handle employee information in accordance with applicable law and its applicable privacy and data-handling practices.',
-      'Employees are expected to protect personal information belonging to colleagues, clients, event participants, and other individuals.'
-    ]
-  },
-  {
     title: '21. External Work and Business Activities',
-    paragraphs: ['Employees should disclose outside employment, business activities, or other commitments where they may:'],
+    paragraphs: [
+      'Employees should disclose outside employment, business activities, or other commitments where they may:',
+      'The Company may review such activities and take reasonable measures where a genuine conflict exists.'
+    ],
     items: [
       'Create a conflict of interest',
       'Interfere with Company responsibilities',
@@ -434,25 +387,18 @@ const sections: Section[] = [
     ]
   },
   {
-    title: '21. External Work and Business Activities',
-    paragraphs: ['The Company may review such activities and take reasonable measures where a genuine conflict exists.']
-  },
-  {
     title: '22. Amendments and Policy Updates',
-    paragraphs: ['Asterot Bangladesh Limited reserves the right to review and update this Policy from time to time to reflect:'],
+    paragraphs: [
+      'Asterot Bangladesh Limited reserves the right to review and update this Policy from time to time to reflect:',
+      'Employees will be informed of material changes through appropriate Company communication channels.',
+      'Employees are responsible for familiarizing themselves with the policies applicable to their roles.'
+    ],
     items: [
       'Changes in applicable law',
       'Changes in Company operations',
       'Changes in organizational structure',
       'Changes in workplace practices',
       'Other legitimate business requirements'
-    ]
-  },
-  {
-    title: '22. Amendments and Policy Updates',
-    paragraphs: [
-      'Employees will be informed of material changes through appropriate Company communication channels.',
-      'Employees are responsible for familiarizing themselves with the policies applicable to their roles.'
     ]
   },
   {

@@ -177,7 +177,7 @@ export default function ContactPage() {
                         </span>
                         <span className="min-w-0">
                           <span className={infoLabelClass}>Phone</span>
-                          <span className={infoValueClass}>+880 1325-274642</span>
+                          <span className={infoValueClass}>+880 1325 274642</span>
                         </span>
                       </a>
                     </li>

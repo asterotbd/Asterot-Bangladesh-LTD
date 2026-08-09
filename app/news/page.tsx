@@ -6,7 +6,7 @@ import { newsArticles, newsCategories } from '../../lib/newsData'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'News | Asterot Bangladesh Limited',
+  title: 'News',
   description: 'Latest news, announcements, updates and stories from Asterot Bangladesh Limited.',
   alternates: {
     canonical: 'https://www.asterot.com/news'
