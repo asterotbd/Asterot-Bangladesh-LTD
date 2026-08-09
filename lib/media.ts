@@ -51,5 +51,6 @@ export const mediaPhotos: MediaPhoto[] = [
 ]
 
 export const mediaVideos: MediaVideo[] = [
-  { title: 'Coming Soon Trailer', category: 'Trailers', year: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumbnail: 'https://img.youtube.com/vi/g8g4JZXI2kc/maxresdefault.jpg' }
+  { title: 'Coming Soon Trailer', category: 'Trailers', year: '2026', duration: '0:09', youtubeId: 'g8g4JZXI2kc', thumbnail: 'https://img.youtube.com/vi/g8g4JZXI2kc/maxresdefault.jpg' },
+  { title: 'Event Highlight', category: 'The Highlights', year: '2026', youtubeId: 'cr-l3XI9uy8', thumbnail: 'https://img.youtube.com/vi/cr-l3XI9uy8/maxresdefault.jpg' }
 ]
