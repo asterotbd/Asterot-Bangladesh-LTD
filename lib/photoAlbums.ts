@@ -67,7 +67,19 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'Backstage Stories',
     slug: 'backstage-stories',
     description: 'A collection of backstage stories from behind the scenes.',
-    photos: []
+    photos: [
+      '/media/photos/backstage-stories/1.JPG',
+      '/media/photos/backstage-stories/2.jpg',
+      '/media/photos/backstage-stories/3.jpg',
+      '/media/photos/backstage-stories/4.jpg',
+      '/media/photos/backstage-stories/5.JPG',
+      '/media/photos/backstage-stories/6.jpg',
+      '/media/photos/backstage-stories/7.jpg',
+      '/media/photos/backstage-stories/8.jpg',
+      '/media/photos/backstage-stories/9.jpg',
+      '/media/photos/backstage-stories/10.jpeg',
+      '/media/photos/backstage-stories/11.jpg'
+    ]
   },
   {
     id: 'the-crew',
