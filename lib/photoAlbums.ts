@@ -60,7 +60,17 @@ export const photoAlbums: PhotoAlbum[] = [
     title: 'Other Events',
     slug: 'other-events',
     description: 'A collection of moments from our other events.',
-    photos: []
+    photos: [
+      '/media/photos/other-events/1.JPG',
+      '/media/photos/other-events/2.JPG',
+      '/media/photos/other-events/3.jpeg',
+      '/media/photos/other-events/4.jpeg',
+      '/media/photos/other-events/5.JPG',
+      '/media/photos/other-events/6.jpg',
+      '/media/photos/other-events/7.jpg',
+      '/media/photos/other-events/8.jpeg',
+      '/media/photos/other-events/9.JPG'
+    ]
   },
   {
     id: 'backstage-stories',
