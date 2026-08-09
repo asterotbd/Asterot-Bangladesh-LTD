@@ -38,7 +38,7 @@ Basic steps:
 
 1. Install and login to the Supabase CLI: `npm install -g supabase` and `supabase login`.
 2. Create a Supabase project via the dashboard and note your `project ref`.
-3. Configure `.env.local` from `.env.example` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` (service role key must remain server-only).
+3. Configure `.env.local` from `.env.example` with `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` (service role key must remain server-only).
 4. Run migrations using the Supabase SQL editor or `supabase` CLI by applying the files in `db/migrations` in order.
 
 Type generation
