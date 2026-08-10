@@ -48,12 +48,19 @@ function SignupForm(){
       return
     }
     setLoading(true)
+    const next = searchParams.get('next')
+    const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null
     const supabase = createBrowserClient()
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: {
-        data: { full_name: fullName.trim() }
+        data: { full_name: fullName.trim() },
+        // Environment-aware: window.location.origin is the current site
+        // (production https://www.asterot.com, local http://localhost:3000).
+        // The `next` param survives email confirmation, otherwise we land on
+        // the site root with an authenticated session.
+        emailRedirectTo: `${window.location.origin}${safeNext ?? '/'}`
       }
     })
     setLoading(false)
@@ -65,8 +72,7 @@ function SignupForm(){
       setCheckEmail(email.trim())
       return
     }
-    const next = searchParams.get('next')
-    if (next && next.startsWith('/') && !next.startsWith('//')) router.push(next)
+    if (safeNext) router.push(safeNext)
     else router.push('/account')
   }
 
