@@ -1,6 +1,6 @@
 "use client"
 export const dynamic = 'force-dynamic'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import createBrowserClient from '../../lib/supabaseBrowser'
@@ -9,6 +9,14 @@ import Button from '../../components/Button'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function SignupPage(){
+  return (
+    <Suspense>
+      <SignupForm/>
+    </Suspense>
+  )
+}
+
+function SignupForm(){
   const router = useRouter()
   const searchParams = useSearchParams()
   const [fullName, setFullName] = useState('')
