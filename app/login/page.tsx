@@ -1,12 +1,14 @@
 "use client"
 export const dynamic = 'force-dynamic'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import createBrowserClient from '../../lib/supabaseBrowser'
 import Button from '../../components/Button'
 
 export default function LoginPage(){
   const router = useRouter()
+  const searchParams = useSearchParams()
   // Init browser client lazily on submit to avoid server-side calls during build
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -21,7 +23,11 @@ export default function LoginPage(){
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (error) setError(error.message)
-    else router.push('/account')
+    else {
+      const next = searchParams.get('next')
+      if (next && next.startsWith('/') && !next.startsWith('//')) router.push(next)
+      else router.push('/account')
+    }
   }
 
   return (

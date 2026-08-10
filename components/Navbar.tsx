@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import BrandLogo from './BrandLogo'
 import { useDismiss } from '../hooks/useDismiss'
 import { useScrollLock } from '../hooks/useScrollLock'
+import { useAuth } from './AuthProvider'
 
 type MenuItem = { label: string, href: string }
 
@@ -91,6 +92,7 @@ const DesktopNavLink = memo(function DesktopNavLink({
 
 export default function Navbar() {
   const pathname = usePathname()
+  const { user, isLoading } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
@@ -312,12 +314,30 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="navbar-actions">
-          <Link href="/login" className="nav-action-link">
-            Log in
-          </Link>
-          <Link href="/registration" className="nav-action-btn">
-            Register
-          </Link>
+          {isLoading ? (
+            <span className="nav-action-link" aria-hidden="true">…</span>
+          ) : user ? (
+            <>
+              <Link href="/dashboard" className="nav-action-link">
+                Dashboard
+              </Link>
+              <Link href="/account" className="nav-action-link">
+                Account
+              </Link>
+              <a href="/api/auth/signout" className="nav-action-btn">
+                Log out
+              </a>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="nav-action-link">
+                Log in
+              </Link>
+              <Link href="/signup" className="nav-action-btn">
+                Register
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -359,12 +379,30 @@ export default function Navbar() {
           <MobileLink href="/contact" label="Contact" active={activeSection === 'contact'} onNavigate={closeMobile} />
 
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
-            <Link href="/login" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
-              Log in
-            </Link>
-            <Link href="/registration" onClick={closeMobile} className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
-              Register Now
-            </Link>
+            {isLoading ? (
+              <span className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-500" aria-hidden="true">…</span>
+            ) : user ? (
+              <>
+                <Link href="/dashboard" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
+                  Dashboard
+                </Link>
+                <Link href="/account" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
+                  Account
+                </Link>
+                <a href="/api/auth/signout" className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
+                  Log out
+                </a>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
+                  Log in
+                </Link>
+                <Link href="/signup" onClick={closeMobile} className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
+                  Register Now
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
