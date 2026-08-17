@@ -8,7 +8,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function MediaVideosPage() {
   const videos = await getSyncedVideos()
-  const categories = Array.from(new Set(videos.map(video => video.category).filter(Boolean)))
+  const regularVideos = videos.filter(video => video.videoType !== 'short')
+  const shorts = videos.filter(video => video.videoType === 'short')
+  const categories = Array.from(new Set(regularVideos.map(video => video.category).filter(Boolean)))
 
   return (
     <main className="bg-black text-white">
@@ -30,7 +32,7 @@ export default async function MediaVideosPage() {
 
       {/* Videos */}
       <Container>
-        <VideoLibrary videos={videos} categories={categories} />
+        <VideoLibrary videos={regularVideos} shorts={shorts} categories={categories} />
 
         {/* Cross-link to photos */}
         <RevealSection className="pb-16 sm:pb-20">

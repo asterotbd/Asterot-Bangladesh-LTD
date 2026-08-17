@@ -8,6 +8,7 @@ export type MediaPhoto = {
 
 export type MediaVideo = {
   id: string
+  videoType?: 'video' | 'short'
   title: string
   category: string
   year: string

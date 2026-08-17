@@ -19,6 +19,7 @@ export async function getSyncedVideos(): Promise<MediaVideo[]> {
     for (const row of (data as any[]) ?? []) {
       const metadata = (row?.metadata ?? {}) as {
         youtubeId?: string
+        videoType?: 'video' | 'short'
         title?: string
         publishedAt?: string
         year?: string
@@ -29,6 +30,7 @@ export async function getSyncedVideos(): Promise<MediaVideo[]> {
       if (!youtubeId || !row.caption_en) continue
       videos.push({
         id: youtubeId,
+        videoType: metadata.videoType ?? 'video',
         title: row.caption_en,
         category: row.category ?? 'Latest',
         year: metadata.year?.toString() ?? (metadata.publishedAt ? metadata.publishedAt.slice(0, 4) : ''),

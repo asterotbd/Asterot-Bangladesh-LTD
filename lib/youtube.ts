@@ -5,6 +5,7 @@ const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3'
 
 export type SyncedVideo = {
   youtubeId: string
+  videoType: 'video' | 'short'
   title: string
   publishedAt: string
   year: string
@@ -66,6 +67,21 @@ function isoDurationToClock(iso: string): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
+function isoDurationToSeconds(iso: string): number {
+  const match = iso.match(/^P(?:(\d+)D)?T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/)
+  if (!match) return Infinity
+  return (
+    parseInt(match[1] || '0', 10) * 86400 +
+    parseInt(match[2] || '0', 10) * 3600 +
+    parseInt(match[3] || '0', 10) * 60 +
+    parseInt(match[4] || '0', 10)
+  )
+}
+
+function classifyVideoType(alternateHref: string): 'video' | 'short' {
+  return /\/shorts\//.test(alternateHref) ? 'short' : 'video'
+}
+
 async function resolveUploadsPlaylistId(channelId: string, signal?: AbortSignal): Promise<string> {
   const apiKey = getApiKey()
   if (!apiKey) throw new Error('Missing YOUTUBE_API_KEY')
@@ -101,7 +117,7 @@ async function fetchAllUploadVideoIds(
 async function fetchVideoDetails(
   ids: string[],
   signal?: AbortSignal
-): Promise<{ youtubeId: string; title: string; publishedAt: string; description: string; thumbnail: string | undefined; duration: string }[]> {
+): Promise<{ youtubeId: string; title: string; publishedAt: string; description: string; thumbnail: string | undefined; duration: string; durationIso?: string }[]> {
   const apiKey = getApiKey()
   if (!apiKey) throw new Error('Missing YOUTUBE_API_KEY')
   const items: any[] = []
@@ -121,7 +137,8 @@ async function fetchVideoDetails(
       publishedAt: item.snippet.publishedAt as string,
       description: (item.snippet.description as string) || '',
       thumbnail: pickThumbnail(item.snippet.thumbnails),
-      duration: item.contentDetails?.duration ? isoDurationToClock(item.contentDetails.duration as string) : ''
+      duration: item.contentDetails?.duration ? isoDurationToClock(item.contentDetails.duration as string) : '',
+      durationIso: item.contentDetails?.duration as string | undefined
     }))
 }
 
@@ -181,6 +198,7 @@ async function fetchVideosFromApi(channelId: string, signal?: AbortSignal): Prom
   const categorized = assignCategories(details, categoryMap, playlistOrder)
   return details.map((d, index) => ({
     youtubeId: d.youtubeId,
+    videoType: d.durationIso && isoDurationToSeconds(d.durationIso) <= 60 ? 'short' : 'video',
     title: d.title,
     publishedAt: d.publishedAt,
     year: d.publishedAt.slice(0, 4),
@@ -202,9 +220,11 @@ function parseRssVideos(xml: string): SyncedVideo[] {
     const title = block.match(/<media:title>([^<]*)<\/media:title>/)?.[1]?.trim()
     const thumbnail = block.match(/<media:thumbnail url="([^"]+)"/)?.[1]
     const publishedAt = block.match(/<published>([^<]+)<\/published>/)?.[1]
+    const alternate = block.match(/<link rel="alternate" href="([^"]+)"/)?.[1]
     if (!youtubeId) continue
     videos.push({
       youtubeId,
+      videoType: classifyVideoType(alternate || `https://www.youtube.com/watch?v=${youtubeId}`),
       title: title || 'Untitled',
       publishedAt: publishedAt || '',
       year: publishedAt ? publishedAt.slice(0, 4) : '',
@@ -242,6 +262,7 @@ function videoToRow(video: SyncedVideo) {
     public_url: `https://www.youtube.com/watch?v=${video.youtubeId}`,
     metadata: {
       youtubeId: video.youtubeId,
+      videoType: video.videoType,
       title: video.title,
       publishedAt: video.publishedAt,
       year: video.year,
