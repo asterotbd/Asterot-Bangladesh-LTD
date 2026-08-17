@@ -4,6 +4,7 @@ export type EventItem = {
   category: string
   date?: string
   tag: 'Upcoming' | 'Featured' | 'Past'
+  slug: string
 }
 
 export type DocumentationItem = {
@@ -18,13 +19,15 @@ export const upcomingEvents: EventItem[] = [
     description: 'A sports tournament supported through sponsorship activity with Orion Group, bringing competitive energy and community engagement.',
     category: 'Sports',
     date: 'Details coming soon',
-    tag: 'Featured'
+    tag: 'Featured',
+    slug: 'student-uprising-memorial-cup'
   },
   {
     title: 'Corporate Leadership Conference',
     description: 'A premium conference designed for executives, entrepreneurs and young leaders to connect, learn and grow.',
     category: 'Corporate',
-    tag: 'Upcoming'
+    tag: 'Upcoming',
+    slug: 'corporate-leadership-conference'
   }
 ]
 
@@ -34,14 +37,16 @@ export const pastEvents: EventItem[] = [
     description: 'Asterot\'s brand launch event featuring keynote moments and executive presence.',
     category: 'Corporate',
     date: '2025',
-    tag: 'Past'
+    tag: 'Past',
+    slug: 'brand-launch-opening-ceremony'
   },
   {
     title: 'Community Sports Day',
     description: 'A community gathering focused on sports, teamwork and local engagement.',
     category: 'Sports',
     date: '2025',
-    tag: 'Past'
+    tag: 'Past',
+    slug: 'community-sports-day'
   }
 ]
 

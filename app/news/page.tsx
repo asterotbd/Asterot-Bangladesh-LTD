@@ -3,7 +3,10 @@ import RevealSection from '../../components/RevealSection'
 import FeaturedNews from '../../components/news/FeaturedNews'
 import LatestStories from '../../components/news/LatestStories'
 import { newsArticles, newsCategories } from '../../lib/newsData'
+import { getPublishedNewsArticles } from '../../lib/news-server'
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'News',
@@ -13,11 +16,13 @@ export const metadata: Metadata = {
   }
 }
 
-const featuredArticles = newsArticles.filter(article => article.featured)
-const nonFeaturedArticles = newsArticles.filter(article => !article.featured)
-const latestArticles = nonFeaturedArticles.length > 0 ? nonFeaturedArticles : newsArticles
+export default async function NewsPage() {
+  const dbArticles = await getPublishedNewsArticles()
+  const articles = dbArticles.length > 0 ? dbArticles : newsArticles
+  const featuredArticles = articles.filter(article => article.featured)
+  const nonFeaturedArticles = articles.filter(article => !article.featured)
+  const latestArticles = nonFeaturedArticles.length > 0 ? nonFeaturedArticles : articles
 
-export default function NewsPage() {
   return (
     <main className="news-page bg-black text-white">
       {/* Scoped ambient background — exists only on /news */}

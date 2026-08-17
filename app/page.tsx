@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import Container from '../components/Container'
 import Hero from '../components/Hero'
 import CompaniesMarquee from '../components/CompaniesMarquee'
@@ -70,15 +71,29 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8 shadow-2xl shadow-black/20 sm:p-10">
-            <p className="text-sm uppercase tracking-[0.35em] text-primary">Featured events</p>
-            <h2 className="mt-4 text-3xl font-semibold">Event categories</h2>
-            <p className="mt-4 text-gray-300">Asterot’s event portfolio centers on sports tournaments, corporate gatherings, entertainment programs and branding activations.</p>
-            <ul className="mt-8 space-y-4 text-gray-300">
-              {featuredEventCategories.map(item => (
-                <li key={item} className="rounded-3xl border border-white/10 bg-white/5 p-4">{item}</li>
+          <div className="flex flex-col gap-8 rounded-[2rem] border border-white/10 bg-black/40 p-8 shadow-2xl shadow-black/20 sm:p-10">
+            <div>
+              <p className="text-sm uppercase tracking-[0.35em] text-primary">Featured events</p>
+              <h2 className="mt-4 text-3xl font-semibold">Event categories</h2>
+              <p className="mt-4 text-gray-300">Asterot’s event portfolio centers on sports tournaments, corporate gatherings, entertainment programs and branding activations.</p>
+            </div>
+            <ul className="space-y-3">
+              {featuredEventCategories.map((item, index) => (
+                <li key={item} className="group flex items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition-colors duration-300 hover:border-primary/40 hover:bg-white/10">
+                  <span aria-hidden="true" className="h-5 w-0.5 shrink-0 rounded-full bg-primary/60 transition-colors duration-300 group-hover:bg-primary" />
+                  <span aria-hidden="true" className="shrink-0 text-xs font-bold tabular-nums tracking-[0.2em] text-primary">{String(index + 1).padStart(2, '0')}</span>
+                  <h3 className="min-w-0 font-semibold leading-snug text-white">{item}</h3>
+                </li>
               ))}
             </ul>
+            <div className="mt-auto border-t border-white/10 pt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400">From strategy to execution</p>
+              <p className="mt-2 text-sm leading-6 text-gray-300">We create experiences across sports, corporate, entertainment and brand activations.</p>
+              <Link href="/events" className="group mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent">
+                Explore our events
+                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+              </Link>
+            </div>
           </div>
         </section>
 

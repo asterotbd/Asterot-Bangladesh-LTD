@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { pastEvents } from '../../../lib/events'
+import { pastEvents as staticPast } from '../../../lib/events'
+import { getPublishedEvents, getEventCategories, isUpcoming, formatEventDate } from '../../../lib/events-server'
 
 export const metadata: Metadata = {
   title: 'Past Events',
@@ -12,7 +14,28 @@ export const metadata: Metadata = {
   }
 }
 
-export default function PastEventsPage() {
+type DisplayEvent = {
+  category: string
+  title: string
+  description: string
+  date?: string
+}
+
+export default async function PastEventsPage() {
+  const [dbEvents, categories] = await Promise.all([getPublishedEvents(), getEventCategories()])
+  const categoryNames = new Map(categories.map(c => [c.id, c.name_en]))
+
+  const past = dbEvents.length > 0
+    ? dbEvents
+        .filter(e => !isUpcoming(e))
+        .map(e => ({
+          category: (e.category_id && categoryNames.get(e.category_id)) || 'Event',
+          title: e.title_en,
+          description: e.description_en || 'Details coming soon.',
+          date: formatEventDate(e.date) || undefined
+        }))
+    : staticPast
+
   return (
     <main className="bg-black text-white">
 
@@ -34,23 +57,27 @@ export default function PastEventsPage() {
       {/* Past events */}
       <Container>
         <RevealSection className="py-16 sm:py-20">
-          <div className="grid gap-6 sm:grid-cols-2">
-            {pastEvents.map(event => (
-              <article key={event.title} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-gray-300">
-                    {event.tag}
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{event.category}</span>
-                </div>
-                <h2 className="mt-5 text-2xl font-semibold tracking-tight">{event.title}</h2>
-                <p className="mt-3 text-gray-300 leading-7">{event.description}</p>
-                {event.date ? (
-                  <p className="mt-4 text-sm text-primary">{event.date}</p>
-                ) : null}
-              </article>
-            ))}
-          </div>
+          {past.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {past.map(event => (
+                <article key={event.title} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-gray-300">
+                      Past
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{event.category}</span>
+                  </div>
+                  <h2 className="mt-5 text-2xl font-semibold tracking-tight">{event.title}</h2>
+                  <p className="mt-3 text-gray-300 leading-7">{event.description}</p>
+                  {event.date ? (
+                    <p className="mt-4 text-sm text-primary">{event.date}</p>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No past events to show yet.</p>
+          )}
         </RevealSection>
 
         {/* Continue exploring */}

@@ -1,15 +1,16 @@
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { newsArticles } from '../../../lib/newsData'
+import { getPublishedNewsArticleBySlug } from '../../../lib/news-server'
 
-export function generateStaticParams() {
-  return newsArticles.map(article => ({ slug: article.slug }))
-}
+export const dynamic = 'force-dynamic'
 
-export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
-  const article = newsArticles.find(a => a.slug === params.slug)
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const dbArticle = await getPublishedNewsArticleBySlug(params.slug)
+  const article = dbArticle ?? newsArticles.find(a => a.slug === params.slug)
   if (!article) {
     return { title: 'Article Not Found' }
   }
@@ -22,23 +23,12 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   }
 }
 
-export default function NewsArticlePage({ params }: { params: { slug: string } }) {
-  const article = newsArticles.find(a => a.slug === params.slug)
+export default async function NewsArticlePage({ params }: { params: { slug: string } }) {
+  const dbArticle = await getPublishedNewsArticleBySlug(params.slug)
+  const article = dbArticle ?? newsArticles.find(a => a.slug === params.slug)
 
   if (!article) {
-    return (
-      <main className="bg-black text-white">
-        <Container>
-          <section className="py-28 text-center">
-            <h1 className="text-4xl font-bold">Article not found</h1>
-            <p className="mt-4 text-gray-300">The article you are looking for does not exist.</p>
-            <Link href="/news" className="btn btn-primary mt-8">
-              Back to News
-            </Link>
-          </section>
-        </Container>
-      </main>
-    )
+    notFound()
   }
 
   return (

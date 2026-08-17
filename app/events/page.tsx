@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic'
 import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { upcomingEvents, pastEvents, documentationItems } from '../../lib/events'
+import { upcomingEvents as staticUpcoming, pastEvents as staticPast, documentationItems } from '../../lib/events'
+import { getPublishedEvents, getEventCategories, isUpcoming, formatEventDate } from '../../lib/events-server'
 
 export const metadata: Metadata = {
   title: 'Events',
@@ -31,7 +33,38 @@ const eventCategories = [
   }
 ]
 
-export default function EventsPage() {
+type DisplayEvent = {
+  title: string
+  description: string
+  slug: string
+  date?: string
+}
+
+export default async function EventsPage() {
+  const [dbEvents, categories] = await Promise.all([getPublishedEvents(), getEventCategories()])
+  const categoryNames = new Map(categories.map(c => [c.id, c.name_en]))
+
+  const featured: DisplayEvent = dbEvents.length > 0
+    ? {
+        title: dbEvents[0].title_en,
+        description: dbEvents[0].description_en || 'Details coming soon.',
+        slug: dbEvents[0].slug,
+        date: formatEventDate(dbEvents[0].date) || undefined
+      }
+    : {
+        title: staticUpcoming[0].title,
+        description: staticUpcoming[0].description,
+        slug: staticUpcoming[0].slug,
+        date: staticUpcoming[0].date
+      }
+
+  const upcomingCount = dbEvents.length > 0
+    ? dbEvents.filter(isUpcoming).length
+    : staticUpcoming.length
+  const pastCount = dbEvents.length > 0
+    ? dbEvents.filter(e => !isUpcoming(e)).length
+    : staticPast.length
+
   return (
     <main className="bg-black text-white">
 
@@ -50,11 +83,12 @@ export default function EventsPage() {
             </div>
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-10 shadow-2xl shadow-black/20">
               <p className="text-sm uppercase tracking-[0.35em] text-primary">Featured event</p>
-              <h2 className="mt-4 text-2xl font-semibold">{upcomingEvents[0].title}</h2>
-              <p className="mt-4 text-gray-300 leading-7">{upcomingEvents[0].description}</p>
-              <a href="/registration" className="btn btn-primary">
+              <h2 className="mt-4 text-2xl font-semibold">{featured.title}</h2>
+              <p className="mt-4 text-gray-300 leading-7">{featured.description}</p>
+              {featured.date && <p className="mt-4 text-sm text-gray-400">{featured.date}</p>}
+              <Link href={`/events/register/${featured.slug}`} className="btn btn-primary">
                 Register your interest
-              </a>
+              </Link>
             </div>
           </div>
         </Container>
@@ -115,12 +149,12 @@ export default function EventsPage() {
         <RevealSection className="pb-16 sm:pb-20">
           <div className="section-grid">
             <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8">
-              <p className="text-4xl font-black text-primary">{upcomingEvents.length}</p>
+              <p className="text-4xl font-black text-primary">{upcomingCount}</p>
               <h3 className="mt-2 font-semibold">Upcoming & Featured</h3>
               <p className="mt-2 text-sm text-gray-400">Events on the horizon</p>
             </div>
             <div className="rounded-[2rem] border border-white/10 bg-black/40 p-8">
-              <p className="text-4xl font-black text-primary">{pastEvents.length}</p>
+              <p className="text-4xl font-black text-primary">{pastCount}</p>
               <h3 className="mt-2 font-semibold">Past Events</h3>
               <p className="mt-2 text-sm text-gray-400">Delivered highlights</p>
             </div>

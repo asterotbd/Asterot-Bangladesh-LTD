@@ -24,9 +24,12 @@ export default async function AdminPage(){
       <h2 className="text-2xl font-semibold">Admin Dashboard</h2>
       <p className="mt-4">Welcome, {session.user.email}</p>
       <p className="mt-2 text-sm text-gray-400">Roles: {roleNames.join(', ') || '—'}</p>
-      <div className="mt-4">
-        <a href="/api/auth/signout" className="text-primary">Logout</a>
-      </div>
+      <nav className="mt-6 flex flex-wrap gap-4">
+        <a href="/admin/events" className="btn btn-primary">Manage Events</a>
+        <a href="/admin/news" className="btn btn-primary">Manage News</a>
+        <a href="/admin/company" className="btn btn-ghost">Company Content</a>
+        <a href="/api/auth/signout" className="btn btn-ghost">Logout</a>
+      </nav>
     </div>
   )
 }

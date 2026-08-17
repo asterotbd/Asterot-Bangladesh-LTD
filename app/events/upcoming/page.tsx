@@ -1,8 +1,10 @@
+export const dynamic = 'force-dynamic'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { upcomingEvents } from '../../../lib/events'
+import { upcomingEvents as staticUpcoming } from '../../../lib/events'
+import { getPublishedEvents, getEventCategories, isUpcoming, formatEventDate } from '../../../lib/events-server'
 
 export const metadata: Metadata = {
   title: 'Upcoming Events',
@@ -12,7 +14,32 @@ export const metadata: Metadata = {
   }
 }
 
-export default function UpcomingEventsPage() {
+type DisplayEvent = {
+  tag: 'Featured' | 'Upcoming'
+  category: string
+  title: string
+  description: string
+  date?: string
+  slug: string
+}
+
+export default async function UpcomingEventsPage() {
+  const [dbEvents, categories] = await Promise.all([getPublishedEvents(), getEventCategories()])
+  const categoryNames = new Map(categories.map(c => [c.id, c.name_en]))
+
+  const upcoming = dbEvents.length > 0
+    ? dbEvents
+        .filter(isUpcoming)
+        .map((e, i) => ({
+          tag: i === 0 ? 'Featured' as const : 'Upcoming' as const,
+          category: (e.category_id && categoryNames.get(e.category_id)) || 'Event',
+          title: e.title_en,
+          description: e.description_en || 'Details coming soon.',
+          date: formatEventDate(e.date) || undefined,
+          slug: e.slug
+        }))
+    : staticUpcoming
+
   return (
     <main className="bg-black text-white">
 
@@ -34,27 +61,37 @@ export default function UpcomingEventsPage() {
       {/* Upcoming events */}
       <Container>
         <RevealSection className="py-16 sm:py-20">
-          <div className="grid gap-6 sm:grid-cols-2">
-            {upcomingEvents.map(event => (
-              <article key={event.title} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
-                <div className="flex items-center gap-3">
-                  <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
-                    event.tag === 'Featured'
-                      ? 'bg-primary text-black'
-                      : 'bg-white/10 text-gray-300'
-                  }`}>
-                    {event.tag}
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{event.category}</span>
-                </div>
-                <h2 className="mt-5 text-2xl font-semibold tracking-tight">{event.title}</h2>
-                <p className="mt-3 text-gray-300 leading-7">{event.description}</p>
-                {event.date ? (
-                  <p className="mt-4 text-sm text-primary">{event.date}</p>
-                ) : null}
-              </article>
-            ))}
-          </div>
+          {upcoming.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2">
+              {upcoming.map(event => (
+                <article key={event.slug} className="card-surface rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10">
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
+                      event.tag === 'Featured'
+                        ? 'bg-primary text-black'
+                        : 'bg-white/10 text-gray-300'
+                    }`}>
+                      {event.tag}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.2em] text-gray-300">{event.category}</span>
+                  </div>
+                  <h2 className="mt-5 text-2xl font-semibold tracking-tight">{event.title}</h2>
+                  <p className="mt-3 text-gray-300 leading-7">{event.description}</p>
+                  {event.date ? (
+                    <p className="mt-4 text-sm text-primary">{event.date}</p>
+                  ) : null}
+                  <Link
+                    href={`/events/register/${event.slug}`}
+                    className="mt-6 inline-block rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-black transition duration-200 hover:bg-primary/90"
+                  >
+                    Register
+                  </Link>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No upcoming events are open for registration right now. Check back soon.</p>
+          )}
         </RevealSection>
 
         {/* Continue exploring */}
