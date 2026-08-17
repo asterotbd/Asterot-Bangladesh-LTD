@@ -17,28 +17,28 @@ export const metadata: Metadata = {
 
 const capabilityAccents = {
   primary: {
-    line: 'bg-primary',
+    line: 'bg-gradient-to-r from-primary via-primary to-accent',
     dot: 'bg-primary',
-    panel: 'border-primary/30 bg-primary/10',
-    hover: 'hover:border-primary/50 hover:bg-primary/15'
+    panel: 'border-primary/40 bg-primary/10 shadow-lg shadow-primary/10',
+    hover: 'hover:border-primary/60 hover:bg-primary/20 hover:shadow-primary/25'
   },
   accent: {
-    line: 'bg-accent',
-    dot: 'bg-accent',
-    panel: 'border-accent/30 bg-accent/10',
-    hover: 'hover:border-accent/50 hover:bg-accent/15'
+    line: 'bg-gradient-to-r from-primary via-primary to-accent',
+    dot: 'bg-primary',
+    panel: 'border-primary/40 bg-primary/10 shadow-lg shadow-primary/10',
+    hover: 'hover:border-primary/60 hover:bg-primary/20 hover:shadow-primary/25'
   },
   blue: {
-    line: 'bg-[#1487FF]',
-    dot: 'bg-[#1487FF]',
-    panel: 'border-[#1487FF]/30 bg-[#1487FF]/10',
-    hover: 'hover:border-[#1487FF]/50 hover:bg-[#1487FF]/15'
+    line: 'bg-gradient-to-r from-primary via-primary to-accent',
+    dot: 'bg-primary',
+    panel: 'border-primary/40 bg-primary/10 shadow-lg shadow-primary/10',
+    hover: 'hover:border-primary/60 hover:bg-primary/20 hover:shadow-primary/25'
   },
   cyan: {
-    line: 'bg-[#00B8FF]',
-    dot: 'bg-[#00B8FF]',
-    panel: 'border-[#00B8FF]/30 bg-[#00B8FF]/10',
-    hover: 'hover:border-[#00B8FF]/50 hover:bg-[#00B8FF]/15'
+    line: 'bg-gradient-to-r from-primary via-primary to-accent',
+    dot: 'bg-primary',
+    panel: 'border-primary/40 bg-primary/10 shadow-lg shadow-primary/10',
+    hover: 'hover:border-primary/60 hover:bg-primary/20 hover:shadow-primary/25'
   }
 }
 
@@ -93,13 +93,13 @@ export default function Home() {
               {services.map(service => {
                 const a = capabilityAccents[service.accent]
                 return (
-                  <div key={service.title} className={`relative overflow-hidden rounded-3xl border p-5 transition-colors duration-300 ${a.panel} ${a.hover}`}>
-                    <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-0.5 ${a.line}`} />
+                  <div key={service.title} className={`group relative overflow-hidden rounded-3xl border p-5 transition-all duration-300 ${a.panel} ${a.hover}`}>
+                    <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-[3px] rounded-full ${a.line} shadow-[0_0_16px_rgba(255,22,90,0.45)]`} />
                     <div className="flex items-center gap-2">
-                      <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${a.dot}`} />
-                      <h3 className="font-semibold">{service.title}</h3>
+                      <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${a.dot} shadow-[0_0_10px_rgba(255,22,90,0.65)]`} />
+                      <h3 className="font-bold text-white transition-colors duration-300 group-hover:text-primary">{service.title}</h3>
                     </div>
-                    <p className="mt-2 text-sm text-gray-300">{service.description}</p>
+                    <p className="mt-2 text-sm text-gray-400">{service.description}</p>
                   </div>
                 )
               })}
