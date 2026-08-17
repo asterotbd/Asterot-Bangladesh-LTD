@@ -2,10 +2,10 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import MediaModal from './MediaModal'
-import { mediaVideos, type MediaVideo } from '../lib/media'
+import type { MediaVideo } from '../lib/media'
 
 type VideoGalleryProps = {
-  items?: MediaVideo[]
+  items: MediaVideo[]
   view?: 'grid' | 'list'
 }
 
@@ -17,7 +17,7 @@ function PlayIcon({ className = 'h-6 w-6' }: { className?: string }) {
   )
 }
 
-export default function VideoGallery({ items = mediaVideos, view = 'grid' }: VideoGalleryProps) {
+export default function VideoGallery({ items, view = 'grid' }: VideoGalleryProps) {
   const [activeVideo, setActiveVideo] = useState<number | null>(null)
   const open = activeVideo !== null
   const video = activeVideo !== null ? items[activeVideo] : null
@@ -34,7 +34,7 @@ export default function VideoGallery({ items = mediaVideos, view = 'grid' }: Vid
           : 'flex flex-col gap-4'}>
           {items.map((item, index) => (
           <button
-            key={item.title}
+            key={item.id}
             type="button"
             onClick={() => setActiveVideo(index)}
             aria-label={`Play video: ${item.title}`}

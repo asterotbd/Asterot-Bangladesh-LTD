@@ -1,22 +1,14 @@
-"use client"
-import { useMemo, useState } from 'react'
 import Container from '../../../components/Container'
 import RevealSection from '../../../components/RevealSection'
-import VideoGallery from '../../../components/VideoGallery'
-import MediaToolbar, { GridViewIcon, ListViewIcon } from '../../../components/MediaToolbar'
-import { mediaVideos, videoCategories } from '../../../lib/media'
+import VideoLibrary from '../../../components/VideoLibrary'
 import Link from 'next/link'
+import { getSyncedVideos } from '../../../lib/videos'
 
-const categories = ['All Videos', ...videoCategories]
+export const dynamic = 'force-dynamic'
 
-export default function MediaVideosPage() {
-  const [activeCategory, setActiveCategory] = useState('All Videos')
-  const [activeView, setActiveView] = useState<'grid' | 'list'>('grid')
-
-  const filtered = useMemo(
-    () => activeCategory === 'All Videos' ? mediaVideos : mediaVideos.filter(video => video.category === activeCategory),
-    [activeCategory]
-  )
+export default async function MediaVideosPage() {
+  const videos = await getSyncedVideos()
+  const categories = Array.from(new Set(videos.map(video => video.category).filter(Boolean)))
 
   return (
     <main className="bg-black text-white">
@@ -38,23 +30,7 @@ export default function MediaVideosPage() {
 
       {/* Videos */}
       <Container>
-        <RevealSection className="py-16 sm:py-20">
-          <MediaToolbar
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            viewOptions={[
-              { id: 'grid', label: 'Grid', icon: <GridViewIcon /> },
-              { id: 'list', label: 'List', icon: <ListViewIcon /> }
-            ]}
-            activeView={activeView}
-            onViewChange={view => setActiveView(view as 'grid' | 'list')}
-            resultCount={filtered.length}
-          />
-          <div className="mt-10">
-            <VideoGallery items={filtered} view={activeView} />
-          </div>
-        </RevealSection>
+        <VideoLibrary videos={videos} categories={categories} />
 
         {/* Cross-link to photos */}
         <RevealSection className="pb-16 sm:pb-20">
