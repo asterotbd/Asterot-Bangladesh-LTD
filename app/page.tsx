@@ -15,11 +15,38 @@ export const metadata: Metadata = {
   }
 }
 
-const services = [
-  { title: 'Event Strategy', description: 'Professional planning and production across sports, corporate, entertainment and brand campaigns.' },
-  { title: 'Sports Tournaments', description: 'Organizing sports competitions and tournaments with operational precision.' },
-  { title: 'Corporate Programs', description: 'Managing conferences, meetings, seminars and executive gatherings.' },
-  { title: 'Branded Experiences', description: 'Delivering activations, sponsorship campaigns and high-impact marketing events.' }
+const capabilityAccents = {
+  primary: {
+    line: 'bg-primary',
+    dot: 'bg-primary',
+    panel: 'border-primary/30 bg-primary/10',
+    hover: 'hover:border-primary/50 hover:bg-primary/15'
+  },
+  accent: {
+    line: 'bg-accent',
+    dot: 'bg-accent',
+    panel: 'border-accent/30 bg-accent/10',
+    hover: 'hover:border-accent/50 hover:bg-accent/15'
+  },
+  blue: {
+    line: 'bg-[#1487FF]',
+    dot: 'bg-[#1487FF]',
+    panel: 'border-[#1487FF]/30 bg-[#1487FF]/10',
+    hover: 'hover:border-[#1487FF]/50 hover:bg-[#1487FF]/15'
+  },
+  cyan: {
+    line: 'bg-[#00B8FF]',
+    dot: 'bg-[#00B8FF]',
+    panel: 'border-[#00B8FF]/30 bg-[#00B8FF]/10',
+    hover: 'hover:border-[#00B8FF]/50 hover:bg-[#00B8FF]/15'
+  }
+}
+
+const services: { title: string; description: string; accent: keyof typeof capabilityAccents }[] = [
+  { title: 'Event Strategy', description: 'Professional planning and production across sports, corporate, entertainment and brand campaigns.', accent: 'primary' },
+  { title: 'Sports Tournaments', description: 'Organizing sports competitions and tournaments with operational precision.', accent: 'blue' },
+  { title: 'Corporate Programs', description: 'Managing conferences, meetings, seminars and executive gatherings.', accent: 'cyan' },
+  { title: 'Branded Experiences', description: 'Delivering activations, sponsorship campaigns and high-impact marketing events.', accent: 'accent' }
 ]
 
 const featuredEventCategories = [
@@ -63,12 +90,19 @@ export default function Home() {
             <h2 className="mt-4 text-3xl font-semibold">Capabilities</h2>
             <p className="mt-4 text-gray-300">Asterot provides a full range of event management capabilities for sports, corporate, entertainment and brand-focused programs.</p>
             <div className="gallery-grid mt-8">
-              {services.map(service => (
-                <div key={service.title} className="rounded-3xl border border-white/10 bg-black/40 p-5">
-                  <h3 className="font-semibold">{service.title}</h3>
-                  <p className="mt-2 text-sm text-gray-300">{service.description}</p>
-                </div>
-              ))}
+              {services.map(service => {
+                const a = capabilityAccents[service.accent]
+                return (
+                  <div key={service.title} className={`relative overflow-hidden rounded-3xl border p-5 transition-colors duration-300 ${a.panel} ${a.hover}`}>
+                    <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-0.5 ${a.line}`} />
+                    <div className="flex items-center gap-2">
+                      <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${a.dot}`} />
+                      <h3 className="font-semibold">{service.title}</h3>
+                    </div>
+                    <p className="mt-2 text-sm text-gray-300">{service.description}</p>
+                  </div>
+                )
+              })}
             </div>
           </div>
           <div className="flex flex-col gap-8 rounded-[2rem] border border-white/10 bg-black/40 p-8 shadow-2xl shadow-black/20 sm:p-10">
@@ -86,13 +120,16 @@ export default function Home() {
                 </li>
               ))}
             </ul>
-            <div className="mt-auto border-t border-white/10 pt-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-400">From strategy to execution</p>
-              <p className="mt-2 text-sm leading-6 text-gray-300">We create experiences across sports, corporate, entertainment and brand activations.</p>
-              <Link href="/events" className="group mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent">
-                Explore our events
-                <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-              </Link>
+            <div className="mt-auto">
+              <div className="relative overflow-hidden rounded-3xl border border-primary/40 bg-primary/10 p-5">
+                <span aria-hidden="true" className="absolute inset-x-0 top-0 h-0.5 bg-primary" />
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-primary">End-to-End Event Delivery</p>
+                <p className="mt-2 text-sm leading-6 text-gray-300">From strategy and planning to execution, Asterot delivers complete event experiences built for impact.</p>
+                <Link href="/events" className="group mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-accent">
+                  Explore our events
+                  <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
