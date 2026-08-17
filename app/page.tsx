@@ -75,15 +75,6 @@ export default function Home() {
       <BangladeshReach />
 
       <Container>
-        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-8 pt-16 shadow-2xl shadow-black/20 card-surface sm:p-10 sm:pt-20">
-          <div className="mx-auto max-w-[min(70ch,100%)] text-center">
-            <p className="text-sm uppercase tracking-[0.35em] text-primary">About Asterot</p>
-            <h2 className="mt-4 text-3xl font-semibold">Asterot Bangladesh Limited organizes premium events in Bangladesh</h2>
-            <p className="mt-4 text-gray-300">Asterot runs professional events, sports competitions, corporate programs, tournaments, conferences, entertainment productions, branding and marketing activities.</p>
-            <p className="mt-4 text-gray-400">The company delivers structured event management with a premium focus on partner support and audience experience.</p>
-          </div>
-        </section>
-
         <section className="section-grid py-16 sm:py-20">
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 sm:p-10">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Core services</p>
