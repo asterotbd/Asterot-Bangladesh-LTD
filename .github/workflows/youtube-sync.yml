@@ -1,0 +1,19 @@
+name: youtube-sync
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger YouTube sync
+        run: >
+          curl --fail --silent --show-error --location
+          "https://www.asterot.com/api/cron/youtube-sync"
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
