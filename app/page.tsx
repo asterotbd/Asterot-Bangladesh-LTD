@@ -79,8 +79,8 @@ export default function Home() {
             </div>
             <ul className="space-y-3">
               {featuredEventCategories.map((item, index) => (
-                <li key={item} className="group flex items-center gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 transition-colors duration-300 hover:border-primary/40 hover:bg-white/10">
-                  <span aria-hidden="true" className="h-5 w-0.5 shrink-0 rounded-full bg-primary/60 transition-colors duration-300 group-hover:bg-primary" />
+                <li key={item} className="group flex items-center gap-4 rounded-3xl border border-primary/30 bg-primary/10 p-4 transition-colors duration-300 hover:border-primary/50 hover:bg-primary/15">
+                  <span aria-hidden="true" className="h-6 w-1 shrink-0 rounded-full bg-primary transition-colors duration-300" />
                   <span aria-hidden="true" className="shrink-0 text-xs font-bold tabular-nums tracking-[0.2em] text-primary">{String(index + 1).padStart(2, '0')}</span>
                   <h3 className="min-w-0 font-semibold leading-snug text-white">{item}</h3>
                 </li>
