@@ -207,6 +207,17 @@ h6 {
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.16);
 }
 
+/* ===== Media Explore cards (Photos / Videos) — scoped hover accent ===== */
+.media-explore-card {
+  transition: transform 240ms ease, box-shadow 240ms ease, border-color 300ms ease, background-color 300ms ease;
+}
+
+.media-explore-card:hover,
+.media-explore-card:focus-visible {
+  border-color: rgba(255, 22, 90, 0.4);
+  background-color: rgba(255, 22, 90, 0.1);
+}
+
 /* ===== Standard card primitives ===== */
 .card {
   border-radius: 2rem;

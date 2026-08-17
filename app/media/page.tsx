@@ -34,7 +34,7 @@ export default function MediaPage() {
             <RevealSection className="h-full">
               <Link
                 href="/media/photos"
-                className="group card-surface flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
+                className="group card-surface media-explore-card flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="h-7 w-7 text-primary">
@@ -56,7 +56,7 @@ export default function MediaPage() {
             <RevealSection className="h-full">
               <Link
                 href="/media/videos"
-                className="group card-surface flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
+                className="group card-surface media-explore-card flex h-full flex-col rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-10"
               >
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                   <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-7 w-7 text-primary">
