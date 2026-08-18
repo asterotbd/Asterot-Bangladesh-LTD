@@ -28,5 +28,19 @@ export const newsArticles: NewsArticle[] = [
     date: 'May 28, 2025',
     image: '/media/photos/news/football-tournament-2025-runner-up.jpg',
     featured: true
+  },
+  {
+    slug: 'diit-speedster-reaches-quarterfinals-at-rising-generation-football-tournament-2025',
+    title: 'DIIT Speedster Reaches Quarterfinals at Rising Generation Football Tournament 2025',
+    category: 'Latest News',
+    excerpt: 'Daffodil Institute of IT (DIIT) Speedster battled their way to the quarterfinals of the Rising Generation Football Tournament 2025, organized by Asterot Bangladesh Limited, narrowly losing 1–0.',
+    content: [
+      'Daffodil Institute of IT (DIIT) Speedster stormed the pitch in the Rising Generation Football Tournament 2025, organized by Asterot Bangladesh Limited. From intense tackles to lightning-fast plays, the DIIT Speedster battled their way to the quarterfinals, proving they are a force to be reckoned with.',
+      'In a nail-biting showdown, they gave it their all but narrowly lost 1–0. With heads held high and hearts full of passion, the team demonstrated true sporting spirit. This is just the beginning — the Speedsters will rise again.',
+      'Source: Daffodil Institute of IT (DIIT) — https://www.facebook.com/DaffodilInstituteofIT/posts/1111350311024696/'
+    ],
+    date: 'May 26, 2025',
+    image: '/media/photos/news/football-tournament-2025-diit-quarterfinals.jpg',
+    featured: true
   }
 ]
