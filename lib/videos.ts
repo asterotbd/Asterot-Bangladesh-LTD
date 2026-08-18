@@ -28,6 +28,13 @@ export async function getSyncedVideos(): Promise<MediaVideo[]> {
       }
       const youtubeId = metadata.youtubeId
       if (!youtubeId || !row.caption_en) continue
+      const storedThumb = metadata.thumbnail
+      const thumbnail =
+        metadata.videoType === 'short'
+          ? storedThumb
+            ? storedThumb.replace(/\/vi\/[^/]+\/(?:mq|hq|sd)?default\.jpg$/i, `/vi/${youtubeId}/maxresdefault.jpg`)
+            : `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
+          : storedThumb || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
       videos.push({
         id: youtubeId,
         videoType: metadata.videoType ?? 'video',
@@ -35,7 +42,7 @@ export async function getSyncedVideos(): Promise<MediaVideo[]> {
         category: row.category ?? 'Latest',
         year: metadata.year?.toString() ?? (metadata.publishedAt ? metadata.publishedAt.slice(0, 4) : ''),
         youtubeId,
-        thumbnail: metadata.thumbnail || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
+        thumbnail,
         duration: metadata.duration ?? undefined
       })
     }
