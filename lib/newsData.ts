@@ -42,5 +42,21 @@ export const newsArticles: NewsArticle[] = [
     date: 'May 26, 2025',
     image: '/media/photos/news/football-tournament-2025-diit-quarterfinals.jpg',
     featured: true
+  },
+  {
+    slug: 'fareast-international-university-crowned-champions-of-rising-generation-2025-football-tournament',
+    title: 'Fareast International University Crowned Champions of Rising Generation Inter University Football Tournament 2025',
+    category: 'Latest News',
+    excerpt: 'Fareast International University (FIU) has been crowned the champions of the Rising Generation Inter University Football Tournament 2025, triumphing over AIUB in a penalty shootout in the final after a 1–1 draw in regular time.',
+    content: [
+      'Fareast International University (FIU) has been crowned the champions of the Rising Generation Inter University Football Tournament 2025. In a thrilling one-day tournament, Team FIU displayed unstoppable determination and brilliance from the very first whistle.',
+      'FIU topped their group undefeated, defeating Southeast University 4–0, Sonargaon University 3–0, and hosts Sher-e-Bangla Agricultural University 3–0. They then powered to a 5–1 victory over Shanto-Mariam University of Creative Technology in the quarterfinal and edged out Daffodil International University in a nail-biting semifinal, with Moin netting the winning goal in the dying minutes.',
+      'In the final against AIUB, the match ended 1–1 in regular time before FIU triumphed 2–1 in the penalty shootout, thanks to a crucial save from goalkeeper Arman in the final moment.',
+      'Moin Ahmed was honored as Man of the Final and Man of the Tournament, while Arman was named Best Goalkeeper of the Tournament.',
+      'Source: Fareast International University (FIU) — https://www.facebook.com/fiu.edu.bd/posts/1155668126602316/'
+    ],
+    date: 'May 23, 2025',
+    image: '/media/photos/news/football-tournament-2025-fiu-champions.jpg',
+    featured: true
   }
 ]
