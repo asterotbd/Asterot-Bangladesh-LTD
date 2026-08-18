@@ -72,6 +72,21 @@ export const newsArticles: NewsArticle[] = [
     ],
     date: 'May 23, 2025',
     image: '/media/photos/news/football-tournament-2025-fiu-champions.jpg',
-    featured: true
+    featured: false
+  },
+  {
+    slug: 'diit-football-team-to-compete-in-inter-institution-football-tournament-2025',
+    title: 'DIIT Football Team to Compete in Inter-Institution Football Tournament Organized by Asterot Bangladesh Limited',
+    category: 'Latest News',
+    excerpt: 'Daffodil Institute of IT (DIIT) has announced that its football team will compete in a grand inter-institution football tournament organized by Asterot Bangladesh Limited, scheduled for Friday, May 23, from 8:00 AM at Sher-e-Bangla Agricultural University.',
+    content: [
+      'Daffodil Institute of IT (DIIT) has announced that its talented football team will take part in a grand inter-institution football tournament organized by Asterot Bangladesh Limited.',
+      'According to the announcement, the tournament is more than just a game — it is a symbol of institutional pride, honor, and unity. DIIT expressed confidence that, alongside the players’ performance on the field, the presence and encouragement of supporters in the gallery will help secure victory.',
+      'The tournament is scheduled for Friday, May 23, from 8:00 AM at the Sher-e-Bangla Agricultural University field. DIIT called on its students and supporters to attend and cheer the team toward victory, noting that their support and presence are the team’s strength.',
+      'Source: Daffodil Institute of IT (DIIT) — https://www.facebook.com/DaffodilInstituteofIT/posts/1108534494639611/'
+    ],
+    date: 'May 22, 2025',
+    image: '/media/photos/news/football-tournament-2025-diit-announcement.jpg',
+    featured: false
   }
 ]

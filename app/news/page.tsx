@@ -20,8 +20,7 @@ export default async function NewsPage() {
   const dbArticles = await getPublishedNewsArticles()
   const articles = dbArticles.length > 0 ? dbArticles : newsArticles
   const featuredArticles = articles.filter(article => article.featured)
-  const nonFeaturedArticles = articles.filter(article => !article.featured)
-  const latestArticles = nonFeaturedArticles.length > 0 ? nonFeaturedArticles : articles
+  const latestArticles = articles
 
   return (
     <main className="news-page bg-black text-white">
