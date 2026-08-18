@@ -9,6 +9,12 @@ type VideoGalleryProps = {
   view?: 'grid' | 'list'
 }
 
+function thumbClass(item: MediaVideo, view: 'grid' | 'list') {
+  const isShort = item.videoType === 'short'
+  if (view === 'grid') return isShort ? 'aspect-[9/16]' : 'aspect-video'
+  return isShort ? 'aspect-[9/16] w-full sm:w-40 sm:shrink-0' : 'aspect-video w-full sm:w-64 sm:shrink-0'
+}
+
 function PlayIcon({ className = 'h-6 w-6' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
@@ -44,7 +50,7 @@ export default function VideoGallery({ items, view = 'grid' }: VideoGalleryProps
                 : 'flex w-full flex-col sm:flex-row sm:items-stretch sm:rounded-[1.5rem]'
             }`}
           >
-            <div className={`relative overflow-hidden ${view === 'grid' ? 'aspect-video' : 'aspect-video w-full sm:w-64 sm:shrink-0'}`}>
+            <div className={`relative overflow-hidden ${thumbClass(item, view)}`}>
               <Image
                 src={item.thumbnail}
                 alt={`Thumbnail for ${item.title}`}
@@ -77,8 +83,10 @@ export default function VideoGallery({ items, view = 'grid' }: VideoGalleryProps
 
       <MediaModal open={open} onClose={() => setActiveVideo(null)} label={`Video player: ${video?.title ?? ''}`}>
         {video ? (
-          <div className="overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50">
-            <div className="relative aspect-video w-full bg-black">
+          <div className={`overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#0b0b10] shadow-2xl shadow-black/50 ${
+              video.videoType === 'short' ? 'mx-auto w-full max-w-[min(56rem,100%,calc(80vh*9/16))]' : ''
+            }`}>
+            <div className={`relative w-full bg-black ${video.videoType === 'short' ? 'aspect-[9/16]' : 'aspect-video'}`}>
               {video.youtubeId ? (
                 <iframe
                   src={`https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&playsinline=1`}
