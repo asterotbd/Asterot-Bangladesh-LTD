@@ -23,6 +23,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
+const URL_PATTERN = /(https?:\/\/[^\s]+)/g
+
+function linkify(text: string) {
+  return text.split(URL_PATTERN).map((part, index) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={index}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-primary underline underline-offset-4 transition-opacity hover:opacity-80"
+      >
+        {part}
+      </a>
+    ) : (
+      part
+    )
+  )
+}
+
 export default async function NewsArticlePage({ params }: { params: { slug: string } }) {
   const dbArticle = await getPublishedNewsArticleBySlug(params.slug)
   const article = dbArticle ?? newsArticles.find(a => a.slug === params.slug)
@@ -58,7 +78,7 @@ export default async function NewsArticlePage({ params }: { params: { slug: stri
           <article className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-14">
             <div className="space-y-5 text-gray-300 leading-8">
               {article.content.map((para, index) => (
-                <p key={index}>{para}</p>
+                <p key={index}>{linkify(para)}</p>
               ))}
             </div>
           </article>

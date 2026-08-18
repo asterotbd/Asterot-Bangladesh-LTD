@@ -13,6 +13,21 @@ export const newsCategories = ['Latest News', 'Announcements', 'Articles / Updat
 
 export const newsArticles: NewsArticle[] = [
   {
+    slug: 'asterot-bangladesh-limited-launches-its-official-youtube-channel',
+    title: 'Asterot Bangladesh Limited Launches Its Official YouTube Channel',
+    category: 'Latest News',
+    excerpt: 'Asterot Bangladesh Limited is now on YouTube. The official Asterot YouTube channel brings viewers closer to our events, tournaments, behind-the-scenes moments, highlights, and stories.',
+    content: [
+      'Asterot Bangladesh Limited is now on YouTube. The official Asterot YouTube channel brings viewers closer to our events, tournaments, behind-the-scenes moments, highlights, and stories.',
+      'From exciting event moments to tournament highlights and content from behind the scenes, the channel will be a place to discover more of what Asterot Bangladesh Limited does.',
+      'Follow the official Asterot YouTube channel to stay connected with our latest videos, event highlights, and upcoming content.',
+      'Watch on YouTube: https://www.youtube.com/@AsterotBangladesh'
+    ],
+    date: 'Aug 18, 2026',
+    image: '/media/photos/news/youtube-channel-launch.jpg',
+    featured: true
+  },
+  {
     slug: 'aiub-excels-as-runner-up-in-the-rising-generation-2025-football-tournament',
     title: 'AIUB Excels as Runner-Up in The Rising Generation 2025 Football Tournament',
     category: 'Latest News',
