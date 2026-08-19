@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import createBrowserClient from '../../lib/supabaseBrowser'
+import { isSafeInternalPath } from '../../lib/redirects'
 import Button from '../../components/Button'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -49,7 +50,7 @@ function SignupForm(){
     }
     setLoading(true)
     const next = searchParams.get('next')
-    const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null
+    const safeNext = isSafeInternalPath(next) ? (next as string) : null
     const supabase = createBrowserClient()
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),

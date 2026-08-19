@@ -19,9 +19,12 @@ export default async function EventRegisterPage({ params }: { params: { slug: st
   const slug = params.slug
   const supabase = createServerClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session || !session.user) {
-    redirect(`/login?next=/events/register/${slug}`)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    // Encode the full path so a slug containing `?`, `&`, `#` or control
+    // characters cannot inject additional query parameters into the `next` value.
+    const nextPath = `/events/register/${slug}`
+    redirect(`/login?next=${encodeURIComponent(nextPath)}`)
   }
 
   const event = await getPublishedEventBySlug(slug)

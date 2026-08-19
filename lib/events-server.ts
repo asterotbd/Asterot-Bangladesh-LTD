@@ -24,8 +24,6 @@ export type EventCategory = {
   slug: string | null
 }
 
-export const EVENT_ADMIN_ROLES: string[] = ['super_admin', 'admin']
-
 const EVENT_FIELDS = 'id, title_en, title_bn, slug, description_en, description_bn, category_id, date, time, location, registration_deadline, capacity, published, created_at, updated_at'
 
 function todayISO() {

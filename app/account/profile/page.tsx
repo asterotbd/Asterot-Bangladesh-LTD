@@ -6,11 +6,11 @@ import ProfileForm from '../../../components/ProfileForm'
 
 export default async function EditProfilePage() {
   const supabase = createServerClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session || !session.user) redirect('/login')
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  const userId = session.user.id
-  const email = session.user.email || ''
+  const userId = user.id
+  const email = user.email || ''
 
   const { data: profile } = await supabase
     .from('profiles')

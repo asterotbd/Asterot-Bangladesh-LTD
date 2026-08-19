@@ -1,4 +1,6 @@
+"use client"
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const COMPANY = {
   name: 'Asterot Bangladesh Limited',
@@ -38,6 +40,8 @@ const socials = [
 ]
 
 export default function Footer() {
+  const pathname = usePathname()
+  if (pathname.startsWith('/admin')) return null
   return (
     <footer className="border-t border-white/10 bg-[#0b0b0c] text-left">
       {/* Big brand wordmark + horizontal contact */}

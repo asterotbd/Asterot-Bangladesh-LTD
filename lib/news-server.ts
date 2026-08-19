@@ -27,8 +27,6 @@ export type NewsCategory = {
   slug: string | null
 }
 
-export const NEWS_ADMIN_ROLES: string[] = ['super_admin', 'admin']
-
 const NEWS_FIELDS = 'id, title_en, title_bn, slug, subtitle_en, subtitle_bn, excerpt_en, excerpt_bn, content_en, content_bn, category_id, author_id, published, published_at, created_at, updated_at, featured_image'
 
 const DEFAULT_NEWS_IMAGE = '/media/photos/corporate-events/AUM09214.jpg'

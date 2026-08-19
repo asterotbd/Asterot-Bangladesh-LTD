@@ -6,6 +6,7 @@ import BrandLogo from './BrandLogo'
 import { useDismiss } from '../hooks/useDismiss'
 import { useScrollLock } from '../hooks/useScrollLock'
 import { useAuth } from './AuthProvider'
+import { logout } from '../lib/logout'
 
 type MenuItem = { label: string, href: string }
 
@@ -92,6 +93,7 @@ const DesktopNavLink = memo(function DesktopNavLink({
 
 export default function Navbar() {
   const pathname = usePathname()
+  const isAdminArea = pathname.startsWith('/admin')
   const { user, isLoading } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -267,6 +269,8 @@ export default function Navbar() {
     )
   }
 
+  if (isAdminArea) return null
+
   return (
     <header ref={headerRef} className={`navbar-shell ${scrolled ? 'is-scrolled' : ''} ${hidden ? 'is-hidden' : ''}`}>
       <nav className="container navbar-inner navbar-pill" aria-label="Main navigation">
@@ -324,9 +328,9 @@ export default function Navbar() {
               <Link href="/account" className="nav-action-link">
                 Account
               </Link>
-              <a href="/api/auth/signout" className="nav-action-btn">
+              <button type="button" onClick={() => void logout()} className="nav-action-btn cursor-pointer border-0">
                 Log out
-              </a>
+              </button>
             </>
           ) : (
             <>
@@ -389,9 +393,9 @@ export default function Navbar() {
                 <Link href="/account" onClick={closeMobile} className="block rounded-lg px-4 py-3 text-center text-sm font-medium text-gray-300 transition hover:bg-white/10 hover:text-white">
                   Account
                 </Link>
-                <a href="/api/auth/signout" className="block rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
+                <button type="button" onClick={() => void logout()} className="block w-full cursor-pointer rounded-lg bg-white px-4 py-3 text-center text-sm font-semibold text-black transition hover:bg-gray-200">
                   Log out
-                </a>
+                </button>
               </>
             ) : (
               <>

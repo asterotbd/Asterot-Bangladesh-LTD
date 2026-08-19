@@ -35,8 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }).data.subscription
 
       supabase.auth
-        .getSession()
-        .then(({ data: { session } }) => finish(session?.user ?? null))
+        .getUser()
+        .then(({ data: { user } }) => finish(user))
         .catch(() => finish(null))
     } catch {
       finish(null)

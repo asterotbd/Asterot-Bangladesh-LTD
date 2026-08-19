@@ -17,9 +17,8 @@ function formatDate(value: string | null) {
 
 export default async function DashboardPage() {
   const supabase = createServerClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session || !session.user) redirect('/login')
-  const user = session.user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')

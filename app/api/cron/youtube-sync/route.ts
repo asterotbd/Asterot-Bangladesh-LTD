@@ -3,6 +3,11 @@ import { syncYoutubeVideos } from '../../../../lib/youtube'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
+// Operator-only, server-to-server cron endpoint (invoked by GitHub Actions
+// with CRON_SECRET). Detailed error messages are intentionally retained in the
+// response so the operator can diagnose sync failures; this route is never
+// called from the browser and is not part of the browser-facing API surface.
+
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim()
   const authorization = request.headers.get('authorization')

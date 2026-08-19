@@ -1,59 +1,51 @@
 import { NextResponse } from 'next/server'
+import { requireApiPermission } from '../../../../lib/auth'
 import getAdminSupabase from '../../../../lib/supabaseAdmin'
-import { getUserRoles } from '../../../../lib/auth'
-import createServerClient from '../../../../lib/supabaseServer'
+import { jsonError, logError, parseJsonBody } from '../../../../lib/api-utils'
+import { verifyCsrfRequest } from '../../../../lib/csrf'
+import { validateCompanyPayload } from '../../../../lib/api-validation'
+import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
-async function requireAdminSession() {
-  const supabase = createServerClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session || !session.user) {
-    return { ok: false, status: 401, message: 'Not authenticated' }
-  }
-  const roles = await getUserRoles(session.user.id)
-  const allowed = ['super_admin', 'admin']
-  const isAdmin = (roles || []).some((r: any) => allowed.includes(String(r)))
-  if (!isAdmin) return { ok: false, status: 403, message: 'Forbidden' }
-  return { ok: true, session }
-}
-
 export async function GET() {
-  const check = await requireAdminSession()
-  if (!check.ok) return NextResponse.json({ error: check.message }, { status: check.status })
+  const check = await requireApiPermission('company.view')
+  if (!check.ok) return jsonError(check.message, check.status)
   const admin = getAdminSupabase()
   const { data, error } = await admin.from('company_info').select('*').limit(1).maybeSingle()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    logError('admin.company.get', error)
+    return jsonError('Unable to load company information.', 500)
+  }
   return NextResponse.json({ data })
 }
 
-const ALLOWED_FIELDS = ['name_en', 'founded_date', 'tagline_en', 'slogan_en', 'short_description_en'] as const
-
-function pickCompanyFields(body: unknown): Record<string, unknown> | null {
-  if (!body || typeof body !== 'object' || Array.isArray(body)) return null
-  const source = body as Record<string, unknown>
-  const out: Record<string, unknown> = {}
-  for (const key of ALLOWED_FIELDS) {
-    if (key in source) out[key] = source[key]
-  }
-  return out
-}
-
 export async function PUT(request: Request) {
-  const check = await requireAdminSession()
-  if (!check.ok) return NextResponse.json({ error: check.message }, { status: check.status })
-  const body = await request.json().catch(() => null)
-  const fields = pickCompanyFields(body)
-  if (!fields) return NextResponse.json({ error: 'Invalid payload' }, { status: 400 })
+  const check = await requireApiPermission('company.edit')
+  if (!check.ok) return jsonError(check.message, check.status)
+  const csrf = verifyCsrfRequest(request)
+  if (!csrf.ok) return jsonError(csrf.error, csrf.status)
+
+  if (await isRateLimited(RATE_LIMIT_RULES.companyMutate.prefix, check.user.id, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES.companyMutate.max)) {
+    return jsonError('Too many requests. Please try again later.', 429)
+  }
+
+  const body = await parseJsonBody(request)
+  const result = validateCompanyPayload(body)
+  if ('error' in result) return jsonError(result.error, 400)
+  const fields = result.fields
+
   const admin = getAdminSupabase()
-  // Upsert single company_info row (client is untyped, so pass the validated payload through)
-  const userId = (check.session as any).user.id
+  const userId = check.user.id
   const payload = {
     ...fields,
     updated_at: new Date().toISOString(),
     created_by: userId
   }
   const { data, error } = await admin.from('company_info').upsert(payload as any, { onConflict: 'id' }).select().maybeSingle()
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    logError('admin.company.update', error)
+    return jsonError('Unable to update company information.', 500)
+  }
   return NextResponse.json({ data })
 }
