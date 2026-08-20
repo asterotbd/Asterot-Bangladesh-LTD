@@ -86,3 +86,13 @@ export async function updateContactMessageStatus(id: string, status: ContactStat
   if (error) throw error
   return (data ?? []).length > 0
 }
+
+export async function deleteContactMessage(id: string): Promise<boolean> {
+  const admin = getAdminSupabase()
+  const { data, error } = await (admin.from('contact_messages') as any)
+    .delete()
+    .eq('id', id)
+    .select('id')
+  if (error) throw error
+  return (data ?? []).length > 0
+}

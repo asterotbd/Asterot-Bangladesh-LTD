@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../../lib/auth'
-import { getContactMessage, updateContactMessageStatus, CONTACT_STATUSES } from '../../../../../lib/contact-server'
+import { getContactMessage, updateContactMessageStatus, deleteContactMessage, CONTACT_STATUSES } from '../../../../../lib/contact-server'
 import { writeAuditLog } from '../../../../../lib/audit'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
@@ -52,5 +52,28 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   } catch (err) {
     logError('admin.messages.update', err)
     return jsonError('Unable to update the message.', 500)
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const check = await requireApiPermission('contact.manage')
+  if (!check.ok) return jsonError(check.message, check.status)
+  const csrf = verifyCsrfRequest(request)
+  if (!csrf.ok) return jsonError(csrf.error, csrf.status)
+
+  if (await isRateLimited(RATE_LIMIT_RULES.contactMutate.prefix, check.user.id, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES.contactMutate.max)) {
+    return jsonError('Too many requests. Please try again later.', 429)
+  }
+
+  if (!isValidUuid(params.id)) return jsonError('Invalid message ID.', 400)
+
+  try {
+    const deleted = await deleteContactMessage(params.id)
+    if (!deleted) return jsonError('Message not found.', 404)
+    await writeAuditLog(check.user.id, 'contact.delete', 'contact_messages', params.id)
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    logError('admin.messages.delete', err)
+    return jsonError('Unable to delete the message.', 500)
   }
 }

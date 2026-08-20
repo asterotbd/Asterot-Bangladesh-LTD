@@ -107,6 +107,24 @@ export async function listMedia({
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
   let query = admin.from('media').select('id, storage_path, public_url, type, provider, alt_en, alt_bn, caption_en, caption_bn, width, height, filesize, category, created_by, created_at', { count: 'exact' })
+
+  // The Media Library must only contain media assets intended for the library.
+  // A media row that is a news article's featured image belongs to Admin → News
+  // (news.featured_image → media.id) and is therefore excluded here at the query
+  // layer. Existing news records and their images are never modified.
+  const { data: newsFeaturedRows, error: newsFeaturedError } = await admin
+    .from('news')
+    .select('featured_image')
+    .not('featured_image', 'is', null)
+  if (newsFeaturedError) {
+    logError('media.news-featured', newsFeaturedError)
+  } else {
+    const newsMediaIds = [...new Set((newsFeaturedRows ?? []).map((r) => (r as { featured_image: string | null }).featured_image).filter((id): id is string => Boolean(id)))]
+    if (newsMediaIds.length > 0) {
+      query = query.not('id', 'in', `(${newsMediaIds.join(',')})`)
+    }
+  }
+
   const term = search.trim()
   if (term) {
     const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)

@@ -7,7 +7,7 @@ import { getContactMessage } from '../../../../../lib/contact-server'
 import PageHeader from '../../../../../components/admin/PageHeader'
 import StatusBadge from '../../../../../components/admin/StatusBadge'
 import { Panel, ErrorState } from '../../../../../components/admin/Panel'
-import ContactMessageActions from '../../../../../components/admin/ContactMessageActions'
+import MessageDetailActions from '../../../../../components/admin/MessageDetailActions'
 
 const STATUS_TONE: Record<string, { tone: 'success' | 'warning' | 'info' | 'neutral' | 'primary'; label: string }> = {
   new: { tone: 'warning', label: 'New' },
@@ -70,7 +70,7 @@ export default async function AdminMessageDetailPage({ params }: { params: { id:
         <div className="space-y-6">
           <Panel
             title="Message"
-            action={canManage ? <ContactMessageActions messageId={message.id} currentStatus={message.status ?? 'new'} /> : <StatusBadge tone={statusInfo.tone}>{statusInfo.label}</StatusBadge>}
+            action={canManage ? <MessageDetailActions messageId={message.id} currentStatus={message.status ?? 'new'} /> : <StatusBadge tone={statusInfo.tone}>{statusInfo.label}</StatusBadge>}
           >
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-3">
