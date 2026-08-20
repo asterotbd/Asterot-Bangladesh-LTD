@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import ConfirmDialog from './ConfirmDialog'
 import type { DbMedia } from '../../lib/media-server'
@@ -91,15 +92,16 @@ export default function MediaGrid({ items, canManage }: { items: DbMedia[]; canM
           const isVideo = item.type === 'video' || item.type === 'embed'
           return (
             <div key={item.id} className="group overflow-hidden rounded-2xl border border-white/10 bg-panel">
-              <div className="flex aspect-video items-center justify-center overflow-hidden bg-black/40">
+              <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-black/40">
                 {isVideo ? (
                   <span className="text-xs text-gray-500">{item.provider === 'youtube' ? 'YouTube' : item.type}</span>
                 ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={item.public_url ?? ''}
                     alt={item.alt_en ?? item.caption_en ?? 'Media'}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
                     loading="lazy"
                   />
                 )}

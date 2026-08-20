@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 import type { User } from '@supabase/supabase-js'
 import createServerClient from './supabaseServer'
 import getAdminSupabase from './supabaseAdmin'
@@ -9,34 +10,59 @@ import {
   getPermissionsForRoles
 } from './permissions'
 
-export async function requireAuth() {
+// Per-request memoization (React cache): the same request never calls
+// GoTrue/Postgres more than once for the same user/role data, regardless of
+// how many server components, layouts, or helpers need it.
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const supabase = createServerClient()
   const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) {
+  if (error || !user) return null
+  return user
+})
+
+export const getCurrentProfile = cache(async (userId: string) => {
+  const supabase = createServerClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('full_name, display_name')
+    .eq('id', userId)
+    .maybeSingle()
+  return (data as { full_name: string | null; display_name: string | null } | null) ?? null
+})
+
+export async function requireAuth() {
+  const user = await getCurrentUser()
+  if (!user) {
     redirect('/login')
   }
   return user
 }
 
-export async function getUserRoles(userId: string) {
+// Resolves roles in a single query (embedded `roles(name)`); memoized so
+// repeated callers in one request share the same round trip.
+export const getUserRoles = cache(async (userId: string) => {
   const admin = getAdminSupabase()
-  const { data: ur, error: urErr } = await admin.from('user_roles').select('role_id').eq('user_id', userId)
-  if (urErr) throw urErr
-  const roleIds = (ur || []).map((r: any) => r.role_id).filter(Boolean)
-  if (roleIds.length === 0) return []
-  const { data: rolesData, error: rolesErr } = await admin.from('roles').select('name').in('id', roleIds)
-  if (rolesErr) throw rolesErr
-  return (rolesData || []).map((r: any) => r.name)
-}
+  const { data, error } = await admin
+    .from('user_roles')
+    .select('roles(name)')
+    .eq('user_id', userId)
+  if (error) throw error
+  const names = new Set<string>()
+  for (const row of (data ?? []) as { roles: { name: string } | { name: string }[] | null }[]) {
+    const role = Array.isArray(row.roles) ? row.roles[0] : row.roles
+    if (role?.name) names.add(role.name)
+  }
+  return [...names]
+})
 
-export async function getUserPermissions(userId: string): Promise<Permission[]> {
+export const getUserPermissions = cache(async (userId: string): Promise<Permission[]> => {
   try {
     const roles = await getUserRoles(userId)
     return getPermissionsForRoles(roles)
   } catch {
     return []
   }
-}
+})
 
 export async function requirePermission(userId: string, permission: Permission) {
   const permissions = await getUserPermissions(userId)
@@ -55,9 +81,8 @@ type ApiCheck =
   | { ok: false; status: number; message: string; user: User | null }
 
 export async function requireApiPermission(permission: Permission): Promise<ApiCheck> {
-  const supabase = createServerClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) {
+  const user = await getCurrentUser()
+  if (!user) {
     return { ok: false, status: 401, message: 'Not authenticated', user: null }
   }
   const permissions = await getUserPermissions(user.id)

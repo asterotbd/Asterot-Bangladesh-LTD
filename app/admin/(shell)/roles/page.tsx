@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../lib/auth'
 import { hasPermission, ADMIN_ROLES, ROLE_PERMISSIONS, type Permission } from '../../../../lib/permissions'
 import { getRoleAssignmentCounts, type RoleAssignmentCount } from '../../../../lib/user-roles-server'
 import PageHeader from '../../../../components/admin/PageHeader'
@@ -56,8 +55,7 @@ function permissionDomains(permissions: readonly Permission[]): string[] {
 }
 
 export default async function AdminRolesPage() {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['roles.view'])

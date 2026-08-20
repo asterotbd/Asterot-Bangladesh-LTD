@@ -1,5 +1,6 @@
 "use client"
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { DbAlbumPhoto } from '../../lib/albums-server'
 import type { DbMedia } from '../../lib/media-server'
@@ -7,51 +8,68 @@ import ConfirmDialog from './ConfirmDialog'
 
 type PickerMedia = DbMedia & { selected?: boolean }
 
-export default function AlbumEditor({ albumId, coverMediaId, photos, canEdit }: { albumId: string; coverMediaId: string | null; photos: DbAlbumPhoto[]; canEdit: boolean }) {
+const PICKER_PER_PAGE = 24
+
+export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, canEdit }: { albumId: string; coverMediaId: string | null; photos: DbAlbumPhoto[]; photoUrls: Record<string, string | null>; canEdit: boolean }) {
   const router = useRouter()
   const [pickerOpen, setPickerOpen] = useState(false)
   const [pickerMedia, setPickerMedia] = useState<PickerMedia[]>([])
   const [pickerLoading, setPickerLoading] = useState(false)
-  const [urls, setUrls] = useState<Record<string, string | null>>({})
+  const [pickerPage, setPickerPage] = useState(1)
+  const [pickerTotalPages, setPickerTotalPages] = useState(1)
   const [removing, setRemoving] = useState<DbAlbumPhoto | null>(null)
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState<{ kind: 'error' | 'success'; message: string } | null>(null)
 
-  async function loadPhotoUrls() {
-    if (photos.length === 0) return
-    const map: Record<string, string | null> = {}
+  async function fetchPickerPage(page: number): Promise<{ items: DbMedia[]; totalPages: number } | null> {
     try {
-      const res = await fetch('/api/admin/media?perPage=100&type=photo')
+      const res = await fetch(`/api/admin/media?type=photo&perPage=${PICKER_PER_PAGE}&page=${page}`)
       const data = await res.json().catch(() => null)
-      for (const m of (data?.data ?? []) as DbMedia[]) map[m.id] = m.public_url ?? null
+      if (!res.ok || !data?.data) {
+        setFeedback({ kind: 'error', message: data?.error || 'Unable to load media.' })
+        return null
+      }
+      return { items: data.data as DbMedia[], totalPages: data.totalPages ?? 1 }
     } catch {
-      // ignore; photos will show placeholders
+      setFeedback({ kind: 'error', message: 'Unable to load media.' })
+      return null
     }
-    setUrls(map)
   }
-  useEffect(() => {
-    void loadPhotoUrls()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   async function openPicker() {
     setPickerOpen(true)
     setPickerLoading(true)
     setFeedback(null)
-    try {
-      const res = await fetch('/api/admin/media?type=photo&perPage=100')
-      const data = await res.json().catch(() => null)
-      if (!res.ok || !data?.data) {
-        setFeedback({ kind: 'error', message: data?.error || 'Unable to load media.' })
-        return
-      }
+    const result = await fetchPickerPage(1)
+    if (result) {
       const inAlbum = new Set(photos.map((p) => p.media_id))
-      setPickerMedia((data.data as DbMedia[]).map((m) => ({ ...m, selected: inAlbum.has(m.id) })))
-    } catch {
-      setFeedback({ kind: 'error', message: 'Unable to load media.' })
-    } finally {
-      setPickerLoading(false)
+      setPickerMedia(result.items.map((m) => ({ ...m, selected: inAlbum.has(m.id) })))
+      setPickerPage(1)
+      setPickerTotalPages(result.totalPages)
     }
+    setPickerLoading(false)
+  }
+
+  async function loadMore() {
+    if (busy || pickerLoading || pickerPage >= pickerTotalPages) return
+    setPickerLoading(true)
+    const result = await fetchPickerPage(pickerPage + 1)
+    if (result) {
+      setPickerMedia((prev) => {
+        const known = new Set(prev.map((m) => m.id))
+        const merged = prev.map((m) => ({ ...m }))
+        for (const m of result.items) {
+          if (!known.has(m.id)) {
+            known.add(m.id)
+            merged.push({ ...m, selected: false })
+          }
+        }
+        return merged
+      })
+      setPickerPage(pickerPage + 1)
+      setPickerTotalPages(result.totalPages)
+    }
+    setPickerLoading(false)
   }
 
   async function addPhotos() {
@@ -179,7 +197,7 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, canEdit }: 
       {photos.length === 0 ? (
         <p className="py-10 text-center text-sm text-gray-500">No photos in this album yet. Use “Add Photos” to pick from the media library.</p>
       ) : (
-        <PhotoGrid photos={photos} urls={urls} coverMediaId={coverMediaId} canEdit={canEdit} onMove={move} onSetCover={setCover} onRemove={setRemoving} />
+        <PhotoGrid photos={photos} urls={photoUrls} coverMediaId={coverMediaId} canEdit={canEdit} onMove={move} onSetCover={setCover} onRemove={setRemoving} />
       )}
 
       {pickerOpen && (
@@ -194,20 +212,28 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, canEdit }: 
               ) : pickerMedia.length === 0 ? (
                 <p className="py-10 text-center text-sm text-gray-500">No photos in the media library yet. Upload some from the Media page first.</p>
               ) : (
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-                  {pickerMedia.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => setPickerMedia((prev) => prev.map((x) => x.id === m.id ? { ...x, selected: !x.selected } : x))}
-                      className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${m.selected ? 'border-primary' : 'border-transparent'}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.public_url ?? ''} alt={m.alt_en ?? ''} className="h-full w-full object-cover" />
-                      {m.selected && <span className="absolute right-1 top-1 rounded-full bg-primary px-1.5 text-xs text-white">✓</span>}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                    {pickerMedia.map((m) => (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setPickerMedia((prev) => prev.map((x) => x.id === m.id ? { ...x, selected: !x.selected } : x))}
+                        className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${m.selected ? 'border-primary' : 'border-transparent'}`}
+                      >
+                        <Image src={m.public_url ?? ''} alt={m.alt_en ?? ''} fill sizes="20vw" className="object-cover" loading="lazy" />
+                        {m.selected && <span className="absolute right-1 top-1 rounded-full bg-primary px-1.5 text-xs text-white">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                  {pickerPage < pickerTotalPages && (
+                    <div className="mt-4 text-center">
+                      <button type="button" onClick={() => void loadMore()} disabled={pickerLoading} className="btn btn-ghost btn-sm">
+                        {pickerLoading ? 'Loading…' : 'Load more'}
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
             <div className="mt-4 flex justify-end gap-3">
@@ -243,8 +269,7 @@ function PhotoGrid({ photos, urls, coverMediaId, canEdit, onMove, onSetCover, on
         return (
           <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-black/40">
             {url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={url} alt="" className="h-full w-full object-cover" />
+              <Image src={url} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" loading="lazy" />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-500">{index + 1}</div>
             )}

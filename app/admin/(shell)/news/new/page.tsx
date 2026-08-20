@@ -1,13 +1,11 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requirePermission } from '../../../../../lib/auth'
+import { requirePermission, getCurrentUser } from '../../../../../lib/auth'
 import { getNewsCategories } from '../../../../../lib/news-server'
 import AdminNewsForm from '../../../../../components/AdminNewsForm'
 
 export default async function AdminNewsNewPage(){
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
   await requirePermission(user.id, 'news.create')
 

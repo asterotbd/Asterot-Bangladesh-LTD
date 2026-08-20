@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../lib/auth'
 import { listMedia, MEDIA_TYPES } from '../../../../lib/media-server'
 import PageHeader from '../../../../components/admin/PageHeader'
 import Pagination from '../../../../components/admin/Pagination'
@@ -11,8 +10,7 @@ import MediaUploader from '../../../../components/admin/MediaUploader'
 import MediaGrid from '../../../../components/admin/MediaGrid'
 
 export default async function AdminMediaPage({ searchParams }: { searchParams: { page?: string; q?: string; type?: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['media.view'])

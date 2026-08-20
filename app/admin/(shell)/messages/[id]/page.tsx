@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { getContactMessage } from '../../../../../lib/contact-server'
 import PageHeader from '../../../../../components/admin/PageHeader'
 import StatusBadge from '../../../../../components/admin/StatusBadge'
@@ -33,8 +32,7 @@ function Field({ label, value }: { label: string; value: string | null }) {
 }
 
 export default async function AdminMessageDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['contact.view'])

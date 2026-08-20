@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { hasPermission, getPermissionsForRoles } from '../../../../../lib/permissions'
 import { getUserDetail, type AdminUserDetail } from '../../../../../lib/users-server'
 import { getUserRolesForManagement } from '../../../../../lib/user-roles-server'
@@ -62,8 +61,7 @@ function Field({ label, value }: { label: string; value: string | null }) {
 }
 
 export default async function AdminUserDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createServerClient()
-  const { data: { user: authUser } } = await supabase.auth.getUser()
+  const authUser = await getCurrentUser()
   if (!authUser) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(authUser.id, ['users.view'])

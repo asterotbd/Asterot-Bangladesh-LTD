@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { hasPermission } from '../../../../../lib/permissions'
 import { listVideos } from '../../../../../lib/videos-server'
 import PageHeader from '../../../../../components/admin/PageHeader'
@@ -9,8 +8,7 @@ import { Panel, ErrorState, EmptyState } from '../../../../../components/admin/P
 import VideosManager from '../../../../../components/admin/VideosManager'
 
 export default async function AdminVideosPage({ searchParams }: { searchParams: { page?: string; status?: string; q?: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['media.view'])

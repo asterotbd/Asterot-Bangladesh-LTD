@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import type { DbVideo } from '../../lib/videos-server'
 import ConfirmDialog from './ConfirmDialog'
@@ -76,10 +77,16 @@ export default function VideosManager({ videos, canPublish, canDelete }: { video
           const ytId = videoId(video.public_url)
           return (
             <div key={video.id} className="overflow-hidden rounded-2xl border border-white/10 bg-panel">
-              <div className="aspect-video w-full bg-black/40">
+              <div className="relative aspect-video w-full bg-black/40">
                 {ytId ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`} alt={video.caption_en ?? 'Video thumbnail'} className="h-full w-full object-cover" />
+                  <Image
+                    src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
+                    alt={video.caption_en ?? 'Video thumbnail'}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover"
+                    loading="lazy"
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-sm text-gray-600">No thumbnail</div>
                 )}

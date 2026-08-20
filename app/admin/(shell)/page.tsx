@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../lib/supabaseServer'
-import { getUserRoles, requireAnyPermission } from '../../../lib/auth'
+import { getCurrentUser, getCurrentProfile, getUserRoles, requireAnyPermission } from '../../../lib/auth'
 import { hasPermission } from '../../../lib/permissions'
 import { getAllEvents, formatEventDate, type DbEvent } from '../../../lib/events-server'
 import { getAllNews, type DbNews } from '../../../lib/news-server'
@@ -249,8 +248,7 @@ function CompanySnapshotView({ company }: { company: CompanySnapshot }) {
 }
 
 export default async function AdminPage() {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['dashboard.view'])
@@ -273,11 +271,7 @@ export default async function AdminPage() {
     roleNames = []
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, display_name')
-    .eq('id', user.id)
-    .maybeSingle()
+  const profile = await getCurrentProfile(user.id)
   const name = profile?.display_name || profile?.full_name || user.email?.split('@')[0] || 'Member'
 
   let events: EventMetrics | null = null

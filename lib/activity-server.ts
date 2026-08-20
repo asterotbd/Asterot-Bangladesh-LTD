@@ -1,4 +1,4 @@
-import getAdminSupabase from './supabaseAdmin'
+import getAdminSupabase, { getAuthAdminSupabase } from './supabaseAdmin'
 
 export type DbAuditLog = {
   id: string
@@ -92,15 +92,17 @@ export async function listAuditLogs({
 }
 
 async function resolveActorEmails(userIds: string[]): Promise<Map<string, string>> {
-  if (userIds.length === 0) return new Map()
-  const admin = getAdminSupabase()
-  const results = await Promise.allSettled(userIds.map((id) => admin.auth.admin.getUserById(id)))
+  const uniqueIds = [...new Set(userIds)]
+  if (uniqueIds.length === 0) return new Map()
+  const admin = getAuthAdminSupabase()
+  const { data, error } = await admin.from('users').select('id, email').in('id', uniqueIds)
   const map = new Map<string, string>()
-  userIds.forEach((id, index) => {
-    const result = results[index]
-    if (result.status === 'fulfilled' && result.value.data?.user?.email) {
-      map.set(id, result.value.data.user.email)
-    }
-  })
+  if (error) {
+    console.error('resolveActorEmails error', error.message)
+    return map
+  }
+  for (const row of (data ?? []) as { id: string; email: string | null }[]) {
+    if (row.email) map.set(row.id, row.email)
+  }
   return map
 }

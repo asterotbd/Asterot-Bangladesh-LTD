@@ -2,6 +2,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // API routes are already authorized by requireApiPermission in each route
+  // handler, so skip the session refresh here to avoid a redundant auth round
+  // trip on every fetch. Cookie header forwarding still happens via NextRequest.
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next({ request })
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

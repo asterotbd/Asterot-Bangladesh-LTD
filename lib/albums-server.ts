@@ -115,6 +115,19 @@ export async function getMediaPublicUrl(mediaId: string): Promise<string | null>
   return (data as { public_url: string | null }).public_url
 }
 
+export async function listMediaPublicUrls(mediaIds: string[]): Promise<Record<string, string | null>> {
+  const unique = [...new Set(mediaIds)]
+  if (unique.length === 0) return {}
+  const admin = getAdminSupabase()
+  const { data, error } = await admin.from('media').select('id, public_url').in('id', unique)
+  if (error) throw error
+  const map: Record<string, string | null> = {}
+  for (const row of (data ?? []) as { id: string; public_url: string | null }[]) {
+    map[row.id] = row.public_url
+  }
+  return map
+}
+
 export async function getAlbum(id: string): Promise<DbAlbum | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin.from('albums').select(ALBUM_FIELDS).eq('id', id).maybeSingle()

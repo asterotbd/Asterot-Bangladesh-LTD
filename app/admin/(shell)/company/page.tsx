@@ -1,12 +1,10 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requirePermission } from '../../../../lib/auth'
+import { requirePermission, getCurrentUser } from '../../../../lib/auth'
 import AdminCompanyForm from '../../../../components/AdminCompanyForm'
 
 export default async function AdminCompanyPage(){
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
   await requirePermission(user.id, 'company.edit')
 

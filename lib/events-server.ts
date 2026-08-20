@@ -91,6 +91,40 @@ export async function getAllEvents(): Promise<DbEvent[]> {
   return (data ?? []) as DbEvent[]
 }
 
+export type EventListResult = {
+  items: DbEvent[]
+  total: number
+  page: number
+  perPage: number
+  totalPages: number
+}
+
+export async function listEvents({ page = 1, perPage = 20 }: { page?: number; perPage?: number }): Promise<EventListResult> {
+  const admin = getAdminSupabase()
+  const safePage = Math.max(1, Math.floor(page))
+  const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
+
+  const EVENT_LIST_FIELDS = 'id, title_en, title_bn, slug, date, time, location, status, featured, published, created_at, updated_at'
+  const { data, count, error } = await admin
+    .from('events')
+    .select(EVENT_LIST_FIELDS, { count: 'exact' })
+    .order('date', { ascending: false, nullsFirst: true })
+    .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
+  if (error) {
+    console.error('listEvents error', error.message)
+    throw error
+  }
+
+  const total = count ?? 0
+  return {
+    items: (data ?? []) as DbEvent[],
+    total,
+    page: safePage,
+    perPage: safePerPage,
+    totalPages: Math.max(1, Math.ceil(total / safePerPage))
+  }
+}
+
 export async function getEventById(id: string): Promise<DbEvent | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin

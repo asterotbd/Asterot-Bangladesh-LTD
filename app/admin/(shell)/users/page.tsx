@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../lib/auth'
 import { listUsers, listRoles, type AdminRole, type UserListResult } from '../../../../lib/users-server'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -109,8 +108,7 @@ function Pagination({ page, totalPages, baseUrl }: { page: number; totalPages: n
 }
 
 export default async function AdminUsersPage({ searchParams }: { searchParams: { page?: string; q?: string; role?: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['users.view'])

@@ -1,15 +1,13 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../../lib/auth'
 import { hasPermission } from '../../../../../../lib/permissions'
 import PageHeader from '../../../../../../components/admin/PageHeader'
 import { Panel } from '../../../../../../components/admin/Panel'
 import AlbumForm from '../../../../../../components/admin/AlbumForm'
 
 export default async function AdminNewAlbumPage() {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['media.manage'])

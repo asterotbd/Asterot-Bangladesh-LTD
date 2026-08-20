@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { hasPermission } from '../../../../../lib/permissions'
 import { getCompanyInfo, listLeadership } from '../../../../../lib/about-server'
 import PageHeader from '../../../../../components/admin/PageHeader'
@@ -9,8 +8,7 @@ import { Panel, ErrorState } from '../../../../../components/admin/Panel'
 import AboutForm from '../../../../../components/admin/AboutForm'
 
 export default async function AdminAboutPage() {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['content.view'])

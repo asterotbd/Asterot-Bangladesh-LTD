@@ -1,18 +1,16 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../../lib/auth'
 import { hasPermission } from '../../../../../../lib/permissions'
-import { getAlbum, listAlbumPhotos } from '../../../../../../lib/albums-server'
+import { getAlbum, listAlbumPhotos, listMediaPublicUrls } from '../../../../../../lib/albums-server'
 import PageHeader from '../../../../../../components/admin/PageHeader'
 import { Panel, ErrorState } from '../../../../../../components/admin/Panel'
 import StatusBadge from '../../../../../../components/admin/StatusBadge'
 import AlbumEditor from '../../../../../../components/admin/AlbumEditor'
 
 export default async function AdminAlbumDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['media.view'])
@@ -20,9 +18,11 @@ export default async function AdminAlbumDetailPage({ params }: { params: { id: s
 
   let album: Awaited<ReturnType<typeof getAlbum>> = null
   let photos: Awaited<ReturnType<typeof listAlbumPhotos>> = []
+  let photoUrls: Record<string, string | null> = {}
   let failed = false
   try {
     ;[album, photos] = await Promise.all([getAlbum(params.id), listAlbumPhotos(params.id)])
+    photoUrls = await listMediaPublicUrls(photos.map((p) => p.media_id))
   } catch (err) {
     console.error('Admin album detail load error', err)
     failed = true
@@ -57,7 +57,7 @@ export default async function AdminAlbumDetailPage({ params }: { params: { id: s
       />
 
       <Panel title={`Photos (${photos.length})`}>
-        <AlbumEditor albumId={params.id} coverMediaId={album.cover_media_id} photos={photos} canEdit={canEdit} />
+        <AlbumEditor albumId={params.id} coverMediaId={album.cover_media_id} photos={photos} photoUrls={photoUrls} canEdit={canEdit} />
       </Panel>
 
       <div className="flex justify-end">

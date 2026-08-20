@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { hasPermission } from '../../../../../lib/permissions'
 import { listHomepageSections, HOMEPAGE_SECTION_KEYS } from '../../../../../lib/homepage-server'
 import { getPublishedEvents } from '../../../../../lib/events-server'
@@ -10,8 +9,7 @@ import { Panel, ErrorState } from '../../../../../components/admin/Panel'
 import HomepageForm from '../../../../../components/admin/HomepageForm'
 
 export default async function AdminHomepagePage() {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   const permissions = await requireAnyPermission(user.id, ['content.view'])

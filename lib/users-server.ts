@@ -258,21 +258,27 @@ async function getEmailMatchedUserIds(term: string): Promise<string[]> {
 }
 
 async function getAuthInfoForUserIds(userIds: string[]): Promise<Map<string, AuthInfo>> {
-  const admin = getAdminSupabase()
-  const results = await Promise.allSettled(userIds.map((id) => admin.auth.admin.getUserById(id)))
+  const uniqueIds = [...new Set(userIds)]
+  if (uniqueIds.length === 0) return new Map()
+  const admin = getAuthAdminSupabase()
+  const { data, error } = await admin
+    .from('users')
+    .select('id, email, email_confirmed_at, last_sign_in_at')
+    .in('id', uniqueIds)
   const map = new Map<string, AuthInfo>()
-  userIds.forEach((id, index) => {
-    const result = results[index]
-    if (result.status === 'fulfilled' && result.value.data?.user) {
-      const user = result.value.data.user
-      map.set(id, {
-        email: user.email ?? null,
-        email_confirmed_at: user.email_confirmed_at ?? null,
-        last_sign_in_at: user.last_sign_in_at ?? null
-      })
-    } else {
-      map.set(id, { email: null, email_confirmed_at: null, last_sign_in_at: null })
-    }
-  })
+  for (const id of uniqueIds) {
+    map.set(id, { email: null, email_confirmed_at: null, last_sign_in_at: null })
+  }
+  if (error) {
+    console.error('getAuthInfoForUserIds error', error.message)
+    return map
+  }
+  for (const row of (data ?? []) as Array<{ id: string; email: string | null; email_confirmed_at: string | null; last_sign_in_at: string | null }>) {
+    map.set(row.id, {
+      email: row.email,
+      email_confirmed_at: row.email_confirmed_at,
+      last_sign_in_at: row.last_sign_in_at
+    })
+  }
   return map
 }

@@ -1,8 +1,7 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requireAnyPermission } from '../../../../lib/auth'
+import { requireAnyPermission, getCurrentUser } from '../../../../lib/auth'
 import { listAuditLogs, AUDIT_ACTIONS } from '../../../../lib/activity-server'
 import PageHeader from '../../../../components/admin/PageHeader'
 import Pagination from '../../../../components/admin/Pagination'
@@ -41,8 +40,7 @@ function formatMeta(meta: Record<string, unknown> | null): string {
 }
 
 export default async function AdminActivityPage({ searchParams }: { searchParams: { page?: string; q?: string; action?: string } }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   await requireAnyPermission(user.id, ['activity.view'])

@@ -1,5 +1,6 @@
 "use client"
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ConfirmDialog from './ConfirmDialog'
@@ -54,10 +55,16 @@ export default function AlbumsManager({ albums, canEdit, canDelete }: { albums: 
         {albums.map((album) => (
           <div key={album.id} className="group block overflow-hidden rounded-2xl border border-white/10 bg-panel transition-colors hover:border-primary/40">
             <Link href={`/admin/media/albums/${album.id}`} className="block">
-              <div className="aspect-video w-full bg-black/40">
+              <div className="relative aspect-video w-full bg-black/40">
                 {album.coverUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={album.coverUrl} alt={album.title_en ?? 'Album cover'} className="h-full w-full object-cover" />
+                  <Image
+                    src={album.coverUrl}
+                    alt={album.title_en ?? 'Album cover'}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, 100vw"
+                    className="object-cover"
+                    loading="lazy"
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-3xl text-gray-600">+</div>
                 )}

@@ -1,22 +1,25 @@
 export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import createServerClient from '../../../../lib/supabaseServer'
-import { requirePermission } from '../../../../lib/auth'
-import { getAllEvents } from '../../../../lib/events-server'
+import { requirePermission, getCurrentUser } from '../../../../lib/auth'
+import { listEvents } from '../../../../lib/events-server'
+import PageHeader from '../../../../components/admin/PageHeader'
+import Pagination from '../../../../components/admin/Pagination'
 import { Panel, ErrorState } from '../../../../components/admin/Panel'
 import AdminEventsTable from '../../../../components/admin/AdminEventsTable'
 
-export default async function AdminEventsPage(){
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default async function AdminEventsPage({ searchParams }: { searchParams: { page?: string } }) {
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
   await requirePermission(user.id, 'events.view')
 
-  let events: Awaited<ReturnType<typeof getAllEvents>> = []
+  const rawPage = Number.parseInt(searchParams.page ?? '1', 10)
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1
+
+  let result: Awaited<ReturnType<typeof listEvents>> | null = null
   let failed = false
   try {
-    events = await getAllEvents()
+    result = await listEvents({ page, perPage: 20 })
   } catch (err) {
     console.error('Admin events list load error', err)
     failed = true
@@ -31,10 +34,18 @@ export default async function AdminEventsPage(){
 
       {failed ? (
         <Panel><ErrorState message="Unable to load events. Please try again." /></Panel>
-      ) : events.length === 0 ? (
+      ) : !result || result.items.length === 0 ? (
         <p className="text-gray-400">No events yet. Create your first event.</p>
       ) : (
-        <AdminEventsTable events={events as any[]} />
+        <>
+          <p className="mb-4 text-sm text-gray-500">
+            Showing {result.items.length} of {result.total} event{result.total === 1 ? '' : 's'}
+          </p>
+          <AdminEventsTable events={result.items as any[]} />
+          <div className="mt-6">
+            <Pagination page={page} totalPages={result.totalPages} baseUrl="/admin/events" />
+          </div>
+        </>
       )}
     </div>
   )

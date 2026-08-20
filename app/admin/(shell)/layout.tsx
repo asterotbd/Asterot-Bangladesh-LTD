@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
-import createServerClient from '../../../lib/supabaseServer'
-import { getUserRoles } from '../../../lib/auth'
+import { getCurrentUser, getCurrentProfile, getUserRoles } from '../../../lib/auth'
 import { getPermissionsForRoles, hasPermission, type Permission } from '../../../lib/permissions'
 import AdminShell, { type AdminNavItem } from '../../../components/admin/AdminShell'
 
@@ -32,8 +31,7 @@ const NAV_ITEMS: NavItem[] = [
 ]
 
 export default async function AdminShellLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getCurrentUser()
   if (!user) redirect('/admin/login')
 
   let roles: string[] = []
@@ -47,11 +45,7 @@ export default async function AdminShellLayout({ children }: { children: React.R
   const navItems: AdminNavItem[] = NAV_ITEMS.filter((item) => hasPermission(permissions, item.permission))
     .map(({ label, href, icon, group }) => ({ label, href, icon, group }))
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, display_name')
-    .eq('id', user.id)
-    .maybeSingle()
+  const profile = await getCurrentProfile(user.id)
 
   const name = profile?.display_name || profile?.full_name || user.email || ''
 

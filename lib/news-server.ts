@@ -138,6 +138,41 @@ export async function getAllNews(): Promise<DbNews[]> {
   return (data ?? []) as DbNews[]
 }
 
+export type NewsListResult = {
+  items: DbNews[]
+  total: number
+  page: number
+  perPage: number
+  totalPages: number
+}
+
+export async function listNews({ page = 1, perPage = 20 }: { page?: number; perPage?: number }): Promise<NewsListResult> {
+  const admin = getAdminSupabase()
+  const safePage = Math.max(1, Math.floor(page))
+  const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
+
+  const NEWS_LIST_FIELDS = 'id, title_en, title_bn, slug, status, published, published_at, created_at, updated_at'
+  const { data, count, error } = await admin
+    .from('news')
+    .select(NEWS_LIST_FIELDS, { count: 'exact' })
+    .order('published_at', { ascending: false, nullsFirst: true })
+    .order('created_at', { ascending: false, nullsFirst: true })
+    .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
+  if (error) {
+    console.error('listNews error', error.message)
+    throw error
+  }
+
+  const total = count ?? 0
+  return {
+    items: (data ?? []) as DbNews[],
+    total,
+    page: safePage,
+    perPage: safePerPage,
+    totalPages: Math.max(1, Math.ceil(total / safePerPage))
+  }
+}
+
 export async function getNewsById(id: string): Promise<DbNews | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin
