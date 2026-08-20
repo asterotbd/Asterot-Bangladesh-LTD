@@ -14,6 +14,7 @@ export type DbNews = {
   content_bn: string | null
   category_id: string | null
   author_id: string | null
+  status: string | null
   published: boolean
   published_at: string | null
   created_at: string | null
@@ -27,7 +28,8 @@ export type NewsCategory = {
   slug: string | null
 }
 
-const NEWS_FIELDS = 'id, title_en, title_bn, slug, subtitle_en, subtitle_bn, excerpt_en, excerpt_bn, content_en, content_bn, category_id, author_id, published, published_at, created_at, updated_at, featured_image'
+const NEWS_FIELDS =
+  'id, title_en, title_bn, slug, subtitle_en, subtitle_bn, excerpt_en, excerpt_bn, content_en, content_bn, category_id, author_id, status, published, published_at, created_at, updated_at, featured_image'
 
 const DEFAULT_NEWS_IMAGE = '/media/photos/corporate-events/AUM09214.jpg'
 
@@ -105,6 +107,23 @@ export async function getPublishedNewsArticleBySlug(slug: string): Promise<NewsA
   return mapToNewsArticle(data as RawNewsRow, true)
 }
 
+// Resolves a slug regardless of publishing state. Used by the public detail
+// page so a slug owned by the database (even as a draft) never resolves to the
+// static fallback article.
+export async function getNewsBySlug(slug: string): Promise<DbNews | null> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('news')
+    .select(NEWS_FIELDS)
+    .eq('slug', slug)
+    .maybeSingle()
+  if (error) {
+    console.error('getNewsBySlug error', error.message)
+    return null
+  }
+  return (data as DbNews | null) ?? null
+}
+
 export async function getAllNews(): Promise<DbNews[]> {
   const admin = getAdminSupabase()
   const { data, error } = await admin
@@ -114,7 +133,7 @@ export async function getAllNews(): Promise<DbNews[]> {
     .order('created_at', { ascending: false, nullsFirst: true })
   if (error) {
     console.error('getAllNews error', error.message)
-    return []
+    throw error
   }
   return (data ?? []) as DbNews[]
 }
@@ -131,6 +150,16 @@ export async function getNewsById(id: string): Promise<DbNews | null> {
     return null
   }
   return (data as DbNews | null) ?? null
+}
+
+export async function deleteNews(id: string): Promise<boolean> {
+  const admin = getAdminSupabase()
+  const { error } = await (admin.from('news') as any).delete().eq('id', id)
+  if (error) {
+    console.error('deleteNews error', error.message)
+    return false
+  }
+  return true
 }
 
 export async function getNewsCategories(): Promise<NewsCategory[]> {

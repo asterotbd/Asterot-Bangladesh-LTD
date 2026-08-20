@@ -4,6 +4,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import LeadershipPortrait from '../../../components/LeadershipPortrait'
 import { leadershipMembers } from '../../../lib/leadership'
+import { getPublicLeadership } from '../../../lib/about-server'
+import { getMediaPublicUrl } from '../../../lib/albums-server'
 
 export const metadata: Metadata = {
   title: 'Leadership',
@@ -13,7 +15,29 @@ export const metadata: Metadata = {
   }
 }
 
-export default function LeadershipPage() {
+export const dynamic = 'force-dynamic'
+
+const staticByRole = new Map(leadershipMembers.map((m) => [m.role, m.image]))
+
+export default async function LeadershipPage() {
+  let dbLeaders: Awaited<ReturnType<typeof getPublicLeadership>> = []
+  try {
+    dbLeaders = await getPublicLeadership()
+  } catch (err) {
+    console.error('Leadership load error', err)
+  }
+
+  const members = dbLeaders.length > 0
+    ? await Promise.all(dbLeaders.map(async (leader) => {
+        const photoUrl = leader.photo_media_id ? await getMediaPublicUrl(leader.photo_media_id) : null
+        return {
+          name: leader.name,
+          role: leader.position || '',
+          image: photoUrl || staticByRole.get(leader.position || '') || undefined
+        }
+      }))
+    : leadershipMembers
+
   return (
     <main className="bg-black text-white">
 
@@ -40,7 +64,7 @@ export default function LeadershipPage() {
       <Container>
         <RevealSection className="py-16 sm:py-20">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {leadershipMembers.map(member => (
+            {members.map(member => (
               <LeadershipPortrait key={member.name} name={member.name} role={member.role} image={member.image} />
             ))}
           </div>

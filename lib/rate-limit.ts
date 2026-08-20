@@ -30,6 +30,12 @@ export const RATE_LIMIT_RULES = {
   eventsMutate: { prefix: 'events', max: 60 },
   newsMutate: { prefix: 'news', max: 60 },
   companyMutate: { prefix: 'company', max: 60 },
+  contactMutate: { prefix: 'contact', max: 60 },
+  mediaMutate: { prefix: 'media', max: 30 },
+  settingsMutate: { prefix: 'settings', max: 60 },
+  rolesMutate: { prefix: 'roles', max: 60 },
+  faqMutate: { prefix: 'faq', max: 60 },
+  homepageMutate: { prefix: 'homepage', max: 60 },
   eventRegistration: { prefix: 'registration', max: 10 }
 } as const
 

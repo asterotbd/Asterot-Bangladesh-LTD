@@ -4,13 +4,24 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { newsArticles } from '../../../lib/newsData'
-import { getPublishedNewsArticleBySlug } from '../../../lib/news-server'
+import { getPublishedNewsArticleBySlug, getNewsBySlug } from '../../../lib/news-server'
 
 export const dynamic = 'force-dynamic'
 
+// A slug owned by the database (a row exists with it, published or not) must
+// never resolve to the static fallback. If the database row exists but is not
+// published, the article 404s; only slugs the database does NOT own may fall
+// back to the static catalog.
+async function resolveArticle(slug: string): Promise<(typeof newsArticles)[number] | null> {
+  const dbArticle = await getPublishedNewsArticleBySlug(slug)
+  if (dbArticle) return dbArticle
+  const owned = await getNewsBySlug(slug)
+  if (owned) return null
+  return newsArticles.find(a => a.slug === slug) ?? null
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const dbArticle = await getPublishedNewsArticleBySlug(params.slug)
-  const article = dbArticle ?? newsArticles.find(a => a.slug === params.slug)
+  const article = await resolveArticle(params.slug)
   if (!article) {
     return { title: 'Article Not Found' }
   }
@@ -44,8 +55,7 @@ function linkify(text: string) {
 }
 
 export default async function NewsArticlePage({ params }: { params: { slug: string } }) {
-  const dbArticle = await getPublishedNewsArticleBySlug(params.slug)
-  const article = dbArticle ?? newsArticles.find(a => a.slug === params.slug)
+  const article = await resolveArticle(params.slug)
 
   if (!article) {
     notFound()

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { requireApiPermission } from '../../../../../lib/auth'
-import { updateUserProfile } from '../../../../../lib/users-server'
+import { requireApiPermission, getUserRoles } from '../../../../../lib/auth'
+import { updateUserProfile, getUserDetail } from '../../../../../lib/users-server'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../../lib/rate-limit'
@@ -30,6 +30,18 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
   if (!isValidUuid(params.id)) {
     return jsonError('Invalid user ID.', 400)
+  }
+
+  // Non-super-admins may not edit profiles of super_admin users. The target's
+  // roles are resolved server-side; the client cannot bypass this.
+  if (params.id !== check.user.id) {
+    const target = await getUserDetail(params.id).catch(() => null)
+    if (target && target.roles.includes('super_admin')) {
+      const actorRoles = await getUserRoles(check.user.id)
+      if (!actorRoles.includes('super_admin')) {
+        return jsonError('You do not have permission to modify this user.', 403)
+      }
+    }
   }
 
   const body = await parseJsonBody(request)

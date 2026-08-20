@@ -7,14 +7,20 @@ import { jsonError, logError, parseJsonBody } from '../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { validateNewsPayload } from '../../../../lib/api-validation'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
+import { writeAuditLog } from '../../../../lib/audit'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const check = await requireApiPermission('news.view')
   if (!check.ok) return jsonError(check.message, check.status)
-  const news = await getAllNews()
-  return NextResponse.json({ data: news })
+  try {
+    const news = await getAllNews()
+    return NextResponse.json({ data: news })
+  } catch (err) {
+    logError('admin.news.list', err)
+    return jsonError('Unable to load news.', 500)
+  }
 }
 
 export async function POST(request: Request) {
@@ -59,5 +65,9 @@ export async function POST(request: Request) {
     logError('admin.news.create', error)
     return jsonError('Unable to create the news article.', 500)
   }
+  await writeAuditLog(check.user.id, 'news.create', 'news', data.id, {
+    title: data.title_en,
+    status: (data.status as string) ?? (data.published ? 'published' : 'draft')
+  })
   return NextResponse.json({ data }, { status: 201 })
 }

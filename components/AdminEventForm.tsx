@@ -17,6 +17,8 @@ type AdminEvent = {
   registration_deadline?: string | null
   capacity?: number | null
   published?: boolean
+  status?: 'draft' | 'published' | 'archived'
+  featured?: boolean
 }
 
 type Category = {
@@ -49,7 +51,9 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
     location: event?.location || '',
     registration_deadline: toLocalInput(event?.registration_deadline),
     capacity: event?.capacity ?? null,
-    published: event?.published ?? false
+    published: event?.published ?? false,
+    status: event?.status ?? 'draft',
+    featured: event?.featured ?? false
   })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | undefined>()
@@ -61,6 +65,16 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
   const save = async () => {
     setSaving(true)
     setError(undefined)
+    if (!form.title_en?.trim()) {
+      setError('Title (EN) is required.')
+      setSaving(false)
+      return
+    }
+    if (form.capacity !== null && form.capacity !== undefined && String(form.capacity).trim() !== '' && (!Number.isInteger(Number(form.capacity)) || Number(form.capacity) < 0)) {
+      setError('Capacity must be a non-negative whole number.')
+      setSaving(false)
+      return
+    }
     const timeValue = form.time?.trim() ? `${form.time.trim()}:00` : null
     const deadlineValue = form.registration_deadline
       ? new Date(form.registration_deadline).toISOString()
@@ -106,7 +120,7 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block text-sm font-medium text-gray-300">Title (EN) *
-          <input value={form.title_en || ''} onChange={e => onChange('title_en', e.target.value)} className={inputClass} />
+          <input required value={form.title_en || ''} onChange={e => onChange('title_en', e.target.value)} className={inputClass} />
         </label>
         <label className="block text-sm font-medium text-gray-300">Title (BN)
           <input value={form.title_bn || ''} onChange={e => onChange('title_bn', e.target.value)} className={inputClass} />
@@ -158,6 +172,20 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
         <input type="checkbox" checked={Boolean(form.published)} onChange={e => onChange('published', e.target.checked)} className="h-4 w-4" />
         Published
       </label>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-medium text-gray-300">Status
+          <select value={form.status || 'draft'} onChange={e => onChange('status', e.target.value)} className={inputClass}>
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+            <option value="archived">Archived</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-3 text-sm font-medium text-gray-300 self-end pb-3">
+          <input type="checkbox" checked={Boolean(form.featured)} onChange={e => onChange('featured', e.target.checked)} className="h-4 w-4" />
+          Featured on homepage
+        </label>
+      </div>
 
       <div className="flex gap-2">
         <Button onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>

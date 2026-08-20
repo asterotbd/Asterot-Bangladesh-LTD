@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../../lib/auth'
 import getAdminSupabase from '../../../../../lib/supabaseAdmin'
-import { getNewsById } from '../../../../../lib/news-server'
+import { getNewsById, deleteNews } from '../../../../../lib/news-server'
 import { slugify } from '../../../../../lib/events-server'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
 import { validateNewsPayload } from '../../../../../lib/api-validation'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../../lib/rate-limit'
+import { writeAuditLog } from '../../../../../lib/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,6 +45,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
   const admin = getAdminSupabase()
   const payload: Record<string, unknown> = { ...fields, updated_at: new Date().toISOString() }
+  // The news_sync_status trigger derives `published` from `status`, so when a
+  // caller toggles only `published` (e.g. the admin table quick-toggle) we must
+  // derive `status` from it too, or the trigger would silently cancel the change.
+  if ('published' in payload && !('status' in payload)) {
+    payload.status = payload.published === true ? 'published' : 'draft'
+  }
   if ('published_at' in payload && (payload.published_at === '' || payload.published_at === null)) {
     payload.published_at = payload.published ? new Date().toISOString() : null
   }
@@ -60,5 +67,27 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     return jsonError('Unable to update the news article.', 500)
   }
   if (!data) return jsonError('News article not found.', 404)
+  await writeAuditLog(check.user.id, 'news.update', 'news', params.id, {
+    title: data.title_en,
+    status: (data.status as string) ?? (data.published ? 'published' : 'draft')
+  })
   return NextResponse.json({ data })
+}
+
+export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const check = await requireApiPermission('news.delete')
+  if (!check.ok) return jsonError(check.message, check.status)
+  const csrf = verifyCsrfRequest(request)
+  if (!csrf.ok) return jsonError(csrf.error, csrf.status)
+  if (await isRateLimited(RATE_LIMIT_RULES.newsMutate.prefix, check.user.id, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES.newsMutate.max)) {
+    return jsonError('Too many requests. Please try again later.', 429)
+  }
+  if (!isValidUuid(params.id)) return jsonError('Invalid news ID.', 400)
+
+  const news = await getNewsById(params.id)
+  if (!news) return jsonError('News article not found.', 404)
+  const ok = await deleteNews(params.id)
+  if (!ok) return jsonError('Unable to delete the news article.', 500)
+  await writeAuditLog(check.user.id, 'news.delete', 'news', params.id, { title: news.title_en })
+  return NextResponse.json({ ok: true })
 }

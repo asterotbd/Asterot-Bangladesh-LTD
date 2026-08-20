@@ -6,14 +6,20 @@ import { jsonError, logError, parseJsonBody } from '../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { validateEventPayload } from '../../../../lib/api-validation'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
+import { writeAuditLog } from '../../../../lib/audit'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const check = await requireApiPermission('events.view')
   if (!check.ok) return jsonError(check.message, check.status)
-  const events = await getAllEvents()
-  return NextResponse.json({ data: events })
+  try {
+    const events = await getAllEvents()
+    return NextResponse.json({ data: events })
+  } catch (err) {
+    logError('admin.events.list', err)
+    return jsonError('Unable to load events.', 500)
+  }
 }
 
 export async function POST(request: Request) {
@@ -54,5 +60,9 @@ export async function POST(request: Request) {
     logError('admin.events.create', error)
     return jsonError('Unable to create the event.', 500)
   }
+  await writeAuditLog(check.user.id, 'events.create', 'events', data.id, {
+    title: data.title_en,
+    status: (data.status as string) ?? (data.published ? 'published' : 'draft')
+  })
   return NextResponse.json({ data }, { status: 201 })
 }

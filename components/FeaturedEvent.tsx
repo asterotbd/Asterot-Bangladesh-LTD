@@ -22,7 +22,21 @@ function LockIcon({ className = 'h-6 w-6' }: { className?: string }) {
   )
 }
 
-export default function FeaturedEvent() {
+export default function FeaturedEvent({
+  heading,
+  subtitle,
+  ctaText,
+  ctaUrl,
+  visible = true
+}: {
+  heading?: string | null
+  subtitle?: string | null
+  ctaText?: string | null
+  ctaUrl?: string | null
+  visible?: boolean | null
+}) {
+  if (visible === false) return null
+
   return (
     <section className="relative overflow-hidden py-24 lg:py-[120px]">
       <div className="ambient-layer">
@@ -33,8 +47,8 @@ export default function FeaturedEvent() {
         <div className="mx-auto max-w-7xl">
           <RevealSection>
             <div className="max-w-2xl">
-              <p className="text-sm uppercase tracking-[0.35em] text-primary">{awakeningCup.sectionTitle}</p>
-              <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">A national moment, on its way</h2>
+              <p className="text-sm uppercase tracking-[0.35em] text-primary">{heading || awakeningCup.sectionTitle}</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{subtitle || 'A national moment, on its way'}</h2>
             </div>
 
             {/* Cinematic hero card */}
@@ -95,8 +109,8 @@ export default function FeaturedEvent() {
                   </div>
 
                   <div className="mt-10 flex flex-wrap gap-4">
-                    <Link href="/events/awakening-cup" className="btn btn-primary btn-lg">
-                      Explore Event
+                    <Link href={ctaUrl || '/events/awakening-cup'} className="btn btn-primary btn-lg">
+                      {ctaText || 'Explore Event'}
                       <span aria-hidden="true">→</span>
                     </Link>
                     <AwakeningCupTeaser className="btn-lg" />

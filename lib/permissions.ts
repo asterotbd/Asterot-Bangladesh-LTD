@@ -4,6 +4,10 @@ export type AdminRole = (typeof ADMIN_ROLES)[number]
 
 export const PERMISSIONS = [
   'dashboard.view',
+  'content.view',
+  'content.edit',
+  'content.publish',
+  'content.delete',
   'events.view',
   'events.create',
   'events.edit',
@@ -16,12 +20,18 @@ export const PERMISSIONS = [
   'news.delete',
   'company.view',
   'company.edit',
+  'media.view',
+  'media.manage',
+  'contact.view',
+  'contact.manage',
   'users.view',
   'users.manage',
   'roles.view',
   'roles.manage',
   'finance.view',
   'finance.manage',
+  'activity.view',
+  'settings.view',
   'settings.manage'
 ] as const
 
@@ -31,6 +41,9 @@ export const ROLE_PERMISSIONS: Record<AdminRole, readonly Permission[]> = {
   super_admin: PERMISSIONS,
   admin: [
     'dashboard.view',
+    'content.view',
+    'content.edit',
+    'content.publish',
     'events.view',
     'events.create',
     'events.edit',
@@ -43,12 +56,20 @@ export const ROLE_PERMISSIONS: Record<AdminRole, readonly Permission[]> = {
     'news.delete',
     'company.view',
     'company.edit',
+    'media.view',
+    'contact.view',
+    'contact.manage',
     'users.view',
     'users.manage',
-    'finance.view'
+    'finance.view',
+    'activity.view',
+    'settings.view'
   ],
   editor: [
     'dashboard.view',
+    'content.view',
+    'content.edit',
+    'content.publish',
     'events.view',
     'events.create',
     'events.edit',

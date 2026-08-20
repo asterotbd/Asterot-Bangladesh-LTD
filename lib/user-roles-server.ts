@@ -15,6 +15,8 @@ export type RoleAssignment = {
   assignmentId: string
   name: string
   description: string | null
+  assignedBy: string | null
+  assignedAt: string | null
 }
 
 export type RoleAssignmentCount = {
@@ -108,7 +110,7 @@ export async function getUserRolesForManagement(userId: string): Promise<{ assig
   const admin = getAdminSupabase()
   const { data, error } = await admin
     .from('user_roles')
-    .select('id, role_id, roles(id, name, description)')
+    .select('id, role_id, assigned_by, created_at, roles(id, name, description)')
     .eq('user_id', userId)
   if (error) throw error
 
@@ -116,6 +118,8 @@ export async function getUserRolesForManagement(userId: string): Promise<{ assig
   for (const row of (data ?? []) as {
     id: string
     role_id: string
+    assigned_by: string | null
+    created_at: string | null
     roles:
       | { id: string; name: string; description: string | null }
       | { id: string; name: string; description: string | null }[]
@@ -123,7 +127,14 @@ export async function getUserRolesForManagement(userId: string): Promise<{ assig
   }[]) {
     const role = Array.isArray(row.roles) ? row.roles[0] : row.roles
     if (!role) continue
-    assigned.push({ roleId: role.id, assignmentId: row.id, name: role.name, description: role.description })
+    assigned.push({
+      roleId: role.id,
+      assignmentId: row.id,
+      name: role.name,
+      description: role.description,
+      assignedBy: row.assigned_by,
+      assignedAt: row.created_at
+    })
   }
   assigned.sort((a, b) => a.name.localeCompare(b.name))
 

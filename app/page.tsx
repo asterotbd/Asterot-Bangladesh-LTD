@@ -5,6 +5,8 @@ import CompaniesMarquee from '../components/CompaniesMarquee'
 import FeaturedEvent from '../components/FeaturedEvent'
 import BangladeshReach from '../components/BangladeshReach'
 import FAQPreview from '../components/FAQPreview'
+import { getPublishedServices } from '../lib/services-server'
+import { getPublicHomepageSections } from '../lib/homepage-server'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -42,12 +44,14 @@ const capabilityAccents = {
   }
 }
 
-const services: { title: string; description: string; accent: keyof typeof capabilityAccents }[] = [
-  { title: 'Event Strategy', description: 'Professional planning and production across sports, corporate, entertainment and brand campaigns.', accent: 'primary' },
-  { title: 'Sports Tournaments', description: 'Organizing sports competitions and tournaments with operational precision.', accent: 'blue' },
-  { title: 'Corporate Programs', description: 'Managing conferences, meetings, seminars and executive gatherings.', accent: 'cyan' },
-  { title: 'Branded Experiences', description: 'Delivering activations, sponsorship campaigns and high-impact marketing events.', accent: 'accent' }
+const fallbackServices = [
+  { title: 'Event Strategy', description: 'Professional planning and production across sports, corporate, entertainment and brand campaigns.' },
+  { title: 'Sports Tournaments', description: 'Organizing sports competitions and tournaments with operational precision.' },
+  { title: 'Corporate Programs', description: 'Managing conferences, meetings, seminars and executive gatherings.' },
+  { title: 'Branded Experiences', description: 'Delivering activations, sponsorship campaigns and high-impact marketing events.' }
 ]
+
+export const dynamic = 'force-dynamic'
 
 const featuredEventCategories = [
   'Sports tournaments and athletic events',
@@ -56,33 +60,80 @@ const featuredEventCategories = [
   'Branding, marketing and sponsorship activations'
 ]
 
-export default function Home() {
+export default async function Home() {
+  let dbServices: Awaited<ReturnType<typeof getPublishedServices>> = []
+  try {
+    dbServices = await getPublishedServices()
+  } catch (err) {
+    console.error('Homepage services load error', err)
+  }
+
+  let dbSections: Awaited<ReturnType<typeof getPublicHomepageSections>> = []
+  try {
+    dbSections = await getPublicHomepageSections()
+  } catch (err) {
+    console.error('Homepage sections load error', err)
+  }
+
+  const sectionMap = new Map(dbSections.map((s) => [s.section_key, s]))
+  const heroSection = sectionMap.get('hero')
+  const capabilitiesSection = sectionMap.get('capabilities')
+  const companiesSection = sectionMap.get('companies')
+  const featuredEventSection = sectionMap.get('featured_event')
+
+  const services = dbServices.length > 0
+    ? dbServices.map((service) => ({
+        title: service.title_en || service.title_bn || 'Capability',
+        description: service.short_description_en || service.description_en || service.short_description_bn || service.description_bn || ''
+      }))
+    : fallbackServices
+
+  const capabilitiesHeading = capabilitiesSection?.heading || 'Capabilities'
+  const capabilitiesSubtitle = capabilitiesSection?.subtitle || 'Asterot provides a full range of event management capabilities for sports, corporate, entertainment and brand-focused programs.'
+  const capabilitiesVisible = capabilitiesSection ? capabilitiesSection.visible !== false : true
+  const companiesHeading = companiesSection?.heading || "Companies We've Worked With"
+  const companiesVisible = companiesSection ? companiesSection.visible !== false : true
   return (
     <main className="bg-black text-white">
 
-      <Hero />
+      <Hero
+        heading={heroSection?.heading}
+        subtitle={heroSection?.subtitle}
+        ctaText={heroSection?.cta_text}
+        ctaUrl={heroSection?.cta_url}
+        visible={heroSection ? heroSection.visible !== false : true}
+      />
 
-      <section className="py-12 sm:py-16">
-        <Container>
-          <div className="rounded-full border border-white/10 bg-[rgba(13,13,18,0.55)] px-6 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-[14px] backdrop-saturate-150 sm:px-8">
-            <CompaniesMarquee heading="Companies We've Worked With" />
-          </div>
-        </Container>
-      </section>
+      {companiesVisible && (
+        <section className="py-12 sm:py-16">
+          <Container>
+            <div className="rounded-full border border-white/10 bg-[rgba(13,13,18,0.55)] px-6 py-4 shadow-[0_8px_30px_rgba(0,0,0,0.35)] backdrop-blur-[14px] backdrop-saturate-150 sm:px-8">
+              <CompaniesMarquee heading={companiesHeading} />
+            </div>
+          </Container>
+        </section>
+      )}
 
-      <FeaturedEvent />
+      <FeaturedEvent
+        heading={featuredEventSection?.heading}
+        subtitle={featuredEventSection?.subtitle}
+        ctaText={featuredEventSection?.cta_text}
+        ctaUrl={featuredEventSection?.cta_url}
+        visible={featuredEventSection ? featuredEventSection.visible !== false : true}
+      />
 
       <BangladeshReach />
 
       <Container>
+        {capabilitiesVisible && (
         <section className="section-grid py-16 sm:py-20">
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 sm:p-10">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Core services</p>
-            <h2 className="mt-4 text-3xl font-semibold">Capabilities</h2>
-            <p className="mt-4 text-gray-300">Asterot provides a full range of event management capabilities for sports, corporate, entertainment and brand-focused programs.</p>
+            <h2 className="mt-4 text-3xl font-semibold">{capabilitiesHeading}</h2>
+            <p className="mt-4 text-gray-300">{capabilitiesSubtitle}</p>
             <div className="gallery-grid mt-8">
-              {services.map(service => {
-                const a = capabilityAccents[service.accent]
+              {services.map((service, serviceIndex) => {
+                const a = capabilityAccents[(['primary', 'blue', 'cyan', 'accent'] as const)[serviceIndex % 4]]
                 return (
                   <div key={service.title} className={`group relative overflow-hidden rounded-3xl border p-5 transition-all duration-300 ${a.panel} ${a.hover}`}>
                     <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-[3px] rounded-full ${a.line} shadow-[0_0_16px_rgba(255,22,90,0.45)]`} />
@@ -124,6 +175,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        )}
 
         <FAQPreview />
 

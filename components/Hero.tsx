@@ -14,7 +14,19 @@ function ArrowIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
   )
 }
 
-export default function Hero() {
+export default function Hero({
+  heading = 'Igniting Change\nwith every step.',
+  subtitle = 'Asterot is a premium event production company in Bangladesh — orchestrating sports, corporate, and entertainment experiences with precision and polish.',
+  ctaText = 'Explore What We Do',
+  ctaUrl = '/events',
+  visible = true
+}: {
+  heading?: string | null
+  subtitle?: string | null
+  ctaText?: string | null
+  ctaUrl?: string | null
+  visible?: boolean | null
+}) {
   const reduceMotion = useReducedMotion()
 
   const mouseX = useMotionValue(0)
@@ -39,6 +51,15 @@ export default function Hero() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.8, ease: EASE, delay }
   })
+
+  const headingLines = (heading ?? 'Igniting Change\nwith every step.').split('\n').filter(Boolean)
+  const firstLine = headingLines[0] ?? 'Igniting Change'
+  const secondLine = headingLines.length > 1 ? headingLines.slice(1).join(' ') : ''
+  const resolvedSubtitle = subtitle ?? 'Asterot is a premium event production company in Bangladesh — orchestrating sports, corporate, and entertainment experiences with precision and polish.'
+  const resolvedCtaText = ctaText || 'Explore What We Do'
+  const resolvedCtaUrl = ctaUrl || '/events'
+
+  if (visible === false) return null
 
   return (
     <section
@@ -74,25 +95,27 @@ export default function Hero() {
                 {...fadeUp(0.12)}
                 className="block text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95] tracking-[-0.02em]"
               >
-                Igniting Change
+                {firstLine}
               </motion.span>
-              <motion.span
-                {...fadeUp(0.2)}
-                className="mt-3 block text-[clamp(1.4rem,3vw,2.4rem)] font-extralight leading-snug tracking-[-0.01em] text-white/70"
-              >
-                with every step.
-              </motion.span>
+              {secondLine && (
+                <motion.span
+                  {...fadeUp(0.2)}
+                  className="mt-3 block text-[clamp(1.4rem,3vw,2.4rem)] font-extralight leading-snug tracking-[-0.01em] text-white/70"
+                >
+                  {secondLine}
+                </motion.span>
+              )}
             </h1>
 
             {/* Supporting copy */}
             <motion.p {...fadeUp(0.32)} className="mt-9 max-w-[min(52ch,100%)] text-base leading-7 text-gray-400 sm:text-lg sm:leading-8">
-              Asterot is a premium event production company in Bangladesh — orchestrating sports, corporate, and entertainment experiences with precision and polish.
+              {resolvedSubtitle}
             </motion.p>
 
             {/* CTAs */}
             <motion.div {...fadeUp(0.44)} className="mt-11 flex flex-wrap items-center gap-4">
-              <Link href="/events" className="btn btn-primary btn-smooth group">
-                Explore What We Do
+              <Link href={resolvedCtaUrl} className="btn btn-primary btn-smooth group">
+                {resolvedCtaText}
                 <ArrowIcon className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5" />
               </Link>
               <Link href="/about" className="btn btn-ghost btn-smooth">

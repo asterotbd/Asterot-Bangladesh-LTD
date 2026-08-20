@@ -8,6 +8,7 @@ export async function getSyncedVideos(): Promise<MediaVideo[]> {
       .select('caption_en, category, metadata')
       .eq('type', 'video')
       .eq('provider', 'youtube')
+      .eq('published', true)
       .order('metadata->>publishedAt', { ascending: false })
 
     if (error) {

@@ -12,6 +12,7 @@ export default function AdminCompanyForm(){
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string|undefined>()
+  const [saved, setSaved] = useState(false)
   const [company, setCompany] = useState<Company>({})
 
   useEffect(()=>{
@@ -24,13 +25,21 @@ export default function AdminCompanyForm(){
   const onChange = (k:string, v:any) => setCompany((s:any)=>({ ...s, [k]: v }))
 
   const save = async () => {
+    if (!company.name_en?.trim()) {
+      setError('Company name is required.')
+      return
+    }
     setSaving(true)
     setError(undefined)
+    setSaved(false)
     try {
       const res = await fetch('/api/admin/company', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(company) })
       const j = await res.json()
       if (!res.ok) setError(j.error || 'Save failed')
-      else setCompany(j.data)
+      else {
+        setCompany(j.data)
+        setSaved(true)
+      }
     } catch (e) {
       setError(String(e))
     } finally {
@@ -43,8 +52,9 @@ export default function AdminCompanyForm(){
   return (
     <div className="w-full max-w-[min(70rem,100%)]">
       {error && <div className="text-red-400">{error}</div>}
-      <label className="block mb-2 text-sm font-medium text-gray-300">Company Name (EN)
-        <input value={company.name_en||''} onChange={e=>onChange('name_en', e.target.value)} className={inputClass()} />
+      {saved && <div className="mb-4 rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Saved successfully.</div>}
+      <label className="block mb-2 text-sm font-medium text-gray-300">Company Name (EN) *
+        <input required value={company.name_en||''} onChange={e=>onChange('name_en', e.target.value)} className={inputClass()} />
       </label>
       <label className="block mb-2 text-sm font-medium text-gray-300">Founded Date
         <input type="date" value={company.founded_date||''} onChange={e=>onChange('founded_date', e.target.value)} className={inputClass()} />

@@ -7,7 +7,7 @@ import { useDismiss } from '../../hooks/useDismiss'
 import { useScrollLock } from '../../hooks/useScrollLock'
 import { logout } from '../../lib/logout'
 
-export type AdminNavItem = { label: string; href: string; icon: string }
+export type AdminNavItem = { label: string; href: string; icon: string; group?: string }
 export type AdminShellUser = { name: string; email: string; roles: string[] }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -54,6 +54,36 @@ function NavIcon({ name, className = 'h-5 w-5' }: { name: string } & IconProps) 
           <path d="M8 8h2M8 12h2M8 16h2" />
         </svg>
       )
+    case 'content':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          <path d="M9 7h7M9 11h7" />
+        </svg>
+      )
+    case 'homepage':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10z" />
+          <path d="M9 21v-6h6v6" />
+        </svg>
+      )
+    case 'albums':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="M21 15l-5-5-9 9" />
+        </svg>
+      )
+    case 'videos':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="2" y="5" width="20" height="14" rx="3" />
+          <path d="M10 9l5 3-5 3V9z" />
+        </svg>
+      )
     case 'users':
       return (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
@@ -68,6 +98,41 @@ function NavIcon({ name, className = 'h-5 w-5' }: { name: string } & IconProps) 
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
           <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z" />
           <path d="M9 12l2 2 4-4" />
+        </svg>
+      )
+    case 'permissions':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <path d="M8 9h8M8 13h8M8 17h5" />
+        </svg>
+      )
+    case 'messages':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
+          <path d="M8 9h8M8 13h5" />
+        </svg>
+      )
+    case 'media':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <circle cx="8.5" cy="10" r="1.5" />
+          <path d="M21 15l-5-5-5 5" />
+        </svg>
+      )
+    case 'activity':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M22 12h-4l-3 8-6-16-3 8H2" />
+        </svg>
+      )
+    case 'settings':
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
         </svg>
       )
     default:
@@ -146,28 +211,41 @@ export default function AdminShell({
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Admin navigation">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const active = isActive(item.href)
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  aria-current={active ? 'page' : undefined}
-                  className={clsx(
-                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                    active ? 'bg-white/[0.06] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  )}
-                >
-                  <span className={clsx('h-4 w-1 shrink-0 rounded-full transition-colors', active ? 'bg-primary' : 'bg-transparent')} />
-                  <NavIcon name={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              </li>
-            )
-          })}
-        </ul>
+        {navItems.reduce<{ group: string | null; items: AdminNavItem[] }[]>((groups, item) => {
+          const g = item.group ?? null
+          const last = groups[groups.length - 1]
+          if (last && last.group === g) last.items.push(item)
+          else groups.push({ group: g, items: [item] })
+          return groups
+        }, []).map((group, groupIndex) => (
+          <div key={group.group ?? `nav-${groupIndex}`} className={groupIndex > 0 ? 'mt-5' : ''}>
+            {group.group && (
+              <p className="mb-1.5 px-3 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-gray-600">{group.group}</p>
+            )}
+            <ul className="space-y-1">
+              {group.items.map((item) => {
+                const active = isActive(item.href)
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      aria-current={active ? 'page' : undefined}
+                      className={clsx(
+                        'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
+                        active ? 'bg-white/[0.06] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                      )}
+                    >
+                      <span className={clsx('h-4 w-1 shrink-0 rounded-full transition-colors', active ? 'bg-primary' : 'bg-transparent')} />
+                      <NavIcon name={item.icon} />
+                      <span>{item.label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       <div className="shrink-0 border-t border-white/10 p-3">

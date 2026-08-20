@@ -32,6 +32,8 @@ const EVENT_FIELDS: Record<string, true> = {
   location: true,
   registration_deadline: true,
   capacity: true,
+  status: true,
+  featured: true,
   published: true
 }
 
@@ -46,8 +48,10 @@ const NEWS_FIELDS: Record<string, true> = {
   content_en: true,
   content_bn: true,
   category_id: true,
+  status: true,
   published: true,
-  published_at: true
+  published_at: true,
+  featured_image: true
 }
 
 const EVENT_TEXT_LIMITS: Record<string, number> = {
@@ -101,6 +105,29 @@ function validatePublished(body: Record<string, unknown>, fields: Record<string,
   if (!('published' in body)) return null
   if (typeof body.published !== 'boolean') return 'Invalid published.'
   fields.published = body.published
+  return null
+}
+
+function validateStatus(body: Record<string, unknown>, fields: Record<string, unknown>): string | null {
+  if (!('status' in body)) return null
+  const value = body.status
+  if (value === null || value === undefined || value === '') {
+    fields.status = null
+    return null
+  }
+  if (typeof value !== 'string') return 'Invalid status.'
+  const status = value.trim().toLowerCase()
+  if (status !== 'draft' && status !== 'published' && status !== 'archived') return 'Invalid status.'
+  fields.status = status
+  if (status === 'published') fields.published = true
+  if (status === 'draft' || status === 'archived') fields.published = false
+  return null
+}
+
+function validateFeatured(body: Record<string, unknown>, fields: Record<string, unknown>): string | null {
+  if (!('featured' in body)) return null
+  if (typeof body.featured !== 'boolean') return 'Invalid featured.'
+  fields.featured = body.featured
   return null
 }
 
@@ -210,6 +237,12 @@ export function validateEventPayload(body: unknown, opts: { requireTitle: boolea
   const publishedError = validatePublished(body, fields)
   if (publishedError) return { error: publishedError }
 
+  const statusError = validateStatus(body, fields)
+  if (statusError) return { error: statusError }
+
+  const featuredError = validateFeatured(body, fields)
+  if (featuredError) return { error: featuredError }
+
   return { fields }
 }
 
@@ -242,8 +275,22 @@ export function validateNewsPayload(body: unknown, opts: { requireTitle: boolean
   const categoryError = validateCategoryId(body, fields)
   if (categoryError) return { error: categoryError }
 
+  if ('featured_image' in body) {
+    const value = body.featured_image
+    if (value === null || value === '') {
+      fields.featured_image = null
+    } else if (typeof value === 'string' && isValidUuid(value)) {
+      fields.featured_image = value
+    } else {
+      return { error: 'Invalid featured_image.' }
+    }
+  }
+
   const publishedError = validatePublished(body, fields)
   if (publishedError) return { error: publishedError }
+
+  const statusError = validateStatus(body, fields)
+  if (statusError) return { error: statusError }
 
   if ('published_at' in body) {
     const value = body.published_at

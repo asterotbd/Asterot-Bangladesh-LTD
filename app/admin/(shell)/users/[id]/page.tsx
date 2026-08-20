@@ -3,9 +3,11 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import createServerClient from '../../../../../lib/supabaseServer'
 import { requireAnyPermission } from '../../../../../lib/auth'
-import { hasPermission } from '../../../../../lib/permissions'
+import { hasPermission, getPermissionsForRoles } from '../../../../../lib/permissions'
 import { getUserDetail, type AdminUserDetail } from '../../../../../lib/users-server'
 import { getUserRolesForManagement } from '../../../../../lib/user-roles-server'
+import PageHeader from '../../../../../components/admin/PageHeader'
+import { Panel } from '../../../../../components/admin/Panel'
 import UserProfileForm from '../../../../../components/admin/UserProfileForm'
 import UserRoleManager from '../../../../../components/admin/UserRoleManager'
 
@@ -22,6 +24,13 @@ function formatDate(value: string | null): string {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return '—'
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function formatDateTime(value: string | null): string {
+  if (!value) return '—'
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 function identity(user: AdminUserDetail): string {
@@ -81,11 +90,13 @@ export default async function AdminUserDetailPage({ params }: { params: { id: st
     }
   }
 
-  const assignedRolesForDisplay: { name: string; description?: string | null }[] = user
+  const assignedRolesForDisplay: { name: string; description?: string | null; assignedBy?: string | null; assignedAt?: string | null }[] = user
     ? roleAssignment
       ? roleAssignment.assigned
       : user.roles.map((name) => ({ name }))
     : []
+
+  const effectivePermissions = user ? getPermissionsForRoles(user.roles) : []
 
   return (
     <div className="space-y-6">
@@ -172,6 +183,12 @@ export default async function AdminUserDetailPage({ params }: { params: { id: st
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-white">{ROLE_LABELS[role.name] || role.name}</p>
                           {role.description && <p className="mt-0.5 truncate text-xs text-gray-500">{role.description}</p>}
+                          {role.assignedAt && (
+                            <p className="mt-0.5 truncate text-xs text-gray-600">
+                              Assigned {formatDateTime(role.assignedAt)}
+                              {role.assignedBy ? ' by ' + role.assignedBy.slice(0, 8) : ''}
+                            </p>
+                          )}
                         </div>
                       </li>
                     ))}
@@ -195,6 +212,26 @@ export default async function AdminUserDetailPage({ params }: { params: { id: st
                 }}
               />
             )}
+
+            <DetailCard title="Effective Permissions">
+              {effectivePermissions.length === 0 ? (
+                <p className="text-sm text-gray-500">This user has no admin permissions.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {effectivePermissions.map((permission) => (
+                    <span
+                      key={permission}
+                      className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-gray-300"
+                    >
+                      {permission}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="mt-4 text-xs text-gray-500">
+                Permissions are derived from the assigned roles and enforced server-side on every admin route and mutation.
+              </p>
+            </DetailCard>
           </div>
         </div>
       )}

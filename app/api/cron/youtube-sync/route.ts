@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto'
 import { syncYoutubeVideos } from '../../../../lib/youtube'
 
 export const dynamic = 'force-dynamic'
@@ -8,11 +9,18 @@ export const maxDuration = 60
 // response so the operator can diagnose sync failures; this route is never
 // called from the browser and is not part of the browser-facing API surface.
 
+function secureEqual(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a)
+  const bBuf = Buffer.from(b)
+  if (aBuf.length !== bBuf.length) return false
+  return timingSafeEqual(aBuf, bBuf)
+}
+
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET?.trim()
   const authorization = request.headers.get('authorization')
   const allowed = secret
-    ? authorization === `Bearer ${secret}`
+    ? authorization !== null && secureEqual(authorization, `Bearer ${secret}`)
     : false
 
   if (!allowed) {

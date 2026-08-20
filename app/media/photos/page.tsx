@@ -4,6 +4,9 @@ import SpotlightSlideshow from '../../../components/SpotlightSlideshow'
 import PhotoAlbumsGrid from '../../../components/PhotoAlbumsGrid'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { getPublishedAlbums } from '../../../lib/albums-server'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Photos',
@@ -13,7 +16,13 @@ export const metadata: Metadata = {
   }
 }
 
-export default function MediaPhotosPage() {
+export default async function MediaPhotosPage() {
+  let dbAlbums: Awaited<ReturnType<typeof getPublishedAlbums>> = []
+  try {
+    dbAlbums = await getPublishedAlbums()
+  } catch (err) {
+    console.error('Photos page album load error', err)
+  }
   return (
     <main className="bg-black text-white">
 
@@ -56,7 +65,7 @@ export default function MediaPhotosPage() {
             </div>
             <p className="max-w-[min(52ch,100%)] text-gray-400 sm:text-right">Organized collections from tournaments, events, celebrations, and everything in between.</p>
           </div>
-          <PhotoAlbumsGrid />
+          <PhotoAlbumsGrid albums={dbAlbums} />
         </RevealSection>
 
         {/* Cross-link to videos */}

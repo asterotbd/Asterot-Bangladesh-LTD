@@ -1,4 +1,4 @@
-import getAdminSupabase from './supabaseAdmin'
+import getAdminSupabase, { getAuthAdminSupabase } from './supabaseAdmin'
 
 export type UserRoleCount = { role: string; count: number }
 
@@ -109,7 +109,12 @@ export async function listUsers({
   const term = search.trim()
   if (term) {
     const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)
-    query = query.or(`display_name.ilike.%${escaped}%,full_name.ilike.%${escaped}%`)
+    const emailMatchedIds = await getEmailMatchedUserIds(term)
+    const orParts = [`display_name.ilike.%${escaped}%`, `full_name.ilike.%${escaped}%`]
+    if (emailMatchedIds.length > 0) {
+      orParts.push(`and(id.in.(${emailMatchedIds.join(',')}))`)
+    }
+    query = query.or(orParts.join(','))
   }
 
   const { data, count, error } = await query
@@ -236,6 +241,20 @@ async function getRolesForUserIds(userIds: string[]): Promise<Map<string, string
     map.set(row.user_id, list)
   }
   return map
+}
+
+async function getEmailMatchedUserIds(term: string): Promise<string[]> {
+  // The service-role client scoped to the auth schema can match users by email.
+  // Any failure degrades gracefully to name-only search.
+  try {
+    const authAdmin = getAuthAdminSupabase()
+    const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)
+    const { data, error } = await authAdmin.from('users').select('id').ilike('email', `%${escaped}%`).limit(100)
+    if (error) return []
+    return ((data ?? []) as { id: string }[]).map((u) => u.id)
+  } catch {
+    return []
+  }
 }
 
 async function getAuthInfoForUserIds(userIds: string[]): Promise<Map<string, AuthInfo>> {

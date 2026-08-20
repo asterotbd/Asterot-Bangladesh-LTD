@@ -3,6 +3,7 @@ import RevealSection from '../../../components/RevealSection'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { storyParagraphs } from '../../../lib/about'
+import { getPublicCompanyInfo } from '../../../lib/about-server'
 
 export const metadata: Metadata = {
   title: 'Our Story',
@@ -12,7 +13,20 @@ export const metadata: Metadata = {
   }
 }
 
-export default function OurStoryPage() {
+export const dynamic = 'force-dynamic'
+
+export default async function OurStoryPage() {
+  let company: Awaited<ReturnType<typeof getPublicCompanyInfo>> = null
+  try {
+    company = await getPublicCompanyInfo()
+  } catch (err) {
+    console.error('Company info load error', err)
+  }
+
+  const paragraphs = company?.story_en
+    ? company.story_en.split(/\n+/).map((p) => p.trim()).filter(Boolean)
+    : storyParagraphs
+
   return (
     <main className="bg-black text-white">
 
@@ -41,7 +55,7 @@ export default function OurStoryPage() {
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/10 sm:p-14">
             <p className="text-sm uppercase tracking-[0.35em] text-primary">Who we are</p>
             <div className="mt-6 space-y-5 text-gray-300 leading-8">
-              {storyParagraphs.map((para, index) => (
+              {paragraphs.map((para, index) => (
                 <p key={index}>{para}</p>
               ))}
               <p className="pt-2 text-base font-semibold text-white">

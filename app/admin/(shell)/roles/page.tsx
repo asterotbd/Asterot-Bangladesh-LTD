@@ -5,6 +5,9 @@ import createServerClient from '../../../../lib/supabaseServer'
 import { requireAnyPermission } from '../../../../lib/auth'
 import { hasPermission, ADMIN_ROLES, ROLE_PERMISSIONS, type Permission } from '../../../../lib/permissions'
 import { getRoleAssignmentCounts, type RoleAssignmentCount } from '../../../../lib/user-roles-server'
+import PageHeader from '../../../../components/admin/PageHeader'
+import { Panel, ErrorState } from '../../../../components/admin/Panel'
+import RoleDescriptionForm from '../../../../components/admin/RoleDescriptionForm'
 
 const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Super Admin',
@@ -14,7 +17,7 @@ const ROLE_LABELS: Record<string, string> = {
   finance: 'Finance'
 }
 
-const DOMAIN_ORDER = ['events', 'registrations', 'news', 'company', 'users', 'roles', 'finance', 'settings'] as const
+const DOMAIN_ORDER = ['dashboard', 'events', 'registrations', 'news', 'company', 'media', 'contact', 'users', 'roles', 'finance', 'activity', 'settings'] as const
 
 const DOMAIN_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
@@ -22,9 +25,12 @@ const DOMAIN_LABELS: Record<string, string> = {
   registrations: 'Registrations',
   news: 'News',
   company: 'Company',
+  media: 'Media',
+  contact: 'Contact Messages',
   users: 'Users',
   roles: 'Roles',
   finance: 'Finance',
+  activity: 'Activity',
   settings: 'Settings'
 }
 
@@ -56,6 +62,7 @@ export default async function AdminRolesPage() {
 
   const permissions = await requireAnyPermission(user.id, ['roles.view'])
   const canViewUsers = hasPermission(permissions, 'users.view')
+  const canManage = hasPermission(permissions, 'roles.manage')
 
   let counts: RoleAssignmentCount[] = []
   let failed = false
@@ -68,21 +75,22 @@ export default async function AdminRolesPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">Roles</h1>
-        <p className="mt-1 text-sm text-gray-400">
-          System roles define the permissions available across the admin. Role definitions are fixed.
+      <PageHeader
+        title="Roles"
+        description="System roles define the permissions available across the admin. Names are fixed by the permission matrix; descriptions can be edited."
+      />
+
+      {canManage && (
+        <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-gray-400">
+          Roles are managed through the database RPC (assign_user_role / remove_user_role), which enforces the
+          last-super-admin and self-protection safeguards. Permission definitions live in the permission matrix.
         </p>
-      </header>
+      )}
 
       {failed ? (
-        <div className="rounded-2xl border border-white/10 bg-panel">
-          <p className="py-16 text-center text-sm text-amber-200/80">Unable to load roles.</p>
-        </div>
+        <Panel><ErrorState message="Unable to load roles." /></Panel>
       ) : counts.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-panel">
-          <p className="py-16 text-center text-sm text-gray-500">No roles found.</p>
-        </div>
+        <Panel><ErrorState message="No roles found." /></Panel>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {counts.map((role) => {
@@ -124,14 +132,22 @@ export default async function AdminRolesPage() {
                   )}
                 </div>
 
-                {canViewUsers && (
-                  <Link
-                    href={`/admin/users?role=${role.id}`}
-                    className="mt-5 inline-flex text-sm font-medium text-primary hover:underline"
-                  >
-                    View users with this role →
-                  </Link>
+                {canManage && (
+                  <div className="mt-5">
+                    <RoleDescriptionForm roleId={role.id} roleName={role.name} initialDescription={role.description ?? ''} />
+                  </div>
                 )}
+
+                <div className="mt-5 flex flex-wrap gap-4">
+                  {canViewUsers && (
+                    <Link href={`/admin/users?role=${role.id}`} className="inline-flex text-sm font-medium text-primary hover:underline">
+                      View users with this role →
+                    </Link>
+                  )}
+                  <Link href="/admin/permissions" className="inline-flex text-sm font-medium text-gray-300 hover:text-white hover:underline">
+                    Permission matrix →
+                  </Link>
+                </div>
               </section>
             )
           })}

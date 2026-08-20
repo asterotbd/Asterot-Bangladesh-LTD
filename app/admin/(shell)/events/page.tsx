@@ -4,6 +4,7 @@ import Link from 'next/link'
 import createServerClient from '../../../../lib/supabaseServer'
 import { requirePermission } from '../../../../lib/auth'
 import { getAllEvents } from '../../../../lib/events-server'
+import { Panel, ErrorState } from '../../../../components/admin/Panel'
 import AdminEventsTable from '../../../../components/admin/AdminEventsTable'
 
 export default async function AdminEventsPage(){
@@ -12,7 +13,14 @@ export default async function AdminEventsPage(){
   if (!user) redirect('/admin/login')
   await requirePermission(user.id, 'events.view')
 
-  const events = await getAllEvents()
+  let events: Awaited<ReturnType<typeof getAllEvents>> = []
+  let failed = false
+  try {
+    events = await getAllEvents()
+  } catch (err) {
+    console.error('Admin events list load error', err)
+    failed = true
+  }
 
   return (
     <div>
@@ -21,7 +29,9 @@ export default async function AdminEventsPage(){
         <Link href="/admin/events/new" className="btn btn-primary">New Event</Link>
       </div>
 
-      {events.length === 0 ? (
+      {failed ? (
+        <Panel><ErrorState message="Unable to load events. Please try again." /></Panel>
+      ) : events.length === 0 ? (
         <p className="text-gray-400">No events yet. Create your first event.</p>
       ) : (
         <AdminEventsTable events={events as any[]} />

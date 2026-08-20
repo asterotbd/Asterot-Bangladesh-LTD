@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
 import Container from '../../components/Container'
 import FAQAccordion from '../../components/FAQAccordion'
-import { faqPageJsonLd } from '../../lib/faq'
+import { faqItems } from '../../lib/faq'
+import { getPublishedFaq } from '../../lib/faq-server'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Frequently Asked Questions',
@@ -11,7 +14,36 @@ export const metadata: Metadata = {
   }
 }
 
-export default function FAQPage() {
+export default async function FAQPage() {
+  let dbItems: Awaited<ReturnType<typeof getPublishedFaq>> = []
+  try {
+    dbItems = await getPublishedFaq()
+  } catch (err) {
+    console.error('FAQ page load error', err)
+  }
+
+  const items = dbItems.length > 0
+    ? dbItems.map((item) => ({
+        question: item.question_en || item.question_bn || '',
+        answer: item.answer_en || item.answer_bn || ''
+      }))
+    : faqItems
+
+  // Structured data must reflect the FAQ items actually rendered, so search
+  // engines never index questions that are not published on the page.
+  const faqPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer
+      }
+    }))
+  }
+
   return (
     <main className="bg-black text-white">
       <script
@@ -36,7 +68,7 @@ export default function FAQPage() {
 
       <Container>
         <div className="mx-auto max-w-[min(46rem,100%)] py-16 sm:py-20">
-          <FAQAccordion />
+          <FAQAccordion items={items} />
         </div>
       </Container>
 

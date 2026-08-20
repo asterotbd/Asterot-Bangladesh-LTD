@@ -13,6 +13,8 @@ export type DbEvent = {
   location: string | null
   registration_deadline: string | null
   capacity: number | null
+  status: string | null
+  featured: boolean | null
   published: boolean
   created_at: string | null
   updated_at: string | null
@@ -24,7 +26,8 @@ export type EventCategory = {
   slug: string | null
 }
 
-const EVENT_FIELDS = 'id, title_en, title_bn, slug, description_en, description_bn, category_id, date, time, location, registration_deadline, capacity, published, created_at, updated_at'
+const EVENT_FIELDS =
+  'id, title_en, title_bn, slug, description_en, description_bn, category_id, date, time, location, registration_deadline, capacity, status, featured, published, created_at, updated_at'
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -83,7 +86,7 @@ export async function getAllEvents(): Promise<DbEvent[]> {
     .order('date', { ascending: false, nullsFirst: true })
   if (error) {
     console.error('getAllEvents error', error.message)
-    return []
+    throw error
   }
   return (data ?? []) as DbEvent[]
 }
@@ -100,6 +103,32 @@ export async function getEventById(id: string): Promise<DbEvent | null> {
     return null
   }
   return (data as DbEvent | null) ?? null
+}
+
+export async function deleteEvent(id: string): Promise<boolean> {
+  const admin = getAdminSupabase()
+  const { error } = await (admin.from('events') as any).delete().eq('id', id)
+  if (error) {
+    console.error('deleteEvent error', error.message)
+    return false
+  }
+  return true
+}
+
+export async function getFeaturedEvents(): Promise<DbEvent[]> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('events')
+    .select(EVENT_FIELDS)
+    .eq('published', true)
+    .eq('featured', true)
+    .order('date', { ascending: false, nullsFirst: true })
+    .limit(5)
+  if (error) {
+    console.error('getFeaturedEvents error', error.message)
+    return []
+  }
+  return (data ?? []) as DbEvent[]
 }
 
 export async function getEventCategories(): Promise<EventCategory[]> {

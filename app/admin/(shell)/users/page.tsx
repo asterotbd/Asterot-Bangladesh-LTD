@@ -165,7 +165,7 @@ export default async function AdminUsersPage({ searchParams }: { searchParams: {
             type="search"
             name="q"
             defaultValue={q}
-            placeholder="Search by name"
+            placeholder="Search by name or email"
             className="mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25"
           />
         </label>

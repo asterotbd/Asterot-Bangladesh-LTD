@@ -1,4 +1,6 @@
 "use client"
+import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 type AdminEvent = {
@@ -11,19 +13,39 @@ type AdminEvent = {
 
 export default function AdminEventsTable({ events }: { events: AdminEvent[] }) {
   const router = useRouter()
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const togglePublish = async (event: AdminEvent) => {
-    const res = await fetch(`/api/admin/events/${event.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ published: !event.published })
-    })
-    if (res.ok) router.refresh()
+    if (busyId) return
+    setBusyId(event.id)
+    setError(null)
+    try {
+      const res = await fetch(`/api/admin/events/${event.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ published: !event.published })
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        setError(data?.error || 'Unable to update the event.')
+        return
+      }
+      router.refresh()
+    } catch {
+      setError('Unable to update the event.')
+    } finally {
+      setBusyId(null)
+    }
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/10">
-      <table className="w-full min-w-[42rem] text-sm">
+    <div className="space-y-4">
+      {error && (
+        <div className="rounded-xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{error}</div>
+      )}
+      <div className="overflow-x-auto rounded-2xl border border-white/10">
+        <table className="w-full min-w-[42rem] text-sm">
         <thead>
           <tr className="border-b border-white/10 text-left text-xs uppercase tracking-[0.2em] text-gray-400">
             <th className="px-4 py-3">Title</th>
@@ -52,13 +74,15 @@ export default function AdminEventsTable({ events }: { events: AdminEvent[] }) {
               </td>
               <td className="px-4 py-3 text-right">
                 <div className="inline-flex items-center gap-3">
-                  <a href={`/admin/events/${event.id}/edit`} className="text-primary font-medium hover:underline">Edit</a>
+                  <Link href={`/admin/events/${event.id}`} className="text-gray-200 font-medium hover:underline">View</Link>
+                  <Link href={`/admin/events/${event.id}/edit`} className="text-primary font-medium hover:underline">Edit</Link>
                   <button
                     type="button"
                     onClick={() => togglePublish(event)}
-                    className="text-gray-300 font-medium hover:underline"
+                    disabled={busyId === event.id}
+                    className="text-gray-300 font-medium hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {event.published ? 'Unpublish' : 'Publish'}
+                    {busyId === event.id ? 'Saving…' : event.published ? 'Unpublish' : 'Publish'}
                   </button>
                 </div>
               </td>
@@ -66,6 +90,7 @@ export default function AdminEventsTable({ events }: { events: AdminEvent[] }) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   )
 }

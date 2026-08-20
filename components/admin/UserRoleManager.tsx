@@ -121,7 +121,9 @@ export default function UserRoleManager({
               })}
             </ul>
           )}
-          {hasOwnSuperAdmin && <p className="mt-2 text-xs text-gray-500">You cannot remove your own super admin role.</p>}
+          {hasOwnSuperAdmin && (
+            <p className="mt-2 text-xs text-gray-500">You cannot remove your own super admin role.</p>
+          )}
         </div>
 
         <div>

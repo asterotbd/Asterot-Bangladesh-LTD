@@ -14,6 +14,10 @@ import {
 } from '../../../lib/registrations-server'
 import { getTotalUserCount, getUserCountsByRole } from '../../../lib/users-server'
 import { getCompanySnapshot, type CompanySnapshot } from '../../../lib/company-server'
+import { listContactMessages } from '../../../lib/contact-server'
+import { listMedia } from '../../../lib/media-server'
+import { listAuditLogs } from '../../../lib/activity-server'
+import { listSettings } from '../../../lib/settings-server'
 
 const ROLE_LABELS: Record<string, string> = {
   super_admin: 'Super Admin',
@@ -27,6 +31,10 @@ type EventMetrics = { total: number; published: number; draft: number; upcoming:
 type RegistrationMetrics = { total: number; pending: number; confirmed: number; cancelled: number }
 type NewsMetrics = { total: number; published: number; draft: number }
 type UserMetrics = { total: number; byRole: { role: string; count: number }[] }
+type ContactMetrics = { total: number; new: number }
+type MediaMetrics = { total: number }
+type ActivityMetrics = { total: number }
+type SettingsMetrics = { total: number }
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10)
@@ -124,6 +132,33 @@ function StatusBadge({ status }: { status: string | null }) {
 
 function EmptyState({ message }: { message: string }) {
   return <p className="py-6 text-center text-sm text-gray-500">{message}</p>
+}
+
+function ModuleCard({
+  href,
+  title,
+  description,
+  icon
+}: {
+  href: string
+  title: string
+  description: string
+  icon: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-start gap-4 rounded-2xl border border-white/10 bg-panel p-4 transition-colors hover:border-white/20 hover:bg-white/[0.03]"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block font-medium text-white transition-colors group-hover:text-primary">{title}</span>
+        <span className="mt-0.5 block text-sm text-gray-400">{description}</span>
+      </span>
+    </Link>
+  )
 }
 
 function ErrorState({ message }: { message: string }) {
@@ -225,6 +260,11 @@ export default async function AdminPage() {
   const canNews = hasPermission(permissions, 'news.view')
   const canUsers = hasPermission(permissions, 'users.view')
   const canCompany = hasPermission(permissions, 'company.view')
+  const canContact = hasPermission(permissions, 'contact.view')
+  const canMedia = hasPermission(permissions, 'media.view')
+  const canActivity = hasPermission(permissions, 'activity.view')
+  const canSettings = hasPermission(permissions, 'settings.view')
+  const canRoles = hasPermission(permissions, 'roles.view')
 
   let roleNames: string[] = []
   try {
@@ -315,6 +355,49 @@ export default async function AdminPage() {
     }
   }
 
+  let contact: ContactMetrics | null = null
+  if (canContact) {
+    try {
+      const [result, fresh] = await Promise.all([
+        listContactMessages({ page: 1, perPage: 1 }),
+        listContactMessages({ page: 1, perPage: 1, status: 'new' })
+      ])
+      contact = { total: result.total, new: fresh.total }
+    } catch (err) {
+      console.error('Dashboard contact error', err)
+    }
+  }
+
+  let media: MediaMetrics | null = null
+  if (canMedia) {
+    try {
+      const result = await listMedia({ page: 1, perPage: 1 })
+      media = { total: result.total }
+    } catch (err) {
+      console.error('Dashboard media error', err)
+    }
+  }
+
+  let activity: ActivityMetrics | null = null
+  if (canActivity) {
+    try {
+      const result = await listAuditLogs({ page: 1, perPage: 1 })
+      activity = { total: result.total }
+    } catch (err) {
+      console.error('Dashboard activity error', err)
+    }
+  }
+
+  let settings: SettingsMetrics | null = null
+  if (canSettings) {
+    try {
+      const result = await listSettings()
+      settings = { total: result.length }
+    } catch (err) {
+      console.error('Dashboard settings error', err)
+    }
+  }
+
   const roleLabel = roleNames.map((r) => ROLE_LABELS[r] || r).join(', ')
 
   return (
@@ -395,6 +478,40 @@ export default async function AdminPage() {
                   : undefined}
               />
             )}
+            {canContact && (
+              <OverviewCard
+                title="Messages"
+                value={contact ? contact.total : '—'}
+                note={contact ? undefined : 'Unable to load messages.'}
+                items={contact
+                  ? [
+                      { label: 'New', value: contact.new },
+                      { label: 'All', value: contact.total }
+                    ]
+                  : undefined}
+              />
+            )}
+            {canMedia && (
+              <OverviewCard
+                title="Media"
+                value={media ? media.total : '—'}
+                note={media ? undefined : 'Unable to load media.'}
+              />
+            )}
+            {canActivity && (
+              <OverviewCard
+                title="Activity"
+                value={activity ? activity.total : '—'}
+                note={activity ? undefined : 'Unable to load activity.'}
+              />
+            )}
+            {canSettings && (
+              <OverviewCard
+                title="Settings"
+                value={settings ? settings.total : '—'}
+                note={settings ? undefined : 'Unable to load settings.'}
+              />
+            )}
           </div>
         </section>
       )}
@@ -472,6 +589,77 @@ export default async function AdminPage() {
           )}
         </section>
       )}
+
+      <section aria-label="Module shortcuts">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">Modules</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {canContact && (
+            <ModuleCard
+              href="/admin/messages"
+              title="Contact Messages"
+              description="Inbox from the contact form"
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" />
+                  <path d="M8 9h8M8 13h5" />
+                </svg>
+              }
+            />
+          )}
+          {canMedia && (
+            <ModuleCard
+              href="/admin/media"
+              title="Media Library"
+              description="Photos, videos, and embeds"
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <circle cx="8.5" cy="10" r="1.5" />
+                  <path d="M21 15l-5-5-5 5" />
+                </svg>
+              }
+            />
+          )}
+          {canActivity && (
+            <ModuleCard
+              href="/admin/activity"
+              title="Activity Log"
+              description="Audit trail of admin actions"
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                  <path d="M22 12h-4l-3 8-6-16-3 8H2" />
+                </svg>
+              }
+            />
+          )}
+          {canSettings && (
+            <ModuleCard
+              href="/admin/settings"
+              title="Settings"
+              description="Site-wide key/value configuration"
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              }
+            />
+          )}
+          {canRoles && (
+            <ModuleCard
+              href="/admin/permissions"
+              title="Roles & Permissions"
+              description="Matrix and role descriptions"
+              icon={
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path d="M8 9h8M8 13h8M8 17h5" />
+                </svg>
+              }
+            />
+          )}
+        </div>
+      </section>
     </div>
   )
 }
