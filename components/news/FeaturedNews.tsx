@@ -1,5 +1,5 @@
 "use client"
-import { useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
@@ -15,6 +15,49 @@ type FeaturedNewsProps = {
 function pad(value: number) {
   return String(value).padStart(2, '0')
 }
+
+type SlideLayerProps = {
+  image: string
+  alt: string
+  isActive: boolean
+  offsetX: number
+  priority: boolean
+}
+
+function SlideLayer({ image, alt, isActive, offsetX, priority }: SlideLayerProps) {
+  return (
+    <div
+      aria-hidden={!isActive}
+      className="absolute inset-0"
+      style={{
+        opacity: isActive ? 1 : 0,
+        transform: `translate3d(${offsetX}px, 0, 0)`,
+        transition: `opacity ${FADE_DURATION}ms ease, transform ${FADE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`
+      }}
+    >
+      <Image
+        src={image}
+        alt={alt}
+        fill
+        priority={priority}
+        // All slide layers are stacked in the viewport during the cross-fade, so
+        // they are fetched on load either way. Loading eagerly removes the
+        // decode race that could otherwise reveal a half-decoded image mid-fade.
+        loading="eager"
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 92vw, 1200px"
+        className={`object-cover ${isActive ? 'news-kenburns' : ''}`}
+      />
+
+      {/* Cinematic overlays */}
+      <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.45)_38%,rgba(0,0,0,0.08)_68%,rgba(0,0,0,0.25)_100%),linear-gradient(to_right,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.15)_55%,transparent_100%)]" />
+    </div>
+  )
+}
+
+// Memoized per-slide layer. Each slide's inline style only depends on primitive
+// props (isActive, offsetX), so hover/focus/active ticks no longer reconcile
+// every image layer — only the two slides whose state actually changes do.
+const MemoSlideLayer = memo(SlideLayer)
 
 export default function FeaturedNews({ articles }: FeaturedNewsProps) {
   const reduceMotion = useReducedMotion()
@@ -94,33 +137,18 @@ export default function FeaturedNews({ articles }: FeaturedNewsProps) {
       {/* Cinematic hero */}
       <div className="group relative mt-6 overflow-hidden rounded-[2rem] border border-white/10 bg-black shadow-2xl shadow-black/40 aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]">
         {articles.map((article, index) => {
-          const isActive = index === active
           const pos = ((index - active) % total + total) % total
           const offsetX = pos === 1 ? 36 : pos === total - 1 ? -36 : 0
 
           return (
-            <div
+            <MemoSlideLayer
               key={article.slug}
-              aria-hidden={!isActive}
-              className="absolute inset-0"
-              style={{
-                opacity: isActive ? 1 : 0,
-                transform: `translate3d(${offsetX}px, 0, 0)`,
-                transition: `opacity ${FADE_DURATION}ms ease, transform ${FADE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`
-              }}
-            >
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                priority={index === 0}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 92vw, 1200px"
-                className={`object-cover ${isActive ? 'news-kenburns' : ''}`}
-              />
-
-              {/* Cinematic overlays */}
-              <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.45)_38%,rgba(0,0,0,0.08)_68%,rgba(0,0,0,0.25)_100%),linear-gradient(to_right,rgba(0,0,0,0.72)_0%,rgba(0,0,0,0.15)_55%,transparent_100%)]" />
-            </div>
+              image={article.image}
+              alt={article.title}
+              isActive={index === active}
+              offsetX={offsetX}
+              priority={index === 0}
+            />
           )
         })}
 
