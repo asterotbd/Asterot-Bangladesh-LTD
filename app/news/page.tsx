@@ -19,7 +19,6 @@ export const metadata: Metadata = {
 export default async function NewsPage() {
   const dbArticles = await getPublishedNewsArticles()
   const articles = dbArticles.length > 0 ? dbArticles : newsArticles
-  const featuredArticles = articles.filter(article => article.featured)
   const latestArticles = articles
 
   return (
@@ -49,7 +48,7 @@ export default async function NewsPage() {
 
           {/* Featured news rotator */}
           <RevealSection className="mt-12 sm:mt-16">
-            <FeaturedNews articles={featuredArticles} />
+            <FeaturedNews articles={articles} />
           </RevealSection>
 
           {/* Latest stories + category filter */}
