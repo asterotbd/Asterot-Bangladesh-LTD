@@ -4,6 +4,7 @@ import FeaturedNews from '../../components/news/FeaturedNews'
 import LatestStories from '../../components/news/LatestStories'
 import { newsArticles, newsCategories } from '../../lib/newsData'
 import { getPublishedNewsArticles } from '../../lib/news-server'
+import { getSetting } from '../../lib/settings-server'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
@@ -20,6 +21,17 @@ export default async function NewsPage() {
   const dbArticles = await getPublishedNewsArticles()
   const articles = dbArticles.length > 0 ? dbArticles : newsArticles
   const latestArticles = articles
+
+  const [titleSetting, descriptionSetting] = await Promise.all([
+    getSetting('news.page.title'),
+    getSetting('news.page.description')
+  ])
+  const pageTitle = typeof titleSetting === 'string' && titleSetting.trim()
+    ? titleSetting
+    : 'Latest Updates'
+  const pageDescription = typeof descriptionSetting === 'string' && descriptionSetting.trim()
+    ? descriptionSetting
+    : 'News and insights on upcoming projects, partnerships and event activity from Asterot Bangladesh Limited.'
 
   return (
     <main className="news-page bg-black text-white">
@@ -39,9 +51,9 @@ export default async function NewsPage() {
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.35em] text-primary">
                 News
               </span>
-              <h1 className="fluid-heading mt-6 font-black leading-tight tracking-tight">Latest Updates</h1>
+              <h1 className="fluid-heading mt-6 font-black leading-tight tracking-tight">{pageTitle}</h1>
               <p className="mt-5 max-w-[min(62ch,100%)] text-lg leading-8 text-white/60">
-                News and insights on upcoming projects, partnerships and event activity from Asterot Bangladesh Limited.
+                {pageDescription}
               </p>
             </header>
           </RevealSection>

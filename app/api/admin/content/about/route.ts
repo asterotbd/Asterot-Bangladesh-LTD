@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../../lib/rate-limit'
@@ -137,6 +138,7 @@ export async function PUT(request: Request) {
       const ok = await updateLeader(id, fields)
       if (!ok) return jsonError('Leader not found.', 404)
       await writeAuditLog(check.user.id, 'content.update', 'leadership', id, { name: fields.name })
+      revalidatePath('/about/leadership')
       return NextResponse.json({ ok: true })
     }
 
@@ -163,6 +165,7 @@ export async function PUT(request: Request) {
       await writeAuditLog(check.user.id, 'content.update', 'company_info', company.id, {
         name: (fields.name_en as string) ?? company.name_en
       })
+      revalidatePath('/about')
       return NextResponse.json({ ok: true })
     }
 
@@ -209,6 +212,7 @@ export async function POST(request: Request) {
     const leader = await createLeader(record)
     if (!leader) return jsonError('Unable to create the leader.', 500)
     await writeAuditLog(check.user.id, 'content.update', 'leadership', leader.id, { name: leader.name })
+    revalidatePath('/about/leadership')
     return NextResponse.json({ data: leader }, { status: 201 })
   } catch (err) {
     logError('admin.about.leader-create', err)
@@ -234,6 +238,7 @@ export async function DELETE(request: Request) {
     const ok = await deleteLeader(raw.id)
     if (!ok) return jsonError('Leader not found.', 404)
     await writeAuditLog(check.user.id, 'content.delete', 'leadership', raw.id, {})
+    revalidatePath('/about/leadership')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.about.leader-delete', err)

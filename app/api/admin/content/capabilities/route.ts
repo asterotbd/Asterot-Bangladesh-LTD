@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../../lib/rate-limit'
@@ -90,6 +91,7 @@ export async function POST(request: Request) {
     const service = await createService(record)
     if (!service) return jsonError('Unable to create the capability.', 500)
     await writeAuditLog(check.user.id, 'content.update', 'services', service.id, { title: service.title_en })
+    revalidatePath('/')
     return NextResponse.json({ data: service }, { status: 201 })
   } catch (err) {
     logError('admin.services.create', err)
@@ -148,6 +150,7 @@ export async function PUT(request: Request) {
       title: (fields.title_en as string) ?? existing.title_en,
       published: fields.published as boolean
     })
+    revalidatePath('/')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.services.update', err)
@@ -175,6 +178,7 @@ export async function DELETE(request: Request) {
     const ok = await deleteService(raw.id)
     if (!ok) return jsonError('Capability not found.', 404)
     await writeAuditLog(check.user.id, 'content.delete', 'services', raw.id, { title: existing.title_en })
+    revalidatePath('/')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.services.delete', err)

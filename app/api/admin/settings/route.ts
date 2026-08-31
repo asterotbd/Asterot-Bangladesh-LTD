@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../lib/auth'
 import { listSettings, upsertSetting, deleteSetting } from '../../../../lib/settings-server'
 import { writeAuditLog } from '../../../../lib/audit'
@@ -44,6 +45,8 @@ export async function PUT(request: Request) {
   try {
     await upsertSetting(key, value ?? null)
     await writeAuditLog(check.user.id, 'settings.update', 'site_settings', null, { key })
+    revalidatePath('/')
+    revalidatePath('/news')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.settings.update', err)
@@ -70,6 +73,8 @@ export async function DELETE(request: Request) {
     const deleted = await deleteSetting(id)
     if (!deleted) return jsonError('Setting not found.', 404)
     await writeAuditLog(check.user.id, 'settings.delete', 'site_settings', id)
+    revalidatePath('/')
+    revalidatePath('/news')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.settings.delete', err)

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../../lib/auth'
 import getAdminSupabase from '../../../../../lib/supabaseAdmin'
 import { getNewsById, deleteNews } from '../../../../../lib/news-server'
@@ -71,6 +72,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     title: data.title_en,
     status: (data.status as string) ?? (data.published ? 'published' : 'draft')
   })
+  revalidatePath('/news')
   return NextResponse.json({ data })
 }
 
@@ -89,5 +91,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const ok = await deleteNews(params.id)
   if (!ok) return jsonError('Unable to delete the news article.', 500)
   await writeAuditLog(check.user.id, 'news.delete', 'news', params.id, { title: news.title_en })
+  revalidatePath('/news')
   return NextResponse.json({ ok: true })
 }

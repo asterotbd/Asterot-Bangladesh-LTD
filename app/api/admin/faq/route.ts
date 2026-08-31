@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
@@ -101,6 +102,8 @@ export async function POST(request: Request) {
     const item = await createFaqItem(record)
     if (!item) return jsonError('Unable to create the FAQ item.', 500)
     await writeAuditLog(check.user.id, 'faq.create', 'faq', item.id, { question: item.question_en })
+    revalidatePath('/faq')
+    revalidatePath('/')
     return NextResponse.json({ data: item }, { status: 201 })
   } catch (err) {
     logError('admin.faq.create', err)

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../lib/auth'
 import getAdminSupabase from '../../../../lib/supabaseAdmin'
 import { getAllNews } from '../../../../lib/news-server'
@@ -69,5 +70,6 @@ export async function POST(request: Request) {
     title: data.title_en,
     status: (data.status as string) ?? (data.published ? 'published' : 'draft')
   })
+  revalidatePath('/news')
   return NextResponse.json({ data }, { status: 201 })
 }

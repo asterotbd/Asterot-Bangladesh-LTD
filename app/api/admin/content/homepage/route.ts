@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { requireApiPermission } from '../../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../../lib/rate-limit'
@@ -103,6 +104,7 @@ export async function PUT(request: Request) {
       display_order: safeOrder
     })
     await writeAuditLog(check.user.id, 'content.update', 'homepage', null, { section: sectionKey })
+    revalidatePath('/')
     return NextResponse.json({ ok: true })
   } catch (err) {
     logError('admin.homepage.update', err)

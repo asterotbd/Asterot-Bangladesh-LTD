@@ -1,4 +1,5 @@
 import getAdminSupabase from './supabaseAdmin'
+import { logError } from './api-utils'
 
 export type DbSiteSetting = {
   id: string
@@ -12,6 +13,20 @@ export async function listSettings(): Promise<DbSiteSetting[]> {
   const { data, error } = await admin.from('site_settings').select('id, key, value, updated_at').order('key', { ascending: true })
   if (error) throw error
   return (data ?? []) as DbSiteSetting[]
+}
+
+export async function getSetting(key: string): Promise<unknown | null> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('site_settings')
+    .select('value')
+    .eq('key', key)
+    .maybeSingle()
+  if (error) {
+    logError('settings.get', error)
+    return null
+  }
+  return (data as { value: unknown } | null)?.value ?? null
 }
 
 export async function upsertSetting(key: string, value: unknown): Promise<boolean> {

@@ -2,6 +2,9 @@ import Container from '../../components/Container'
 import RevealSection from '../../components/RevealSection'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { getPublicCompanyInfo } from '../../lib/about-server'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -55,7 +58,19 @@ const partnerships = [
   }
 ]
 
-export default function AboutOverviewPage() {
+export default async function AboutOverviewPage() {
+  let company: Awaited<ReturnType<typeof getPublicCompanyInfo>> = null
+  try {
+    company = await getPublicCompanyInfo()
+  } catch (err) {
+    console.error('About company info load error', err)
+  }
+
+  const companyName = company?.name_en || 'Asterot Bangladesh Limited'
+  const introDescription = company?.short_description_en
+    || company?.about_en
+    || 'Asterot is a premium event organization focused on delivering memorable sports events, corporate program experiences, entertainment productions, tournaments, conferences, branding activations and high-impact marketing events across Bangladesh.'
+
   return (
     <main className="bg-black text-white">
 
@@ -69,8 +84,8 @@ export default function AboutOverviewPage() {
           <div className="hero-grid">
             <div className="space-y-6">
               <p className="text-sm uppercase tracking-[0.35em] text-primary">About Us</p>
-              <h1 className="max-w-[min(70ch,100%)] fluid-heading font-black leading-tight tracking-tight">Asterot Bangladesh Limited</h1>
-              <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">Asterot is a premium event organization focused on delivering memorable sports events, corporate program experiences, entertainment productions, tournaments, conferences, branding activations and high-impact marketing events across Bangladesh.</p>
+              <h1 className="max-w-[min(70ch,100%)] fluid-heading font-black leading-tight tracking-tight">{companyName}</h1>
+              <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">{introDescription}</p>
               <p className="max-w-[min(65ch,100%)] text-lg leading-8 text-gray-300">We combine strategic planning, polished production and collaborative partnerships to bring powerful leadership events to life for audiences, communities and organizations.</p>
             </div>
             <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/20 sm:p-10">
