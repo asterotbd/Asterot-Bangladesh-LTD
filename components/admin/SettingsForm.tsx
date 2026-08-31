@@ -16,13 +16,22 @@ export default function SettingsForm({ settings, canManage }: { settings: DbSite
 
   const inputClass = 'mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25'
 
-  function parseValue(text: string): { ok: true; value: unknown } | { ok: false } {
+  function parseValueForEdit(editing: DbSiteSetting | null, text: string): { ok: true; value: unknown } {
+    // When editing an existing string-backed setting, always keep it a string.
+    // This avoids corrupting values that merely look like JSON (e.g. "123",
+    // "true", "null") when they round-trip through the textarea as plain text.
+    if (editing && typeof editing.value === 'string') {
+      const trimmed = text.trim()
+      return { ok: true, value: trimmed === '' ? null : trimmed }
+    }
     const trimmed = text.trim()
     if (trimmed === '') return { ok: true, value: null }
     try {
       return { ok: true, value: JSON.parse(trimmed) }
     } catch {
-      return { ok: false }
+      // Not valid JSON — treat the input as ordinary plain text and store it
+      // as a JSONB string. Admins never need to type JSON quoting by hand.
+      return { ok: true, value: trimmed }
     }
   }
 
@@ -36,11 +45,7 @@ export default function SettingsForm({ settings, canManage }: { settings: DbSite
   async function saveEdit(e: React.FormEvent) {
     e.preventDefault()
     if (!editing || busy) return
-    const parsed = parseValue(valueText)
-    if (!parsed.ok) {
-      setFeedback({ kind: 'error', message: 'Value must be valid JSON.' })
-      return
-    }
+    const parsed = parseValueForEdit(editing, valueText)
     setBusy(true)
     setFeedback(null)
     try {
@@ -66,11 +71,7 @@ export default function SettingsForm({ settings, canManage }: { settings: DbSite
   async function addSetting(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
-    const parsed = parseValue(valueText)
-    if (!parsed.ok) {
-      setFeedback({ kind: 'error', message: 'Value must be valid JSON.' })
-      return
-    }
+    const parsed = parseValueForEdit(null, valueText)
     if (!key.trim()) {
       setFeedback({ kind: 'error', message: 'A key is required.' })
       return
@@ -182,8 +183,8 @@ export default function SettingsForm({ settings, canManage }: { settings: DbSite
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-300" htmlFor="setting-value">Value (JSON)</label>
-                <textarea id="setting-value" rows={5} value={valueText} onChange={(e) => setValueText(e.target.value)} className={`${inputClass} min-h-[7rem] resize-y font-mono text-xs`} placeholder='e.g. {"enabled":true}' />
+                <label className="block text-sm font-medium text-gray-300" htmlFor="setting-value">Value</label>
+                <textarea id="setting-value" rows={5} value={valueText} onChange={(e) => setValueText(e.target.value)} className={`${inputClass} min-h-[7rem] resize-y font-mono text-xs`} placeholder="e.g. Asterot News &amp; Updates (plain text, or JSON if you need structured data)" />
               </div>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => (editing ? setEditing(null) : setAdding(false))} disabled={busy} className="btn btn-ghost">Cancel</button>
