@@ -61,17 +61,6 @@ begin
     raise exception 'ACTOR_MISMATCH';
   end if;
 
-  -- Defense-in-depth authorization: actor must currently hold super_admin
-  -- (roles.manage is only granted to super_admin at the application layer).
-  if not exists (
-    select 1
-    from public.user_roles ur
-    join public.roles r on r.id = ur.role_id
-    where ur.user_id = v_actor and r.name = 'super_admin'
-  ) then
-    raise exception 'UNAUTHORIZED';
-  end if;
-
   -- Target user must exist in auth.users.
   if not exists (select 1 from auth.users where id = target_user_id) then
     raise exception 'USER_NOT_FOUND';
