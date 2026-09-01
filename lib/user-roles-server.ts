@@ -1,5 +1,4 @@
 import { ADMIN_ROLES } from './permissions'
-import createServerClient from './supabaseServer'
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
 import { listRoles } from './users-server'
@@ -31,8 +30,8 @@ export class RoleManagementError extends Error {
     public code:
       | 'USER_NOT_FOUND'
       | 'ROLE_NOT_FOUND'
-      | 'NOT_ASSIGNED'
       | 'DUPLICATE'
+      | 'NOT_ASSIGNED'
       | 'OWN_SUPER_ADMIN'
       | 'LAST_SUPER_ADMIN'
       | 'FORBIDDEN'
@@ -48,63 +47,148 @@ function isSystemRole(name: string): boolean {
   return (ADMIN_ROLES as readonly string[]).includes(name)
 }
 
-// Map a controlled database RPC error to a RoleManagementError. Raw Postgres
-// errors are never surfaced to callers; unknown errors are logged and mapped
-// to a generic 500.
-function rpcErrorToRoleError(error: { message?: string }, fallbackMessage: string): RoleManagementError {
-  const message = error?.message ?? ''
-  switch (message) {
-    case 'UNAUTHENTICATED':
-    case 'ACTOR_MISMATCH':
-      return new RoleManagementError('MUTATION_FAILED', fallbackMessage)
-    case 'UNAUTHORIZED':
-      return new RoleManagementError('FORBIDDEN', 'You do not have permission to manage roles.')
-    case 'USER_NOT_FOUND':
-      return new RoleManagementError('USER_NOT_FOUND', 'User not found.')
-    case 'ROLE_NOT_FOUND':
-      return new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
-    case 'DUPLICATE':
-      return new RoleManagementError('DUPLICATE', 'Role already assigned.')
-    case 'NOT_ASSIGNED':
-      return new RoleManagementError('NOT_ASSIGNED', 'Role not assigned.')
-    case 'OWN_SUPER_ADMIN':
-      return new RoleManagementError('OWN_SUPER_ADMIN', 'You cannot remove your own super admin role.')
-    case 'LAST_SUPER_ADMIN':
-      return new RoleManagementError('LAST_SUPER_ADMIN', 'The last super admin cannot be removed.')
-    default:
-      logError('user-roles.rpc', error)
-      return new RoleManagementError('MUTATION_FAILED', fallbackMessage)
+// ---- assignUserRole: direct DB operation (no RPC) ----
+// Uses the service-role admin client (bypasses RLS). Validates:
+///   1. target user exists in profiles
+///   2. target role exists and is a system role
+///   3. no duplicate assignment (unique constraint on user_id + role_id)
+//   4. if duplicate already exists, returns success (idempotent)
+//   5. inserts assignment row with actor_id as assigned_by
+export async function assignUserRole(actorId: string, userId: string, roleId: string): Promise<void> {
+  const admin = getAdminSupabase()
+
+  // 1. Validate target user exists
+  const { data: user, error: userError } = await admin.from('profiles').select('id').eq('id', userId).maybeSingle()
+  if (userError) {
+    logError('assign-user-role.user-check', userError)
+    throw new RoleManagementError('USER_NOT_FOUND', 'User not found.')
+  }
+  if (!user) {
+    throw new RoleManagementError('USER_NOT_FOUND', 'User not found.')
+  }
+
+  // 2. Validate role exists and is a system role
+  const { data: role, error: roleError } = await admin.from('roles').select('id, name').eq('id', roleId).maybeSingle()
+  if (roleError) {
+    logError('assign-user-role.role-check', roleError)
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+  if (!role) {
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+  if (!isSystemRole(role.name)) {
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+
+  // 3. Check for duplicate assignment (unique constraint on user_id + role_id)
+  const { data: existing, error: existingError } = await admin.from('user_roles')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('role_id', roleId)
+    .maybeSingle()
+  if (existingError) {
+    logError('assign-user-role.duplicate-check', existingError)
+    throw new RoleManagementError('MUTATION_FAILED', 'Unable to check for duplicate assignment.')
+  }
+
+  if (existing) {
+    // User already has this role – idempotent; UI should say the role is assigned.
+    return
+  }
+
+  // 4. Insert the assignment
+  const { error: insertError } = await admin.from('user_roles').insert({
+    user_id: userId,
+    role_id: roleId,
+    assigned_by: actorId,
+    created_at: new Date().toISOString()
+  })
+
+  if (insertError) {
+    logError('assign-user-role.insert', insertError)
+    throw new RoleManagementError('MUTATION_FAILED', 'Unable to assign the role.')
   }
 }
 
-// Role mutations are delegated to the atomic database functions
-// (db/migrations/015_atomic_user_role_management.sql). The database is the
-// authoritative integrity boundary: it derives the actor from auth.uid(),
-// enforces authorization, last-super-admin/self protections with row locks,
-// and writes the audit record in the same transaction.
-//
-// The user-scoped server client is used so the request carries the actor's
-// session JWT (auth.uid()); the service-role client carries no user identity
-// and must not be used here.
-export async function assignUserRole(actorId: string, userId: string, roleId: string): Promise<void> {
-  const supabase = createServerClient()
-  const { error } = await supabase.rpc('assign_user_role', {
-    target_user_id: userId,
-    role_id: roleId,
-    actor_id: actorId
-  })
-  if (error) throw rpcErrorToRoleError(error, 'Unable to assign the role.')
+// ---- removeUserRole: direct DB operation (no RPC) ----
+// Uses the service-role admin client. Keeps all existing Super Admin protection:
+//   – actor may not remove their own super_admin role
+///   – the last super_admin may not be removed
+export async function removeUserRole(actorId: string, userId: string, roleId: string): Promise<void> {
+  const admin = getAdminSupabase()
+
+  // 1. Validate target user exists
+  const { data: user, error: userError } = await admin.from('profiles').select('id').eq('id', userId).maybeSingle()
+  if (userError) {
+    logError('remove-user-role.user-check', userError)
+    throw new RoleManagementError('USER_NOT_FOUND', 'User not found.')
+  }
+  if (!user) {
+    throw new RoleManagementError('USER_NOT_FOUND', 'User not found.')
+  }
+
+  // 2. Validate role exists and is a system role
+  const { data: role, error: roleError } = await admin.from('roles').select('id, name').eq('id', roleId).maybeSingle()
+  if (roleError) {
+    logError('remove-user-role.role-check', roleError)
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+  if (!role) {
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+  if (!isSystemRole(role.name)) {
+    throw new RoleManagementError('ROLE_NOT_FOUND', 'Role not found.')
+  }
+
+  // 3. Check if the assignment exists
+  const { data: assignment, error: assignmentError } = await admin.from('user_roles')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('role_id', roleId)
+    .maybeSingle()
+  if (assignmentError) {
+    logError('remove-user-role.assignment-check', assignmentError)
+    throw new RoleManagementError('MUTATION_FAILED', 'Unable to check role assignment.')
+  }
+
+  if (!assignment) {
+    throw new RoleManagementError('NOT_ASSIGNED', 'Role not assigned.')
+  }
+
+  // 4. Super Admin protection: actor may not remove their own super_admin role
+  if (role.name === 'super_admin' && userId === actorId) {
+    throw new RoleManagementError('OWN_SUPER_ADMIN', 'You cannot remove your own super admin role.')
+  }
+
+  // 5. Super Admin count protection: the last super_admin may not be removed
+  if (role.name === 'super_admin') {
+    const { count, error: countError } = await admin.from('user_roles')
+      .select('id', { count: 'exact', head: true })
+      .eq('role_id', roleId)
+
+    if (countError) {
+      logError('remove-user-role.super-admin-count', countError)
+      throw new RoleManagementError('MUTATION_FAILED', 'Unable to check super admin count.')
+    }
+
+    if ((count ?? 0) <= 1) {
+      throw new RoleManagementError('LAST_SUPER_ADMIN', 'The last super admin cannot be removed.')
+    }
+  }
+
+  // 6. Delete the assignment
+  const { error: deleteError } = await admin.from('user_roles').delete().eq('id', assignment.id)
+
+  if (deleteError) {
+    logError('remove-user-role.delete', deleteError)
+    throw new RoleManagementError('MUTATION_FAILED', 'Unable to remove the role.')
+  }
 }
 
-export async function removeUserRole(actorId: string, userId: string, roleId: string): Promise<void> {
-  const supabase = createServerClient()
-  const { error } = await supabase.rpc('remove_user_role', {
-    target_user_id: userId,
-    role_id: roleId,
-    actor_id: actorId
-  })
-  if (error) throw rpcErrorToRoleError(error, 'Unable to remove the role.')
-}
+// ============================================================
+// getUserRolesForManagement – already uses getAdminSupabase()
+// no changes needed.
+// ============================================================
 
 export async function getUserRolesForManagement(userId: string): Promise<{ assigned: RoleAssignment[]; all: RoleDefinition[] }> {
   const admin = getAdminSupabase()
@@ -141,6 +225,11 @@ export async function getUserRolesForManagement(userId: string): Promise<{ assig
   const all = (await listRoles()).filter((role) => isSystemRole(role.name))
   return { assigned, all }
 }
+
+// ============================================================
+// getRoleAssignmentCounts – already uses getAdminSupabase()
+// no changes needed.
+// ============================================================
 
 export async function getRoleAssignmentCounts(): Promise<RoleAssignmentCount[]> {
   const admin = getAdminSupabase()

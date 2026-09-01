@@ -62,13 +62,15 @@ export async function POST(request: Request) {
   try {
     await assignUserRole(check.user.id, parsed.userId, parsed.roleId)
     return NextResponse.json({ ok: true })
-  } catch (err) {
-    if (err instanceof RoleManagementError) {
-      return jsonError(err.message, errorStatus(err.code))
-    }
+} catch (err) {
+    // Log the actual error for debugging
     logError('admin.user-roles.assign', err)
-    return jsonError('Unable to assign the role.', 500)
-  }
+    // Return the actual error message for debugging (remove in production)
+    const roleManagementError = err instanceof RoleManagementError
+    const errorMessage = roleManagementError ? err.message : ((err as { message?: string })?.message || 'Unable to assign the role.')
+    const errorCode = roleManagementError ? errorStatus(err.code) : 500
+    return jsonError(errorMessage, errorCode)
+}
 }
 
 export async function DELETE(request: Request) {
