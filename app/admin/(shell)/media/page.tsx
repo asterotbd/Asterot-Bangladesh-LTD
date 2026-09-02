@@ -8,6 +8,7 @@ import Pagination from '../../../../components/admin/Pagination'
 import { Panel, EmptyState, ErrorState } from '../../../../components/admin/Panel'
 import MediaUploader from '../../../../components/admin/MediaUploader'
 import MediaGrid from '../../../../components/admin/MediaGrid'
+import BatchPhotoUploader from '../../../../components/admin/BatchPhotoUploader'
 
 export default async function AdminMediaPage({ searchParams }: { searchParams: { page?: string; q?: string; type?: string } }) {
   const user = await getCurrentUser()
@@ -38,7 +39,7 @@ export default async function AdminMediaPage({ searchParams }: { searchParams: {
       <PageHeader
         title="Media"
         description="Uploaded files and media references used across the website."
-        actions={canManage ? <MediaUploader /> : undefined}
+        actions={canManage ? <BatchPhotoUploader /> : undefined}
       />
 
       <form method="get" action="/admin/media" className="flex flex-wrap items-end gap-3">
