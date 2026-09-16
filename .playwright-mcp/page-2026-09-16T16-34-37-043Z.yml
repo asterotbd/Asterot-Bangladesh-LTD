@@ -1,0 +1,35 @@
+- generic [active] [ref=f40e1]:
+  - link "Skip to content":
+    - /url: "#geist-skip-nav"
+  - main [ref=f40e3]:
+    - generic [ref=f40e6]:
+      - generic [ref=f40e7]:
+        - generic [ref=f40e8]:
+          - button "Open sidebar" [ref=f40e10] [cursor=pointer]
+          - generic [ref=f40e16]:
+            - link "asterot-bangladesh-ltd" [ref=f40e17] [cursor=pointer]:
+              - /url: /asterot/asterot-bangladesh-ltd
+            - button [ref=f40e21] [cursor=pointer]
+            - link "Back to team view" [ref=f40e27] [cursor=pointer]:
+              - /url: /asterot/~/deployments
+        - navigation "Breadcrumb"
+        - button "Vercel Agent is available on Pro" [ref=f40e33] [cursor=pointer]
+      - generic [ref=f40e53]:
+        - generic [ref=f40e54]:
+          - heading "Deployments" [level=1] [ref=f40e56]
+          - button "Deployments actions" [ref=f40e58] [cursor=pointer]
+        - generic [ref=f40e67]:
+          - button "Add Filter" [ref=f40e69] [cursor=pointer]
+          - button "Author asterotbd" [ref=f40e78] [cursor=pointer]:
+            - generic [ref=f40e81]:
+              - generic [ref=f40e82]: Author
+              - generic [ref=f40e83]: asterotbd
+          - button "Environment Production" [ref=f40e85] [cursor=pointer]:
+            - generic [ref=f40e88]:
+              - generic [ref=f40e89]: Environment
+              - generic [ref=f40e90]: Production
+          - button "Status Error" [ref=f40e92] [cursor=pointer]:
+            - generic [ref=f40e95]:
+              - generic [ref=f40e96]: Status
+              - generic [ref=f40e97]: Error
+  - alert [ref=f40e422]

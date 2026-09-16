@@ -33,9 +33,10 @@ export async function GET(request: Request) {
   const page = Number.parseInt(url.searchParams.get('page') ?? '1', 10)
   const search = url.searchParams.get('q') ?? ''
   const status = url.searchParams.get('status') ?? ''
+  const perPage = Number.parseInt(url.searchParams.get('perPage') ?? '24', 10)
 
   try {
-    const result = await listAlbums({ page: Number.isFinite(page) && page > 0 ? page : 1, perPage: 24, search, status })
+    const result = await listAlbums({ page: Number.isFinite(page) && page > 0 ? page : 1, perPage: Number.isFinite(perPage) && perPage > 0 ? Math.min(perPage, 100) : 24, search, status })
     return NextResponse.json({ data: result.items, total: result.total, totalPages: result.totalPages })
   } catch (err) {
     logError('admin.albums.list', err)

@@ -1,5 +1,6 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
+import { deleteObject, R2_UPLOAD_PREFIX } from './r2'
 
 export type DbVideo = {
   id: string
@@ -41,7 +42,6 @@ export async function listVideos({
     .from('media')
     .select(VIDEO_FIELDS, { count: 'exact' })
     .eq('type', 'video')
-    .eq('provider', 'youtube')
 
   const term = search.trim()
   if (term) {
@@ -51,8 +51,13 @@ export async function listVideos({
   if (status === 'published') query = query.eq('published', true)
   if (status === 'draft' || status === 'archived') query = query.eq('published', false)
 
+  // Newest YouTube publish date first. Rows without one (uploaded video files)
+  // sort after dated ones rather than first, which is where Postgres puts
+  // nulls in a descending sort; creation time breaks ties. The sync writes
+  // many rows at once, so ordering by created_at alone would scramble them.
   const { data, count, error } = await query
-    .order('metadata->>publishedAt', { ascending: false })
+    .order('metadata->>publishedAt', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
     .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
   if (error) throw error
 
@@ -88,11 +93,26 @@ export async function updateVideo(id: string, fields: Partial<DbVideo>): Promise
 
 export async function deleteVideo(id: string): Promise<boolean> {
   const admin = getAdminSupabase()
+  const { data: item, error: readError } = await admin
+    .from('media')
+    .select('storage_path')
+    .eq('id', id)
+    .maybeSingle()
+  if (readError) throw readError
+  if (!item) return false
+
   const { error } = await (admin.from('media') as any).delete().eq('id', id)
   if (error) {
     logError('videos.delete', error)
     throw error
   }
+
+  // Uploaded video files live in R2 under the upload prefix; YouTube rows have
+  // no stored object. The row goes first so a failed delete never leaves it
+  // pointing at a removed file, and the key decides the backend because
+  // storage_provider was mislabelled for existing rows by migration 029.
+  const storagePath = (item as { storage_path: string | null }).storage_path
+  if (storagePath?.startsWith(`${R2_UPLOAD_PREFIX}/`)) await deleteObject(storagePath)
   return true
 }
 

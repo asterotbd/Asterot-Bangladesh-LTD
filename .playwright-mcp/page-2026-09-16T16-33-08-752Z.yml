@@ -1,0 +1,166 @@
+- generic [active] [ref=f36e1]:
+  - banner:
+    - navigation "Main navigation" [ref=f36e2]:
+      - link "Asterot home" [ref=f36e4] [cursor=pointer]:
+        - /url: /
+        - img "Asterot Bangladesh Limited" [ref=f36e5]
+        - generic [ref=f36e6]: Asterot
+      - generic [ref=f36e7]:
+        - link "Home" [ref=f36e9] [cursor=pointer]:
+          - /url: /
+        - link "Events" [ref=f36e12] [cursor=pointer]:
+          - /url: /events
+          - text: Events
+          - generic [aria-hidden] [ref=f36e13]: ▾
+        - link "News" [ref=f36e15] [cursor=pointer]:
+          - /url: /news
+        - link "Media" [ref=f36e18] [cursor=pointer]:
+          - /url: /media
+          - text: Media
+          - generic [aria-hidden] [ref=f36e19]: ▾
+        - link "About Us" [ref=f36e22] [cursor=pointer]:
+          - /url: /about
+          - text: About Us
+          - generic [aria-hidden] [ref=f36e23]: ▾
+        - link "Contact" [ref=f36e25] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f36e26]:
+        - link "Log in" [ref=f36e27] [cursor=pointer]:
+          - /url: /login
+        - link "Register" [ref=f36e28] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=f36e30]:
+      - link [ref=f36e31] [cursor=pointer]:
+        - /url: /
+        - text: Home
+      - generic [ref=f36e32]:
+        - button [ref=f36e33] [cursor=pointer]:
+          - text: Events
+          - generic [aria-hidden] [ref=f36e34]: ▾
+        - generic [ref=f36e35]:
+          - link [ref=f36e36] [cursor=pointer]:
+            - /url: /events/awakening-cup
+            - text: The Awakening Cup
+          - link [ref=f36e37] [cursor=pointer]:
+            - /url: /events
+            - text: All Events
+          - link [ref=f36e38] [cursor=pointer]:
+            - /url: /events/upcoming
+            - text: Upcoming Events
+          - link [ref=f36e39] [cursor=pointer]:
+            - /url: /events/past
+            - text: Past Events
+          - link [ref=f36e40] [cursor=pointer]:
+            - /url: /events/documentation
+            - text: Event Documentation
+      - link [ref=f36e41] [cursor=pointer]:
+        - /url: /news
+        - text: News
+      - generic [ref=f36e42]:
+        - button [expanded] [ref=f36e43] [cursor=pointer]:
+          - text: Media
+          - generic [aria-hidden] [ref=f36e44]: ▾
+        - generic [ref=f36e46]:
+          - link [ref=f36e47] [cursor=pointer]:
+            - /url: /media
+            - text: Media Overview
+          - link [ref=f36e48] [cursor=pointer]:
+            - /url: /media/photos
+            - text: Photos
+          - link [ref=f36e49] [cursor=pointer]:
+            - /url: /media/videos
+            - text: Videos
+      - generic [ref=f36e50]:
+        - button [ref=f36e51] [cursor=pointer]:
+          - text: About Us
+          - generic [aria-hidden] [ref=f36e52]: ▾
+        - generic [ref=f36e53]:
+          - link [ref=f36e54] [cursor=pointer]:
+            - /url: /about
+            - text: Overview
+          - link [ref=f36e55] [cursor=pointer]:
+            - /url: /about/our-story
+            - text: Our Story
+          - link [ref=f36e56] [cursor=pointer]:
+            - /url: /about/mission-vision
+            - text: Mission & Vision
+          - link [ref=f36e57] [cursor=pointer]:
+            - /url: /about/values
+            - text: Our Values
+          - link [ref=f36e58] [cursor=pointer]:
+            - /url: /about/leadership
+            - text: Leadership
+          - link [ref=f36e59] [cursor=pointer]:
+            - /url: /about/future-vision
+            - text: Future Vision
+      - link [ref=f36e60] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact
+      - generic [ref=f36e61]:
+        - link [ref=f36e62] [cursor=pointer]:
+          - /url: /login
+          - text: Log in
+        - link [ref=f36e63] [cursor=pointer]:
+          - /url: /signup
+          - text: Register Now
+  - main [ref=f36e65]:
+    - generic [ref=f36e75]:
+      - generic [ref=f36e76]:
+        - generic [ref=f36e77]: Upcoming Project
+        - generic [ref=f36e78]: Coming Soon
+      - heading "Student Uprising Memorial Cup Tournament" [level=1] [ref=f36e80]
+      - paragraph [ref=f36e81]: An upcoming sports tournament delivered in partnership with Orion Group — bringing competitive energy, team spirit, and community engagement to audiences across Bangladesh.
+      - button [ref=f36e82] [cursor=pointer]
+    - generic [ref=f36e87]:
+      - generic [ref=f36e89]:
+        - paragraph [ref=f36e90]: Media
+        - heading "Explore" [level=2] [ref=f36e91]
+        - paragraph [ref=f36e92]: Dive into our photos and videos from events, projects, and behind-the-scenes moments.
+      - generic [ref=f36e93]:
+        - link [ref=f36e95] [cursor=pointer]:
+          - /url: /media/photos
+          - heading "Photos" [level=3] [ref=f36e100]
+          - paragraph [ref=f36e101]: Gallery of our projects, people, and moments — organized into albums for every occasion.
+          - generic [ref=f36e102]:
+            - text: Browse Photos
+            - generic [aria-hidden] [ref=f36e103]: →
+        - link [ref=f36e105] [cursor=pointer]:
+          - /url: /media/videos
+          - heading "Videos" [level=3] [ref=f36e109]
+          - paragraph [ref=f36e110]: Our latest projects, stories, events, and behind-the-scenes moments. Filter by category and switch between grid and list views.
+          - generic [ref=f36e111]:
+            - text: Browse Videos
+            - generic [aria-hidden] [ref=f36e112]: →
+  - contentinfo [ref=f36e113]:
+    - generic [ref=f36e115]:
+      - paragraph [ref=f36e116]: Asterot
+      - paragraph [ref=f36e117]: Bangladesh Limited
+      - generic [ref=f36e118]:
+        - generic [ref=f36e119]:
+          - generic [ref=f36e120]: Email
+          - link "asterotbd@gmail.com" [ref=f36e121] [cursor=pointer]:
+            - /url: mailto:asterotbd@gmail.com
+        - generic [ref=f36e123]:
+          - generic [ref=f36e124]: Phone
+          - link "+880 1325 274642" [ref=f36e125] [cursor=pointer]:
+            - /url: tel:+8801325274642
+        - generic [ref=f36e127]:
+          - generic [ref=f36e128]: Location
+          - paragraph [ref=f36e129]: 5B/5 Razia Sultana Road, Mohammadpur, Dhaka
+      - link "Contact Us" [ref=f36e130] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact Us
+        - generic [aria-hidden] [ref=f36e131]: →
+    - generic [ref=f36e133]:
+      - paragraph [ref=f36e134]: © 2026 Asterot Bangladesh Limited. All rights reserved.
+      - generic [ref=f36e135]:
+        - link "Privacy Policy" [ref=f36e136] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms of Service" [ref=f36e137] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=f36e139]:
+          - link "Facebook" [ref=f36e140] [cursor=pointer]:
+            - /url: https://www.facebook.com/603661469488647/
+          - link "YouTube" [ref=f36e143] [cursor=pointer]:
+            - /url: https://www.youtube.com/@AsterotBangladesh
+  - alert [ref=f36e146]

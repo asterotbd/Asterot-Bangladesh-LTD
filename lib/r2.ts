@@ -15,6 +15,14 @@ const ALGORITHM = 'AWS4-HMAC-SHA256'
 const REGION = 'auto'
 const SERVICE = 's3'
 
+function requireEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}. R2 media operations cannot proceed.`)
+  }
+  return value
+}
+
 // Objects uploaded through the admin UI live under this prefix. Legacy
 // Supabase Storage objects use "admin/", which is how deleteStorageFile tells
 // the two backends apart without a schema change.
@@ -28,19 +36,23 @@ type R2Config = {
   publicUrl: string
 }
 
-export function getR2Config(): R2Config | null {
-  const endpoint = process.env.R2_S3_ENDPOINT
-  const bucket = process.env.R2_BUCKET
-  const accessKeyId = process.env.R2_ACCESS_KEY_ID
-  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY
-  const publicUrl = (process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '').replace(/\/+$/, '')
-  if (!endpoint || !bucket || !accessKeyId || !secretAccessKey || !publicUrl) return null
+export function getR2Config(): R2Config {
+  const endpoint = requireEnv('R2_S3_ENDPOINT')
+  const bucket = requireEnv('R2_BUCKET')
+  const accessKeyId = requireEnv('R2_ACCESS_KEY_ID')
+  const secretAccessKey = requireEnv('R2_SECRET_ACCESS_KEY')
+  const publicUrl = requireEnv('NEXT_PUBLIC_R2_PUBLIC_URL').replace(/\/+$/, '')
   return { endpoint: endpoint.replace(/\/+$/, ''), bucket, accessKeyId, secretAccessKey, publicUrl }
 }
 
 /** True when R2 is fully configured and should receive new uploads. */
 export function isR2Enabled(): boolean {
-  return getR2Config() !== null
+  try {
+    getR2Config()
+    return true
+  } catch {
+    return false
+  }
 }
 
 const sha256Hex = (data: crypto.BinaryLike) =>
@@ -119,7 +131,6 @@ export async function putObject(
   contentType: string
 ): Promise<{ key: string; publicUrl: string }> {
   const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 is not configured')
 
   const { url, headers } = signed(cfg, 'PUT', key, body, {
     'content-type': contentType,
@@ -136,9 +147,10 @@ export async function putObject(
 
 /** Best-effort delete; a failure is logged rather than thrown. */
 export async function deleteObject(key: string): Promise<void> {
-  const cfg = getR2Config()
-  if (!cfg) return
   try {
+    // Inside the try: getR2Config throws when unconfigured, and a delete that
+    // runs after its database row is gone must never turn into a failure.
+    const cfg = getR2Config()
     const { url, headers } = signed(cfg, 'DELETE', key, '')
     const res = await fetch(url, { method: 'DELETE', headers, ...NO_STORE })
     // R2 returns 204 for a successful delete and 404 when already gone.
@@ -153,7 +165,6 @@ export async function deleteObject(key: string): Promise<void> {
 /** Public URL an object key is served from. */
 export function publicUrlFor(key: string): string {
   const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 is not configured')
   return `${cfg.publicUrl}/${encodeKey(key)}`
 }
 
@@ -173,7 +184,6 @@ export function presignPut(
   expiresIn = 600
 ): { url: string; headers: Record<string, string> } {
   const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 is not configured')
 
   const url = new URL(`${cfg.endpoint}/${cfg.bucket}/${encodeKey(key)}`)
   const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '')
@@ -223,7 +233,6 @@ export function presignPut(
 /** Size and type of a stored object, or null when it does not exist. */
 export async function headObject(key: string): Promise<{ size: number; contentType: string | null } | null> {
   const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 is not configured')
   const { url, headers } = signed(cfg, 'HEAD', key, '')
   const res = await fetch(url, { method: 'HEAD', headers, ...NO_STORE })
   if (res.status === 404) return null
@@ -240,7 +249,6 @@ export async function headObject(key: string): Promise<{ size: number; contentTy
  */
 export async function readObjectPrefix(key: string, length = 64): Promise<Buffer | null> {
   const cfg = getR2Config()
-  if (!cfg) throw new Error('R2 is not configured')
   const range = `bytes=0-${length - 1}`
   const { url, headers } = signed(cfg, 'GET', key, '', { range })
   const res = await fetch(url, { headers, ...NO_STORE })

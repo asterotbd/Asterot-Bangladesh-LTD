@@ -1,6 +1,6 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
-import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX, headObject, readObjectPrefix, getR2Config, publicUrlFor } from './r2'
+import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX, headObject, readObjectPrefix, publicUrlFor } from './r2'
 import { IMAGE_MIME_BY_EXT, MAX_IMAGE_BYTES } from './uploadRules'
 
 export const MEDIA_TYPES = ['photo', 'video', 'embed'] as const
@@ -10,6 +10,7 @@ export type DbMedia = {
   id: string
   storage_path: string | null
   public_url: string | null
+  storage_provider: string | null
   type: string | null
   provider: string | null
   alt_en: string | null
@@ -44,6 +45,15 @@ const IMAGE_TYPES: Record<string, string> = Object.fromEntries(
 const IMAGE_MIME: Record<string, string> = Object.fromEntries(
   Object.values(IMAGE_MIME_BY_EXT).map((mime) => [mime.split('/')[1], mime])
 )
+
+// Validate an uploaded video by inspecting its MIME type and requiring a supported format.
+export function validateUploadedVideo(file: File): { ok: true; contentType: string } | { ok: false; error: string } {
+  const supportedVideoMimes = ['video/mp4', 'video/webm', 'video/ogg']
+  if (!supportedVideoMimes.includes(file.type)) {
+    return { ok: false, error: 'Unsupported video format. Use MP4, WebM, or Ogg.' }
+  }
+  return { ok: true, contentType: file.type }
+}
 
 export type ImageValidation =
   | { ok: true; type: string; ext: string; contentType: string }
@@ -97,7 +107,7 @@ export async function listMedia({
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  let query = admin.from('media').select('id, storage_path, public_url, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at', { count: 'exact' })
+  let query = admin.from('media').select('id, storage_path, public_url, storage_provider, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at', { count: 'exact' })
 
   // The Media Library must only contain media assets intended for the library.
   // A media row that is a news article's featured image belongs to Admin → News
@@ -144,7 +154,7 @@ export async function getMedia(id: string): Promise<DbMedia | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin
     .from('media')
-    .select('id, storage_path, public_url, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at')
+    .select('id, storage_path, public_url, storage_provider, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at')
     .eq('id', id)
     .maybeSingle()
   if (error) throw error
@@ -203,20 +213,38 @@ const MEDIA_REFERENCES: ReadonlyArray<{ table: string; column: string }> = [
 const MISSING_RELATION_CODES = new Set(['PGRST204', 'PGRST205', '42P01', '42703'])
 const FOREIGN_KEY_VIOLATION = '23503'
 
-export async function deleteMedia(id: string): Promise<{ ok: boolean; storagePath: string | null }> {
+export type DeleteMediaResult =
+  | { ok: true; storagePath: string | null; storageDeleted: boolean; albumPhotoCount: number }
+  | { ok: false; notFound: true }
+
+/**
+ * Deletes a media row and, when the row owns it, its stored file.
+ *
+ * Order matters: references are detached, the row is deleted, and only then
+ * the file. Removing the file first leaves a row that then fails to delete
+ * pointing at a missing object, which the site renders as a broken image.
+ *
+ * The storage backend is chosen from the stored key (deleteStorageFile), not
+ * from media.storage_provider: migration 029 labelled every existing row
+ * 'supabase_storage', including objects that actually live in R2.
+ */
+export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
   const admin = getAdminSupabase()
   const item = await getMedia(id)
-  if (!item) return { ok: false, storagePath: null }
+  if (!item) return { ok: false, notFound: true }
 
   // Only objects the admin uploaded are owned by this row alone. Seed assets
   // migrated from public/ have no storage_path, and several of them are also
   // hardcoded in rendered code (DEFAULT_NEWS_IMAGE, lib/newsData.ts), so their
   // bucket objects are left in place: deleting one would break those pages,
   // while an unreferenced object costs next to nothing to keep.
-  let storagePath: string | null = null
-  if (item.storage_path && item.provider === 'uploaded') {
-    storagePath = item.storage_path
-  }
+  const storagePath = item.storage_path && item.provider === 'uploaded' ? item.storage_path : null
+
+  // For the audit trail only: album_photos rows cascade with the media row.
+  const { count: albumPhotoCount } = await admin
+    .from('album_photos')
+    .select('id', { count: 'exact', head: true })
+    .eq('media_id', id)
 
   for (const { table, column } of MEDIA_REFERENCES) {
     const { error } = await (admin.from(table) as any).update({ [column]: null }).eq(column, id)
@@ -231,7 +259,11 @@ export async function deleteMedia(id: string): Promise<{ ok: boolean; storagePat
     if (error.code === FOREIGN_KEY_VIOLATION) throw new MediaInUseError()
     throw error
   }
-  return { ok: true, storagePath }
+
+  // Best-effort: deleteStorageFile logs rather than throws, and the row is
+  // already gone, so a failure here only leaves an unreferenced object.
+  if (storagePath) await deleteStorageFile(storagePath)
+  return { ok: true, storagePath, storageDeleted: Boolean(storagePath), albumPhotoCount: albumPhotoCount ?? 0 }
 }
 
 // Routes the delete to whichever backend holds the object. R2 uploads are
@@ -270,19 +302,7 @@ export async function uploadMediaFile(file: File, buffer: Buffer, contentType: s
     }
   }
 
-  const admin = getAdminSupabase()
-  const storagePath = `admin/${name}`
-  const { error } = await admin.storage.from(PUBLIC_MEDIA_BUCKET).upload(storagePath, buffer, {
-    contentType,
-    cacheControl: '3600'
-  })
-  if (error) {
-    logError('media.storage-upload', error)
-    throw new Error(error.message)
-  }
-
-  const { data } = admin.storage.from(PUBLIC_MEDIA_BUCKET).getPublicUrl(storagePath)
-  return { storagePath, publicUrl: data.publicUrl }
+  throw new Error('Cloudflare R2 is not configured. Supabase Storage fallback is disabled for new uploads.')
 }
 
 // Keys handed out for direct browser uploads. Completion accepts only keys of
@@ -314,7 +334,7 @@ export async function registerUploadedImage(
   userId: string
 ): Promise<RegisteredUpload> {
   if (!UPLOAD_KEY_PATTERN.test(key)) return { ok: false, error: 'Invalid upload key.' }
-  if (!getR2Config()) return { ok: false, error: 'Image storage is not configured.' }
+  if (!isR2Enabled()) return { ok: false, error: 'Image storage is not configured.' }
 
   const admin = getAdminSupabase()
   const { data: existing } = await admin.from('media').select().eq('storage_path', key).maybeSingle()
@@ -339,6 +359,9 @@ export async function registerUploadedImage(
     const media = await createMedia({
       storage_path: key,
       public_url: publicUrlFor(key),
+      // Explicit: the live column still defaults to 'supabase_storage' until
+      // migration 030 is applied.
+      storage_provider: 'cloudflare_r2',
       type: 'photo',
       provider: 'uploaded',
       alt_en: meta.alt_en ?? null,

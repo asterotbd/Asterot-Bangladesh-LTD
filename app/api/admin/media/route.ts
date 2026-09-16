@@ -91,6 +91,7 @@ export async function POST(request: Request) {
       const record = await createMedia({
         storage_path: storagePath,
         public_url: publicUrl,
+        storage_provider: 'cloudflare_r2',
         type: 'photo',
         provider: 'uploaded',
         alt_en: alt_en.value,
@@ -103,13 +104,25 @@ export async function POST(request: Request) {
       await writeAuditLog(check.user.id, 'media.upload', 'media', record.id, { filename: file.name, size: file.size })
       return NextResponse.json({ data: record }, { status: 201 })
     } catch (err) {
-      // The file was uploaded but the metadata insert failed: clean up the
-      // orphaned object so storage does not accumulate unreferenced files.
       await deleteStorageFile(storagePath)
+      const message = err instanceof Error ? err.message : 'Unknown error'
+      if (message.includes('access denied') || message.includes('Unauthorized') || message.includes('403') || message.includes('401')) {
+        return jsonError('Upload failed: Cloudflare R2 access denied.', 500)
+      }
+      if (message.includes('bucket') || message.includes('NoSuchBucket') || message.includes('404')) {
+        return jsonError('Upload failed: R2 bucket could not be reached.', 500)
+      }
       throw err
     }
   } catch (err) {
     logError('admin.media.upload', err)
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('access denied') || message.includes('Unauthorized')) {
+      return jsonError('Upload failed: Cloudflare R2 access denied.', 500)
+    }
+    if (message.includes('column') && message.includes('does not exist')) {
+      return jsonError('Upload failed: media database schema is missing.', 500)
+    }
     return jsonError('Unable to upload the file.', 500)
   }
 }

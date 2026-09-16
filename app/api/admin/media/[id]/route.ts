@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../../lib/auth'
-import { getMedia, updateMedia, deleteMedia, deleteStorageFile, MediaInUseError, MEDIA_TYPES } from '../../../../../lib/media-server'
+import { getMedia, updateMedia, deleteMedia, MediaInUseError, MEDIA_TYPES } from '../../../../../lib/media-server'
 import { writeAuditLog } from '../../../../../lib/audit'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
@@ -98,11 +98,21 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   if (!isValidUuid(params.id)) return jsonError('Invalid media ID.', 400)
 
   try {
-    const { ok, storagePath } = await deleteMedia(params.id)
-    if (!ok) return jsonError('Media not found.', 404)
-    if (storagePath) await deleteStorageFile(storagePath)
-    await writeAuditLog(check.user.id, 'media.delete', 'media', params.id)
-    return NextResponse.json({ ok: true })
+    // deleteMedia removes the stored file itself, after the row is gone.
+    const result = await deleteMedia(params.id)
+    if (!result.ok) return jsonError('Media not found.', 404)
+
+    await writeAuditLog(check.user.id, 'media.delete', 'media', params.id, {
+      storagePath: result.storagePath,
+      albumPhotoCount: result.albumPhotoCount
+    })
+
+    return NextResponse.json({
+      ok: true,
+      storageDeleted: result.storageDeleted,
+      storagePath: result.storagePath,
+      albumPhotoCount: result.albumPhotoCount
+    })
   } catch (err) {
     if (err instanceof MediaInUseError) return jsonError(err.message, 409)
     logError('admin.media.delete', err)

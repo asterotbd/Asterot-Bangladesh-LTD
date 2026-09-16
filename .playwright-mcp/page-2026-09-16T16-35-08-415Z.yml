@@ -1,0 +1,12 @@
+- main [ref=f46e2]:
+  - generic [ref=f46e3]:
+    - generic [ref=f46e4]:
+      - heading "Error 404" [level=1] [ref=f46e5]
+      - heading "Object not found" [level=3] [ref=f46e6]
+    - paragraph [ref=f46e8]: This object does not exist or is not publicly accessible at this URL. Check the URL of the object that you're looking for or contact the owner to enable Public access.
+    - generic [ref=f46e9]:
+      - paragraph [ref=f46e10]: Is this your bucket?
+      - paragraph [ref=f46e11]:
+        - text: Learn how to enable
+        - link "Public Access" [ref=f46e12] [cursor=pointer]:
+          - /url: https://developers.cloudflare.com/r2/data-access/public-buckets/
