@@ -1,5 +1,6 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
+import { deleteObject, R2_UPLOAD_PREFIX } from './r2'
 
 export type DbVideo = {
   id: string
@@ -50,26 +51,13 @@ export async function listVideos({
   if (status === 'published') query = query.eq('published', true)
   if (status === 'draft' || status === 'archived') query = query.eq('published', false)
 
+  // Newest YouTube publish date first. Rows without one (uploaded video files)
+  // sort after dated ones rather than first, which is where Postgres puts
+  // nulls in a descending sort; creation time breaks ties. The sync writes
+  // many rows at once, so ordering by created_at alone would scramble them.
   const { data, count, error } = await query
+    .order('metadata->>publishedAt', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
-    .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
-  if (error) throw error
-
-  const total = count ?? 0
-  return {
-    items: (data ?? []) as DbVideo[],
-    total,
-    page: safePage,
-    perPage: safePerPage,
-    totalPages: Math.max(1, Math.ceil(total / safePerPage))
-  }
-}
-
-  if (status === 'published') query = query.eq('published', true)
-  if (status === 'draft' || status === 'archived') query = query.eq('published', false)
-
-  const { data, count, error } = await query
-    .order('metadata->>publishedAt', { ascending: false })
     .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
   if (error) throw error
 
@@ -105,20 +93,26 @@ export async function updateVideo(id: string, fields: Partial<DbVideo>): Promise
 
 export async function deleteVideo(id: string): Promise<boolean> {
   const admin = getAdminSupabase()
-  
-  const item = await admin.from('media').select('storage_path, storage_provider').eq('id', id).maybeSingle()
+  const { data: item, error: readError } = await admin
+    .from('media')
+    .select('storage_path')
+    .eq('id', id)
+    .maybeSingle()
+  if (readError) throw readError
   if (!item) return false
-
-  if (item.storage_provider === 'cloudflare_r2' && item.storage_path) {
-    const { deleteObject } = await import('./r2')
-    await deleteObject(item.storage_path)
-  }
 
   const { error } = await (admin.from('media') as any).delete().eq('id', id)
   if (error) {
     logError('videos.delete', error)
     throw error
   }
+
+  // Uploaded video files live in R2 under the upload prefix; YouTube rows have
+  // no stored object. The row goes first so a failed delete never leaves it
+  // pointing at a removed file, and the key decides the backend because
+  // storage_provider was mislabelled for existing rows by migration 029.
+  const storagePath = (item as { storage_path: string | null }).storage_path
+  if (storagePath?.startsWith(`${R2_UPLOAD_PREFIX}/`)) await deleteObject(storagePath)
   return true
 }
 
@@ -137,4 +131,82 @@ export async function getPublishedVideos(): Promise<DbVideo[]> {
     return []
   }
   return (data ?? []) as DbVideo[]
+}
+export async function findVideoByYoutubeId(youtubeId: string): Promise<DbVideo | null> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('media')
+    .select(VIDEO_FIELDS)
+    .eq('metadata->>youtubeId', youtubeId)
+    .maybeSingle()
+  if (error) throw error
+  return (data as DbVideo | null) ?? null
+}
+
+/** Distinct categories in use, for the Add Video form's suggestions. */
+export async function listVideoCategories(): Promise<string[]> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('media')
+    .select('category')
+    .eq('type', 'video')
+    .eq('provider', 'youtube')
+    .not('category', 'is', null)
+  if (error) {
+    logError('videos.categories', error)
+    return []
+  }
+  return [...new Set((data ?? []).map((r) => (r as { category: string }).category).filter(Boolean))].sort()
+}
+
+export type ManualVideoInput = {
+  youtubeId: string
+  title: string
+  category: string
+  videoType: 'video' | 'short'
+  publishedAt: string
+  published: boolean
+  thumbnail: string
+  thumbnailMediaId: string | null
+  createdBy: string
+}
+
+/**
+ * Inserts a video an admin added by hand. The row has the same shape the
+ * YouTube sync writes, so the public gallery needs no special case, plus
+ * metadata.source = 'manual', which the sync uses to leave it alone.
+ * publishedAt is always set: videos sort on it descending, and Postgres puts
+ * nulls first, which would pin an undated video to the top forever.
+ */
+export async function createManualVideo(input: ManualVideoInput): Promise<DbVideo> {
+  const admin = getAdminSupabase()
+  const url = `https://www.youtube.com/watch?v=${input.youtubeId}`
+  const { data, error } = await (admin.from('media') as any)
+    .insert({
+      type: 'video',
+      provider: 'youtube',
+      public_url: url,
+      caption_en: input.title,
+      category: input.category,
+      published: input.published,
+      created_by: input.createdBy,
+      metadata: {
+        source: 'manual',
+        youtubeId: input.youtubeId,
+        videoType: input.videoType,
+        title: input.title,
+        publishedAt: input.publishedAt,
+        year: input.publishedAt.slice(0, 4),
+        description: null,
+        thumbnail: input.thumbnail,
+        thumbnailMediaId: input.thumbnailMediaId,
+        duration: null,
+        categories: [input.category],
+        url
+      }
+    })
+    .select(VIDEO_FIELDS)
+    .single()
+  if (error) throw error
+  return data as DbVideo
 }

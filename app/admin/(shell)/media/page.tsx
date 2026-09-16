@@ -7,6 +7,7 @@ import PageHeader from '../../../../components/admin/PageHeader'
 import Pagination from '../../../../components/admin/Pagination'
 import { Panel, EmptyState, ErrorState } from '../../../../components/admin/Panel'
 import MediaGrid from '../../../../components/admin/MediaGrid'
+import MediaUploader from '../../../../components/admin/MediaUploader'
 import BatchPhotoUploader from '../../../../components/admin/BatchPhotoUploader'
 
 export default async function AdminMediaPage({ searchParams }: { searchParams: { page?: string; q?: string; type?: string } }) {
@@ -38,10 +39,11 @@ export default async function AdminMediaPage({ searchParams }: { searchParams: {
       <PageHeader
         title="Media"
         description="Uploaded files and media references used across the website."
+        actions={canManage ? <MediaUploader /> : undefined}
       />
 
       {canManage && (
-        <Panel title="Add photos" description="Upload photos to an album in bulk.">
+        <Panel title="Add photos" description="Upload photos from your device, optionally straight into an album.">
           <BatchPhotoUploader />
         </Panel>
       )}

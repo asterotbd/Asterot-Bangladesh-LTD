@@ -1,11 +1,14 @@
 "use client"
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { uploadImages } from '../../lib/uploadClient'
+import { IMAGE_ACCEPT } from '../../lib/uploadRules'
 
 export default function MediaUploader() {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [feedback, setFeedback] = useState<{ kind: 'error' | 'success'; message: string } | null>(null)
   const [altEn, setAltEn] = useState('')
   const [captionEn, setCaptionEn] = useState('')
@@ -24,17 +27,17 @@ export default function MediaUploader() {
       return
     }
     setBusy(true)
+    setProgress(0)
     setFeedback(null)
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      fd.append('alt_en', altEn)
-      fd.append('caption_en', captionEn)
-      fd.append('category', category)
-      const res = await fetch('/api/admin/media', { method: 'POST', body: fd })
-      const data = await res.json().catch(() => null)
-      if (!res.ok) {
-        setFeedback({ kind: 'error', message: data?.error || 'Unable to upload the file.' })
+      // Sent directly to R2 rather than as multipart to /api/admin/media, which
+      // would exceed Vercel's 4.5 MB function body limit for ordinary photos.
+      const [outcome] = await uploadImages(
+        [{ id: 'media-upload', file, alt_en: altEn, caption_en: captionEn, category }],
+        { onUpdate: (_, state) => setProgress(state.progress) }
+      )
+      if (!outcome.ok) {
+        setFeedback({ kind: 'error', message: outcome.error || 'Unable to upload the file.' })
         return
       }
       setFeedback({ kind: 'success', message: 'Uploaded successfully.' })
@@ -61,12 +64,12 @@ export default function MediaUploader() {
           <div className="absolute inset-0 bg-black/70" onClick={() => !busy && setOpen(false)} />
           <div role="dialog" aria-modal="true" aria-label="Upload media" className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-panel p-6 shadow-2xl">
             <h3 className="text-lg font-semibold text-white">Upload Media</h3>
-            <p className="mt-1 text-sm text-gray-400">Image files up to 15 MB. Stored on Cloudflare R2.</p>
+            <p className="mt-1 text-sm text-gray-400">JPG, PNG, GIF, WebP, AVIF or BMP, full size. Uploaded straight to Cloudflare R2.</p>
 
             <form onSubmit={submit} className="mt-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="media-file">File</label>
-                <input id="media-file" name="file" type="file" accept="image/*" required className={inputClass} />
+                <input id="media-file" name="file" type="file" accept={IMAGE_ACCEPT} required className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="media-alt">Alt text</label>
@@ -92,7 +95,7 @@ export default function MediaUploader() {
                   Cancel
                 </button>
                 <button type="submit" disabled={busy} className="btn btn-primary">
-                  {busy ? 'Uploading…' : 'Upload'}
+                  {busy ? `Uploading… ${Math.round(progress * 100)}%` : 'Upload'}
                 </button>
               </div>
             </form>

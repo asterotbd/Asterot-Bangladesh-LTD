@@ -18,6 +18,10 @@ function signingKey(secret, datestamp) {
   return hmac(hmac(hmac(hmac(`AWS4${secret}`, datestamp), REGION), SERVICE), 'aws4_request')
 }
 
+// SigV4 wants strict RFC 3986 encoding, which encodeURIComponent stops short of.
+const encodeRfc3986 = (s) =>
+  encodeURIComponent(s).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`)
+
 // Each path segment is encoded, but "/" separators are preserved.
 function encodeKey(key) {
   return key.split('/').map(encodeURIComponent).join('/')
@@ -30,16 +34,22 @@ function encodeKey(key) {
  * @param {string} o.method       HTTP verb, e.g. 'PUT' or 'HEAD'
  * @param {string} o.endpoint     https://<account>.r2.cloudflarestorage.com
  * @param {string} o.bucket
- * @param {string} o.key          object key, no leading slash
+ * @param {string} o.key          object key, no leading slash; '' for a bucket-level call
  * @param {Buffer|string} [o.body]
  * @param {Record<string,string>} [o.headers] extra headers to sign
+ * @param {Record<string,string>} [o.query] query parameters, e.g. { cors: '' }
  * @param {string} o.accessKeyId
  * @param {string} o.secretAccessKey
  */
 export function signRequest({
-  method, endpoint, bucket, key, body = '', headers = {}, accessKeyId, secretAccessKey
+  method, endpoint, bucket, key, body = '', headers = {}, query = {}, accessKeyId, secretAccessKey
 }) {
-  const url = new URL(`${endpoint.replace(/\/+$/, '')}/${bucket}/${encodeKey(key)}`)
+  const base = endpoint.replace(/\/+$/, '')
+  const url = new URL(key ? `${base}/${bucket}/${encodeKey(key)}` : `${base}/${bucket}`)
+  const canonicalQuery = Object.keys(query).sort()
+    .map((k) => `${encodeRfc3986(k)}=${encodeRfc3986(query[k])}`)
+    .join('&')
+  if (canonicalQuery) url.search = canonicalQuery
   const now = new Date()
   const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
   const datestamp = amzDate.slice(0, 8)
@@ -60,7 +70,7 @@ export function signRequest({
   const canonicalRequest = [
     method,
     url.pathname,
-    '', // no query string
+    canonicalQuery,
     canonicalHeaders,
     signedHeaders,
     payloadHash

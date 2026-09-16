@@ -137,14 +137,31 @@ export async function getEventById(id: string): Promise<DbEvent | null> {
   return (data as DbEvent | null) ?? null
 }
 
-export async function deleteEvent(id: string): Promise<boolean> {
+export type DeleteEventResult =
+  | { ok: true }
+  | { ok: false; reason: 'has_registrations'; registrations: number }
+  | { ok: false; reason: 'error' }
+
+// registrations.event_id references events(id) with no ON DELETE clause, so an
+// event anyone has registered for cannot be deleted. That is deliberately left
+// intact rather than cascaded: registrations (and the payments tied to them)
+// are records of real sign-ups, and deleting an event must not silently erase
+// them. The caller reports the count so an admin can unpublish instead.
+export async function deleteEvent(id: string): Promise<DeleteEventResult> {
   const admin = getAdminSupabase()
   const { error } = await (admin.from('events') as any).delete().eq('id', id)
-  if (error) {
-    console.error('deleteEvent error', error.message)
-    return false
+  if (!error) return { ok: true }
+
+  if (error.code === '23503') {
+    const { count } = await admin
+      .from('registrations')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+    return { ok: false, reason: 'has_registrations', registrations: count ?? 0 }
   }
-  return true
+
+  console.error('deleteEvent error', error.message)
+  return { ok: false, reason: 'error' }
 }
 
 export async function getFeaturedEvents(): Promise<DbEvent[]> {

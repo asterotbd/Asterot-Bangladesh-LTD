@@ -5,10 +5,11 @@ import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../.
 import { jsonError, logError, isValidUuid, parseJsonBody } from '../../../../../lib/api-utils'
 import { writeAuditLog } from '../../../../../lib/audit'
 import { getAlbum, updateAlbum, deleteAlbum } from '../../../../../lib/albums-server'
+import { slugify } from '../../../../../lib/slug'
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['title_en', '', 'slug', 'description_en', '', 'cover_media_id', 'published']
+const ALLOWED_FIELDS = ['title_en', 'slug', 'description_en', 'cover_media_id', 'published']
 
 const TEXT_LIMITS: Record<string, number> = {
   title_en: 200,
@@ -57,9 +58,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const existing = await getAlbum(params.id)
     if (!existing) return jsonError('Album not found.', 404)
 
+    // Partial update: only fields present in the body are written. Callers
+    // send single fields (the album editor's "Cover" action sends only
+    // cover_media_id), and treating every absent field as null used to wipe the
+    // title (a NOT NULL violation) and silently unpublish the album.
+    const provided = body as Record<string, unknown>
     const fields: Record<string, unknown> = {}
     for (const field of ALLOWED_FIELDS) {
-      const value = (body as Record<string, unknown>)[field]
+      if (!(field in provided)) continue
+      const value = provided[field]
       if (field === 'published') {
         fields.published = Boolean(value)
       } else if (field === 'cover_media_id') {
@@ -71,8 +78,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       }
     }
 
-    if (fields.slug === '' && !existing.slug) return jsonError('A slug is required.', 400)
-    if (fields.title_en === '' && !existing.title_en) return jsonError('A title is required.', 400)
+    if (Object.keys(fields).length === 0) return jsonError('Nothing to update.', 400)
+    // cleanText maps '' to null, so an explicitly cleared required field shows
+    // up as a falsy value rather than an empty string.
+    if ('slug' in fields) {
+      fields.slug = slugify((fields.slug as string | null) ?? '')
+      if (!fields.slug) return jsonError('Enter a slug using English letters or numbers.', 400)
+    }
+    if ('title_en' in fields && !fields.title_en) return jsonError('A title is required.', 400)
 
     const ok = await updateAlbum(params.id, fields)
     if (!ok) return jsonError('Album not found.', 404)
@@ -82,6 +95,9 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     })
     return NextResponse.json({ ok: true })
   } catch (err) {
+    if ((err as { code?: string })?.code === '23505') {
+      return jsonError('Another album already uses this slug. Change the slug and try again.', 409)
+    }
     logError('admin.albums.update', err)
     return jsonError('Unable to update the album.', 500)
   }

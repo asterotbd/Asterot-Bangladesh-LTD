@@ -75,12 +75,23 @@ export default function VideosManager({ videos, canPublish, canDelete }: { video
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {videos.map((video) => {
           const ytId = videoId(video.public_url)
+          const meta = (video.metadata ?? {}) as { source?: unknown; thumbnail?: unknown }
+          const isManual = meta.source === 'manual'
+          // Manual videos may carry an uploaded thumbnail; show what the site shows.
+          const thumbnail = isManual && typeof meta.thumbnail === 'string'
+            ? meta.thumbnail
+            : ytId ? `https://img.youtube.com/vi/${ytId}/mqdefault.jpg` : null
           return (
             <div key={video.id} className="overflow-hidden rounded-2xl border border-white/10 bg-panel">
               <div className="relative aspect-video w-full bg-black/40">
-                {ytId ? (
+                {isManual && (
+                  <span className="absolute left-2 top-2 z-10 rounded-full border border-white/15 bg-black/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-200" title="Added by hand. The channel sync will not change or remove it.">
+                    Added manually
+                  </span>
+                )}
+                {thumbnail ? (
                   <Image
-                    src={`https://img.youtube.com/vi/${ytId}/mqdefault.jpg`}
+                    src={thumbnail}
                     alt={video.caption_en ?? 'Video thumbnail'}
                     fill
                     sizes="(min-width: 1024px) 33vw, 100vw"

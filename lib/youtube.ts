@@ -275,28 +275,38 @@ function videoToRow(video: SyncedVideo) {
   }
 }
 
+// Videos an admin added by hand carry metadata.source = 'manual'. The sync
+// must never touch them: it would overwrite the admin's title, category and
+// custom thumbnail, and its stale-removal pass would delete any manual video
+// that is not on the channel (a partner's video, say) the next night.
+const isManual = (metadata: unknown) => (metadata as { source?: unknown } | null)?.source === 'manual'
+
 async function upsertVideos(videos: SyncedVideo[]): Promise<{ inserted: number; updated: number; removed: number }> {
   const supabase = getAdminSupabase()
   const rows = videos.map(videoToRow)
 
   const { data: existingIds, error: selectError } = await supabase
     .from('media')
-    .select('id, metadata->youtubeId')
+    .select('id, metadata')
     .eq('provider', 'youtube')
     .in('metadata->>youtubeId', videos.map((v) => v.youtubeId))
 
   if (selectError) throw new Error(`Failed to read existing videos: ${selectError.message}`)
 
   const existingById = new Map<string, string>()
+  const manualYoutubeIds = new Set<string>()
   for (const row of existingIds ?? []) {
-    const id = (row as any)?.['metadata->youtubeId'] ?? (row as any)?.metadata?.youtubeId
+    const id = (row as any)?.metadata?.youtubeId
     const rowId = (row as any)?.id
-    if (id && rowId && !existingById.has(id)) existingById.set(id, rowId)
+    if (!id || !rowId) continue
+    if (isManual((row as any).metadata)) manualYoutubeIds.add(id)
+    if (!existingById.has(id)) existingById.set(id, rowId)
   }
 
   let inserted = 0
   let updated = 0
   for (const row of rows) {
+    if (manualYoutubeIds.has(row.metadata.youtubeId)) continue
     const existingId = existingById.get(row.metadata.youtubeId)
     if (existingId) {
       const { error } = await (supabase.from('media') as any).update(row).eq('id', existingId)
@@ -309,6 +319,14 @@ async function upsertVideos(videos: SyncedVideo[]): Promise<{ inserted: number; 
       const { error } = await (supabase.from('media') as any).insert(row)
       if (error) {
         if (error.code === '23505') {
+          // Lost a race with another writer. If an admin added this video by
+          // hand in the meantime, their row wins.
+          const { data: conflicting } = await supabase
+            .from('media')
+            .select('metadata')
+            .eq('metadata->>youtubeId', row.metadata.youtubeId)
+            .maybeSingle()
+          if (isManual((conflicting as any)?.metadata)) continue
           const { error: updateError } = await (supabase.from('media') as any).update(row).eq('metadata->>youtubeId', row.metadata.youtubeId)
           if (updateError && updateError.code !== '23505') {
             throw new Error(`Failed to recover duplicate ${row.metadata.youtubeId}: ${updateError.message}`)
@@ -334,6 +352,7 @@ async function upsertVideos(videos: SyncedVideo[]): Promise<{ inserted: number; 
   const staleIds: string[] = []
   for (const row of (allRows as any[]) ?? []) {
     const youtubeId = row?.metadata?.youtubeId
+    if (isManual(row?.metadata)) continue
     if (youtubeId && !currentIds.has(youtubeId)) staleIds.push(row.id)
   }
   if (staleIds.length > 0) {

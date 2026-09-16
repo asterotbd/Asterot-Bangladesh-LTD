@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../../lib/auth'
-import { getMedia, deleteMedia, updateMedia, MEDIA_TYPES } from '../../../../../lib/media-server'
+import { getMedia, updateMedia, deleteMedia, MediaInUseError, MEDIA_TYPES } from '../../../../../lib/media-server'
 import { writeAuditLog } from '../../../../../lib/audit'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
@@ -8,7 +8,7 @@ import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../.
 
 export const dynamic = 'force-dynamic'
 
-const EDITABLE = ['alt_en', '', 'caption_en', '', 'category', 'type'] as const
+const EDITABLE = ['alt_en', 'caption_en', 'category', 'type'] as const
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
@@ -98,11 +98,9 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   if (!isValidUuid(params.id)) return jsonError('Invalid media ID.', 400)
 
   try {
+    // deleteMedia removes the stored file itself, after the row is gone.
     const result = await deleteMedia(params.id)
-
-    if (!result.ok) {
-      return jsonError(result.error ?? 'Delete failed.', 500)
-    }
+    if (!result.ok) return jsonError('Media not found.', 404)
 
     await writeAuditLog(check.user.id, 'media.delete', 'media', params.id, {
       storagePath: result.storagePath,
@@ -116,6 +114,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
       albumPhotoCount: result.albumPhotoCount
     })
   } catch (err) {
+    if (err instanceof MediaInUseError) return jsonError(err.message, 409)
     logError('admin.media.delete', err)
     return jsonError('Unable to delete the media item.', 500)
   }

@@ -12,8 +12,6 @@ export const dynamic = 'force-dynamic'
 const ALLOWED_FIELDS = [
   'question_en',
   'answer_en',
-  '',
-  '',
   'category',
   'display_order',
   'status'

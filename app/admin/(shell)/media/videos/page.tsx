@@ -2,10 +2,11 @@ export const dynamic = 'force-dynamic'
 import { redirect } from 'next/navigation'
 import { requireAnyPermission, getCurrentUser } from '../../../../../lib/auth'
 import { hasPermission } from '../../../../../lib/permissions'
-import { listVideos } from '../../../../../lib/videos-server'
+import { listVideos, listVideoCategories } from '../../../../../lib/videos-server'
 import PageHeader from '../../../../../components/admin/PageHeader'
 import { Panel, ErrorState, EmptyState } from '../../../../../components/admin/Panel'
 import VideosManager from '../../../../../components/admin/VideosManager'
+import AddVideoDialog from '../../../../../components/admin/AddVideoDialog'
 
 export default async function AdminVideosPage({ searchParams }: { searchParams: { page?: string; status?: string; q?: string } }) {
   const user = await getCurrentUser()
@@ -28,12 +29,14 @@ export default async function AdminVideosPage({ searchParams }: { searchParams: 
     console.error('Admin videos load error', err)
     failed = true
   }
+  const categories = canPublish ? await listVideoCategories() : []
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Videos"
-        description="Manage the YouTube videos synced from the channel. Control visibility with publish toggles."
+        description="YouTube videos synced from the channel, plus any added by hand. Control visibility with publish toggles."
+        actions={canPublish ? <AddVideoDialog categories={categories} /> : undefined}
       />
 
       <form method="get" action="/admin/media/videos" className="flex flex-wrap items-end gap-3">
@@ -61,7 +64,7 @@ export default async function AdminVideosPage({ searchParams }: { searchParams: 
       {failed ? (
         <Panel><ErrorState message="Unable to load videos." /></Panel>
       ) : !result || result.items.length === 0 ? (
-        <Panel><EmptyState message="No videos yet. Videos appear here after they are synced from the YouTube channel." /></Panel>
+        <Panel><EmptyState message="No videos yet. Use “Add Video” to add one by link, or wait for the next sync from the YouTube channel." /></Panel>
       ) : (
         <VideosManager videos={result.items} canPublish={canPublish} canDelete={canDelete} />
       )}

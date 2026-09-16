@@ -81,8 +81,17 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
   const event = await getEventById(params.id)
   if (!event) return jsonError('Event not found.', 404)
-  const ok = await deleteEvent(params.id)
-  if (!ok) return jsonError('Unable to delete the event.', 500)
+  const result = await deleteEvent(params.id)
+  if (!result.ok) {
+    if (result.reason === 'has_registrations') {
+      const n = result.registrations
+      return jsonError(
+        `This event has ${n} registration${n === 1 ? '' : 's'} and cannot be deleted. Unpublish it instead to hide it from the site.`,
+        409
+      )
+    }
+    return jsonError('Unable to delete the event.', 500)
+  }
   await writeAuditLog(check.user.id, 'events.delete', 'events', params.id, { title: event.title_en })
   revalidatePath('/')
   revalidatePath('/events')

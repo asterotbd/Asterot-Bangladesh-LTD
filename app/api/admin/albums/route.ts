@@ -5,11 +5,11 @@ import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../.
 import { jsonError, logError, isValidUuid, parseJsonBody } from '../../../../lib/api-utils'
 import { writeAuditLog } from '../../../../lib/audit'
 import { listAlbums, createAlbum } from '../../../../lib/albums-server'
-import { revalidatePath } from 'next/cache'
+import { slugify } from '../../../../lib/slug'
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['title_en', '', 'slug', 'description_en', '', 'cover_media_id', 'published']
+const ALLOWED_FIELDS = ['title_en', 'slug', 'description_en', 'cover_media_id', 'published']
 
 const TEXT_LIMITS: Record<string, number> = {
   title_en: 200,
@@ -65,6 +65,9 @@ export async function POST(request: Request) {
       if (field === 'published') {
         record.published = Boolean(value)
       } else if (field === 'cover_media_id') {
+        // A new album normally has no cover yet; the form does not send the
+        // field at all, which must not be rejected as an invalid ID.
+        if (value === undefined) continue
         if (value && typeof value === 'string' && isValidUuid(value)) record.cover_media_id = value
         else if (value === null || value === '') record.cover_media_id = null
         else return jsonError('Invalid cover media ID.', 400)
@@ -74,13 +77,20 @@ export async function POST(request: Request) {
     }
 
     if (!record.title_en) return jsonError('A title is required.', 400)
-    if (!record.slug) return jsonError('A slug is required.', 400)
+    // The slug is part of the public URL, so it is always normalized, and is
+    // generated from the title when omitted.
+    record.slug = slugify((record.slug as string | null) || (record.title_en as string))
+    if (!record.slug) return jsonError('Enter a slug using English letters or numbers.', 400)
 
     const album = await createAlbum({ ...record, created_by: check.user.id })
     if (!album) return jsonError('Unable to create the album.', 500)
     await writeAuditLog(check.user.id, 'albums.create', 'albums', album.id, { title: album.title_en })
     return NextResponse.json({ data: album }, { status: 201 })
   } catch (err) {
+    // albums.slug is unique; two albums with the same title collide here.
+    if ((err as { code?: string })?.code === '23505') {
+      return jsonError('Another album already uses this slug. Change the slug and try again.', 409)
+    }
     logError('admin.albums.create', err)
     return jsonError('Unable to create the album.', 500)
   }
