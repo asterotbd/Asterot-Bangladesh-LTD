@@ -5,25 +5,16 @@ import { logError } from '../api-utils'
 export type DbCompanyInfo = {
   id: string
   name_en: string | null
-  name_bn: string | null
   founded_date: string | null
   location: string | null
   tagline_en: string | null
-  tagline_bn: string | null
   slogan_en: string | null
-  slogan_bn: string | null
   short_description_en: string | null
-  short_description_bn: string | null
   long_description_en: string | null
-  long_description_bn: string | null
   about_en: string | null
-  about_bn: string | null
   story_en: string | null
-  story_bn: string | null
   what_we_do_en: string | null
-  what_we_do_bn: string | null
   approach_en: string | null
-  approach_bn: string | null
   seo_title: string | null
   seo_description: string | null
   featured_media_id: string | null
@@ -36,7 +27,7 @@ export async function getPublicCompanyInfo():
   Promise<DbCompanyInfo | null> {
   const admin = getAdminSupabase()
   const fields =
-    'id, name_en, name_bn, founded_date, location, tagline_en, tagline_bn, slogan_en, slogan_bn, short_description_en, short_description_bn, long_description_en, long_description_bn, about_en, about_bn, story_en, story_bn, what_we_do_en, what_we_do_bn, approach_en, approach_bn, seo_title, seo_description, featured_media_id, published, created_at, updated_at'
+    'id, name_en, founded_date, location, tagline_en, slogan_en, short_description_en, long_description_en, about_en, story_en, what_we_do_en, approach_en, seo_title, seo_description, featured_media_id, published, created_at, updated_at'
   const { data, error } = await admin
     .from('company_info')
     .select(fields)

@@ -11,9 +11,7 @@ export const dynamic = 'force-dynamic'
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
-  alt_bn: 300,
   caption_en: 500,
-  caption_bn: 500,
   category: 120
 }
 
@@ -83,12 +81,8 @@ export async function POST(request: Request) {
 
   const alt_en = cleanText(formData.get('alt_en'), TEXT_MAX.alt_en)
   if (!alt_en.ok) return jsonError('Invalid alt_en.', 400)
-  const alt_bn = cleanText(formData.get('alt_bn'), TEXT_MAX.alt_bn)
-  if (!alt_bn.ok) return jsonError('Invalid alt_bn.', 400)
   const caption_en = cleanText(formData.get('caption_en'), TEXT_MAX.caption_en)
   if (!caption_en.ok) return jsonError('Invalid caption_en.', 400)
-  const caption_bn = cleanText(formData.get('caption_bn'), TEXT_MAX.caption_bn)
-  if (!caption_bn.ok) return jsonError('Invalid caption_bn.', 400)
   const category = cleanText(formData.get('category'), TEXT_MAX.category)
   if (!category.ok) return jsonError('Invalid category.', 400)
 
@@ -101,9 +95,7 @@ export async function POST(request: Request) {
         type: 'photo',
         provider: 'uploaded',
         alt_en: alt_en.value,
-        alt_bn: alt_bn.value,
         caption_en: caption_en.value,
-        caption_bn: caption_bn.value,
         filesize: file.size,
         category: category.value,
         created_by: check.user.id

@@ -19,9 +19,7 @@ export default function MediaGrid({ items, canManage }: { items: DbMedia[]; canM
     setEditing(item)
     setValues({
       alt_en: item.alt_en ?? '',
-      alt_bn: item.alt_bn ?? '',
       caption_en: item.caption_en ?? '',
-      caption_bn: item.caption_bn ?? '',
       category: item.category ?? ''
     })
     setFeedback(null)
@@ -38,9 +36,7 @@ export default function MediaGrid({ items, canManage }: { items: DbMedia[]; canM
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           alt_en: values.alt_en,
-          alt_bn: values.alt_bn,
           caption_en: values.caption_en,
-          caption_bn: values.caption_bn,
           category: values.category
         })
       })
@@ -136,16 +132,8 @@ export default function MediaGrid({ items, canManage }: { items: DbMedia[]; canM
                 <input id="edit-alt" type="text" value={values.alt_en ?? ''} onChange={(e) => setValues((v) => ({ ...v, alt_en: e.target.value }))} maxLength={300} className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300" htmlFor="edit-alt-bn">Alt text (BN)</label>
-                <input id="edit-alt-bn" type="text" value={values.alt_bn ?? ''} onChange={(e) => setValues((v) => ({ ...v, alt_bn: e.target.value }))} maxLength={300} className={inputClass} />
-              </div>
-              <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="edit-caption">Caption</label>
                 <input id="edit-caption" type="text" value={values.caption_en ?? ''} onChange={(e) => setValues((v) => ({ ...v, caption_en: e.target.value }))} maxLength={500} className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300" htmlFor="edit-caption-bn">Caption (BN)</label>
-                <input id="edit-caption-bn" type="text" value={values.caption_bn ?? ''} onChange={(e) => setValues((v) => ({ ...v, caption_bn: e.target.value }))} maxLength={500} className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="edit-category">Category</label>

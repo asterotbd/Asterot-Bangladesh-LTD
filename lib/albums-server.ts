@@ -4,10 +4,8 @@ import { logError } from './api-utils'
 export type DbAlbum = {
   id: string
   title_en: string | null
-  title_bn: string | null
   slug: string | null
   description_en: string | null
-  description_bn: string | null
   cover_media_id: string | null
   published: boolean | null
   created_by: string | null
@@ -32,7 +30,7 @@ export type AlbumListResult = {
 }
 
 export const ALBUM_FIELDS =
-  'id, title_en, title_bn, slug, description_en, description_bn, cover_media_id, published, created_by, created_at, updated_at'
+  'id, title_en, slug, description_en, cover_media_id, published, created_by, created_at, updated_at'
 
 export const ALBUM_PHOTO_FIELDS = 'id, album_id, media_id, order, created_at'
 
@@ -51,7 +49,7 @@ export async function listAlbums({
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  let query = admin.from('albums').select('id, title_en, title_bn, slug, description_en, description_bn, cover_media_id, published, created_by, created_at, updated_at, album_photos(id)', { count: 'exact' })
+  let query = admin.from('albums').select('id, title_en, slug, description_en, cover_media_id, published, created_by, created_at, updated_at, album_photos(id)', { count: 'exact' })
   const term = search.trim()
   if (term) {
     const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)
@@ -84,10 +82,8 @@ export async function listAlbums({
     return {
       id: row.id,
       title_en: row.title_en,
-      title_bn: row.title_bn,
       slug: row.slug,
       description_en: row.description_en,
-      description_bn: row.description_bn,
       cover_media_id: row.cover_media_id,
       published: row.published,
       created_by: row.created_by,

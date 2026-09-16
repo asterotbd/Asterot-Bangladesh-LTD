@@ -24,8 +24,8 @@ export default async function FAQPage() {
 
   const items = dbItems.length > 0
     ? dbItems.map((item) => ({
-        question: item.question_en || item.question_bn || '',
-        answer: item.answer_en || item.answer_bn || ''
+        question: item.question_en || '',
+        answer: item.answer_en || ''
       }))
     : faqItems
 

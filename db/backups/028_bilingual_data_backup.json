@@ -1,0 +1,68 @@
+{
+  "media": {
+    "bn_columns": [
+      "alt_bn",
+      "caption_bn"
+    ],
+    "rows_with_data": []
+  },
+  "news": {
+    "bn_columns": [
+      "title_bn",
+      "subtitle_bn",
+      "excerpt_bn",
+      "content_bn"
+    ],
+    "rows_with_data": []
+  },
+  "events": {
+    "bn_columns": [
+      "title_bn",
+      "description_bn"
+    ],
+    "rows_with_data": [
+      {
+        "id": "1ec77417-9ea7-4f0e-a669-49406b90b8a7",
+        "values": {
+          "description_bn": "hudai"
+        }
+      }
+    ]
+  },
+  "albums": {
+    "bn_columns": [
+      "title_bn",
+      "description_bn"
+    ],
+    "rows_with_data": []
+  },
+  "company_info": {
+    "bn_columns": [
+      "name_bn",
+      "tagline_bn",
+      "slogan_bn",
+      "short_description_bn",
+      "long_description_bn",
+      "about_bn",
+      "story_bn",
+      "what_we_do_bn",
+      "approach_bn"
+    ],
+    "rows_with_data": []
+  },
+  "services": {
+    "bn_columns": [
+      "title_bn",
+      "short_description_bn",
+      "description_bn"
+    ],
+    "rows_with_data": []
+  },
+  "faq": {
+    "bn_columns": [
+      "question_bn",
+      "answer_bn"
+    ],
+    "rows_with_data": []
+  }
+}

@@ -11,9 +11,7 @@ export type DbMedia = {
   type: string | null
   provider: string | null
   alt_en: string | null
-  alt_bn: string | null
   caption_en: string | null
-  caption_bn: string | null
   width: number | null
   height: number | null
   filesize: number | null
@@ -106,7 +104,7 @@ export async function listMedia({
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  let query = admin.from('media').select('id, storage_path, public_url, type, provider, alt_en, alt_bn, caption_en, caption_bn, width, height, filesize, category, created_by, created_at', { count: 'exact' })
+  let query = admin.from('media').select('id, storage_path, public_url, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at', { count: 'exact' })
 
   // The Media Library must only contain media assets intended for the library.
   // A media row that is a news article's featured image belongs to Admin → News
@@ -153,7 +151,7 @@ export async function getMedia(id: string): Promise<DbMedia | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin
     .from('media')
-    .select('id, storage_path, public_url, type, provider, alt_en, alt_bn, caption_en, caption_bn, width, height, filesize, category, created_by, created_at')
+    .select('id, storage_path, public_url, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at')
     .eq('id', id)
     .maybeSingle()
   if (error) throw error

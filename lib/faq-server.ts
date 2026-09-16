@@ -8,8 +8,6 @@ export type DbFaqItem = {
   id: string
   question_en: string | null
   answer_en: string | null
-  question_bn: string | null
-  answer_bn: string | null
   category: string | null
   display_order: number | null
   status: string | null
@@ -27,7 +25,7 @@ export type FaqListResult = {
   totalPages: number
 }
 
-export const FAQ_FIELDS = 'id, question_en, answer_en, question_bn, answer_bn, category, display_order, status, published, created_by, created_at, updated_at'
+export const FAQ_FIELDS = 'id, question_en, answer_en, category, display_order, status, published, created_by, created_at, updated_at'
 
 export async function listFaq({
   page = 1,

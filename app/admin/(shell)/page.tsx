@@ -197,7 +197,7 @@ function RegistrationRow({ registration }: { registration: RecentRegistration })
 }
 
 function NewsRow({ article }: { article: DbNews }) {
-  const title = article.title_en || article.title_bn || article.slug
+  const title = article.title_en || article.slug
   const date = formatDateTime(article.published_at || article.created_at)
   return (
     <li className="flex items-start justify-between gap-4 py-3">

@@ -4,13 +4,12 @@ import { logError } from './api-utils'
 export type DbCategory = {
   id: string
   name_en: string
-  name_bn: string | null
   slug: string | null
   type: string | null
   created_at: string | null
 }
 
-const CATEGORY_FIELDS = 'id, name_en, name_bn, slug, type, created_at'
+const CATEGORY_FIELDS = 'id, name_en, slug, type, created_at'
 
 export async function listCategories(): Promise<DbCategory[]> {
   const admin = getAdminSupabase()

@@ -4,25 +4,16 @@ import { logError } from './api-utils'
 export type DbCompanyInfo = {
   id: string
   name_en: string | null
-  name_bn: string | null
   founded_date: string | null
   location: string | null
   tagline_en: string | null
-  tagline_bn: string | null
   slogan_en: string | null
-  slogan_bn: string | null
   short_description_en: string | null
-  short_description_bn: string | null
   long_description_en: string | null
-  long_description_bn: string | null
   about_en: string | null
-  about_bn: string | null
   story_en: string | null
-  story_bn: string | null
   what_we_do_en: string | null
-  what_we_do_bn: string | null
   approach_en: string | null
-  approach_bn: string | null
   seo_title: string | null
   seo_description: string | null
   featured_media_id: string | null
@@ -37,9 +28,7 @@ export type DbLeader = {
   position: string | null
   photo_media_id: string | null
   short_bio_en: string | null
-  short_bio_bn: string | null
   full_bio_en: string | null
-  full_bio_bn: string | null
   display_order: number | null
   published: boolean | null
   created_at: string | null
@@ -47,10 +36,10 @@ export type DbLeader = {
 }
 
 const COMPANY_INFO_FIELDS =
-  'id, name_en, name_bn, founded_date, location, tagline_en, tagline_bn, slogan_en, slogan_bn, short_description_en, short_description_bn, long_description_en, long_description_bn, about_en, about_bn, story_en, story_bn, what_we_do_en, what_we_do_bn, approach_en, approach_bn, seo_title, seo_description, featured_media_id, published, created_at, updated_at'
+  'id, name_en, founded_date, location, tagline_en, slogan_en, short_description_en, long_description_en, about_en, story_en, what_we_do_en, approach_en, seo_title, seo_description, featured_media_id, published, created_at, updated_at'
 
 const LEADERSHIP_FIELDS =
-  'id, name, position, photo_media_id, short_bio_en, short_bio_bn, full_bio_en, full_bio_bn, display_order, published, created_at, updated_at'
+  'id, name, position, photo_media_id, short_bio_en, full_bio_en, display_order, published, created_at, updated_at'
 
 export async function getCompanyInfo(): Promise<DbCompanyInfo | null> {
   const admin = getAdminSupabase()

@@ -15,14 +15,13 @@ export default function CapabilitiesForm({ services, canEdit }: { services: DbSe
 
   const inputClass = 'mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:opacity-50'
 
-  const emptyForm = { title_en: '', title_bn: '', short_description_en: '', description_en: '', published: false }
+  const emptyForm = { title_en: '', short_description_en: '', description_en: '', published: false }
   const [form, setForm] = useState(emptyForm)
 
   function openEdit(service: DbService) {
     setEditing(service)
     setForm({
       title_en: service.title_en ?? '',
-      title_bn: service.title_bn ?? '',
       short_description_en: service.short_description_en ?? '',
       description_en: service.description_en ?? '',
       published: Boolean(service.published)
@@ -43,7 +42,6 @@ export default function CapabilitiesForm({ services, canEdit }: { services: DbSe
       const payload = {
         ...(editing ? { id: editing.id } : {}),
         title_en: form.title_en,
-        title_bn: form.title_bn || null,
         short_description_en: form.short_description_en || null,
         description_en: form.description_en || null,
         published: form.published
@@ -150,10 +148,6 @@ export default function CapabilitiesForm({ services, canEdit }: { services: DbSe
               <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="cap-title">Title *</label>
                 <input id="cap-title" type="text" value={form.title_en} maxLength={200} onChange={(e) => setForm({ ...form, title_en: e.target.value })} className={inputClass} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300" htmlFor="cap-title-bn">Title (Bangla)</label>
-                <input id="cap-title-bn" type="text" value={form.title_bn} maxLength={200} onChange={(e) => setForm({ ...form, title_bn: e.target.value })} className={inputClass} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300" htmlFor="cap-short">Short description</label>

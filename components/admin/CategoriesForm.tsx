@@ -15,12 +15,12 @@ export default function CategoriesForm({ categories, canEdit, canDelete }: { cat
 
   const inputClass = 'mt-1 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-white placeholder:text-gray-500 outline-none transition duration-200 focus:border-primary focus:ring-2 focus:ring-primary/25 disabled:opacity-50'
 
-  const emptyForm = { name_en: '', name_bn: '', slug: '', type: 'project' }
+  const emptyForm = { name_en: '', slug: '', type: 'project' }
   const [form, setForm] = useState(emptyForm)
 
   function openEdit(cat: DbCategory) {
     setEditing(cat)
-    setForm({ name_en: cat.name_en, name_bn: cat.name_bn ?? '', slug: cat.slug ?? '', type: cat.type ?? 'project' })
+    setForm({ name_en: cat.name_en, slug: cat.slug ?? '', type: cat.type ?? 'project' })
     setFeedback(null)
   }
 
@@ -37,7 +37,6 @@ export default function CategoriesForm({ categories, canEdit, canDelete }: { cat
       const payload = {
         ...(editing ? { id: editing.id } : {}),
         name_en: form.name_en,
-        name_bn: form.name_bn || null,
         slug: form.slug || null,
         type: form.type || 'project'
       }
@@ -113,7 +112,7 @@ export default function CategoriesForm({ categories, canEdit, canDelete }: { cat
             {categories.map((cat) => (
               <div key={cat.id} className="flex flex-wrap items-center justify-between gap-3 py-4">
                 <div className="min-w-0">
-                  <p className="font-medium text-white">{cat.name_en} {cat.name_bn && <span className="text-sm text-gray-500">({cat.name_bn})</span>}</p>
+                  <p className="font-medium text-white">{cat.name_en}</p>
                   <p className="mt-0.5 text-sm text-gray-400">/{cat.slug || '—'}</p>
                 </div>
                 <div className="flex shrink-0 gap-2">
@@ -144,15 +143,9 @@ export default function CategoriesForm({ categories, canEdit, canDelete }: { cat
                 <label className="block text-sm font-medium text-gray-300" htmlFor="cat-name">Name *</label>
                 <input id="cat-name" type="text" value={form.name_en} maxLength={100} onChange={(e) => setForm({ ...form, name_en: e.target.value })} className={inputClass} />
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300" htmlFor="cat-name-bn">Name (Bangla)</label>
-                  <input id="cat-name-bn" type="text" value={form.name_bn} maxLength={100} onChange={(e) => setForm({ ...form, name_bn: e.target.value })} className={inputClass} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300" htmlFor="cat-slug">Slug</label>
-                  <input id="cat-slug" type="text" value={form.slug} maxLength={200} onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputClass} placeholder="kebab-case" />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300" htmlFor="cat-slug">Slug</label>
+                <input id="cat-slug" type="text" value={form.slug} maxLength={200} onChange={(e) => setForm({ ...form, slug: e.target.value })} className={inputClass} placeholder="kebab-case" />
               </div>
               <div className="flex justify-end gap-3">
                 <button type="button" onClick={() => (editing ? setEditing(null) : setAdding(false))} disabled={busy} className="btn btn-ghost">Cancel</button>

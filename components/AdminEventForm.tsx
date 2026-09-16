@@ -6,10 +6,8 @@ import Button from './Button'
 type AdminEvent = {
   id?: string
   title_en: string
-  title_bn?: string | null
   slug: string
   description_en?: string | null
-  description_bn?: string | null
   category_id?: string | null
   date?: string | null
   time?: string | null
@@ -41,10 +39,8 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
 
   const [form, setForm] = useState<AdminEvent>({
     title_en: event?.title_en || '',
-    title_bn: event?.title_bn || '',
     slug: event?.slug || '',
     description_en: event?.description_en || '',
-    description_bn: event?.description_bn || '',
     category_id: event?.category_id || '',
     date: event?.date || '',
     time: (event?.time || '').slice(0, 5),
@@ -66,7 +62,7 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
     setSaving(true)
     setError(undefined)
     if (!form.title_en?.trim()) {
-      setError('Title (EN) is required.')
+      setError('Title is required.')
       setSaving(false)
       return
     }
@@ -81,9 +77,7 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
       : null
     const payload = {
       ...form,
-      title_bn: form.title_bn?.trim() ? form.title_bn : null,
       description_en: form.description_en?.trim() ? form.description_en : null,
-      description_bn: form.description_bn?.trim() ? form.description_bn : null,
       category_id: form.category_id ? form.category_id : null,
       time: timeValue,
       location: form.location?.trim() ? form.location : null,
@@ -118,24 +112,16 @@ export default function AdminEventForm({ event, categories }: { event?: AdminEve
     <div className="w-full max-w-[min(70rem,100%)] space-y-4">
       {error && <div className="text-red-400 text-sm">{error}</div>}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block text-sm font-medium text-gray-300">Title (EN) *
-          <input required value={form.title_en || ''} onChange={e => onChange('title_en', e.target.value)} className={inputClass} />
-        </label>
-        <label className="block text-sm font-medium text-gray-300">Title (BN)
-          <input value={form.title_bn || ''} onChange={e => onChange('title_bn', e.target.value)} className={inputClass} />
-        </label>
-      </div>
+      <label className="block text-sm font-medium text-gray-300">Title *
+        <input required value={form.title_en || ''} onChange={e => onChange('title_en', e.target.value)} className={inputClass} />
+      </label>
 
       <label className="block text-sm font-medium text-gray-300">Slug
         <input value={form.slug || ''} onChange={e => onChange('slug', e.target.value)} className={inputClass} placeholder="kebab-case-slug" />
       </label>
 
-      <label className="block text-sm font-medium text-gray-300">Description (EN)
+      <label className="block text-sm font-medium text-gray-300">Description
         <textarea value={form.description_en || ''} onChange={e => onChange('description_en', e.target.value)} className={inputClass} rows={3} />
-      </label>
-      <label className="block text-sm font-medium text-gray-300">Description (BN)
-        <textarea value={form.description_bn || ''} onChange={e => onChange('description_bn', e.target.value)} className={inputClass} rows={3} />
       </label>
 
       <div className="grid gap-4 sm:grid-cols-2">
