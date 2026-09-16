@@ -112,3 +112,81 @@ export async function getPublishedVideos(): Promise<DbVideo[]> {
   }
   return (data ?? []) as DbVideo[]
 }
+export async function findVideoByYoutubeId(youtubeId: string): Promise<DbVideo | null> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('media')
+    .select(VIDEO_FIELDS)
+    .eq('metadata->>youtubeId', youtubeId)
+    .maybeSingle()
+  if (error) throw error
+  return (data as DbVideo | null) ?? null
+}
+
+/** Distinct categories in use, for the Add Video form's suggestions. */
+export async function listVideoCategories(): Promise<string[]> {
+  const admin = getAdminSupabase()
+  const { data, error } = await admin
+    .from('media')
+    .select('category')
+    .eq('type', 'video')
+    .eq('provider', 'youtube')
+    .not('category', 'is', null)
+  if (error) {
+    logError('videos.categories', error)
+    return []
+  }
+  return [...new Set((data ?? []).map((r) => (r as { category: string }).category).filter(Boolean))].sort()
+}
+
+export type ManualVideoInput = {
+  youtubeId: string
+  title: string
+  category: string
+  videoType: 'video' | 'short'
+  publishedAt: string
+  published: boolean
+  thumbnail: string
+  thumbnailMediaId: string | null
+  createdBy: string
+}
+
+/**
+ * Inserts a video an admin added by hand. The row has the same shape the
+ * YouTube sync writes, so the public gallery needs no special case, plus
+ * metadata.source = 'manual', which the sync uses to leave it alone.
+ * publishedAt is always set: videos sort on it descending, and Postgres puts
+ * nulls first, which would pin an undated video to the top forever.
+ */
+export async function createManualVideo(input: ManualVideoInput): Promise<DbVideo> {
+  const admin = getAdminSupabase()
+  const url = `https://www.youtube.com/watch?v=${input.youtubeId}`
+  const { data, error } = await (admin.from('media') as any)
+    .insert({
+      type: 'video',
+      provider: 'youtube',
+      public_url: url,
+      caption_en: input.title,
+      category: input.category,
+      published: input.published,
+      created_by: input.createdBy,
+      metadata: {
+        source: 'manual',
+        youtubeId: input.youtubeId,
+        videoType: input.videoType,
+        title: input.title,
+        publishedAt: input.publishedAt,
+        year: input.publishedAt.slice(0, 4),
+        description: null,
+        thumbnail: input.thumbnail,
+        thumbnailMediaId: input.thumbnailMediaId,
+        duration: null,
+        categories: [input.category],
+        url
+      }
+    })
+    .select(VIDEO_FIELDS)
+    .single()
+  if (error) throw error
+  return data as DbVideo
+}

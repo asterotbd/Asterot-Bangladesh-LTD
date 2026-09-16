@@ -8,7 +8,7 @@ import { listCategories, getCategory, createCategory, updateCategory, deleteCate
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['name_en', '', 'slug', 'type']
+const ALLOWED_FIELDS = ['name_en', 'slug', 'type']
 
 function cleanText(value: unknown, key: string, max: number): string | null {
   if (value === null || value === undefined || value === '') return null

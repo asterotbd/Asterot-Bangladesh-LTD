@@ -1,6 +1,7 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
-import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX } from './r2'
+import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX, headObject, readObjectPrefix, getR2Config, publicUrlFor } from './r2'
+import { IMAGE_MIME_BY_EXT, MAX_IMAGE_BYTES } from './uploadRules'
 
 export const MEDIA_TYPES = ['photo', 'video', 'embed'] as const
 export type MediaType = (typeof MEDIA_TYPES)[number]
@@ -34,24 +35,15 @@ export const PUBLIC_MEDIA_BUCKET = 'public-media'
 // Raster image formats the media library accepts. SVG/HTML are intentionally
 // excluded: SVG can embed script and browsers execute it when the file is
 // served with image/svg+xml, and HTML is not an image.
-const IMAGE_TYPES: Record<string, string> = {
-  jpg: 'jpeg',
-  jpeg: 'jpeg',
-  png: 'png',
-  gif: 'gif',
-  webp: 'webp',
-  avif: 'avif',
-  bmp: 'bmp'
-}
+// Both maps derive from lib/uploadRules so the browser picker, the presign
+// route and this validation can never disagree about what is allowed.
+const IMAGE_TYPES: Record<string, string> = Object.fromEntries(
+  Object.entries(IMAGE_MIME_BY_EXT).map(([ext, mime]) => [ext, mime.split('/')[1]])
+)
 
-const IMAGE_MIME: Record<string, string> = {
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  gif: 'image/gif',
-  webp: 'image/webp',
-  avif: 'image/avif',
-  bmp: 'image/bmp'
-}
+const IMAGE_MIME: Record<string, string> = Object.fromEntries(
+  Object.values(IMAGE_MIME_BY_EXT).map((mime) => [mime.split('/')[1], mime])
+)
 
 export type ImageValidation =
   | { ok: true; type: string; ext: string; contentType: string }
@@ -179,18 +171,66 @@ export async function updateMedia(id: string, fields: Partial<DbMedia>): Promise
   return (data ?? []).length > 0
 }
 
+// Thrown when a media row is still referenced by something deleteMedia does not
+// know how to detach, so the route can answer 409 instead of a generic 500.
+export class MediaInUseError extends Error {
+  constructor(message = 'This media item is still in use and cannot be deleted.') {
+    super(message)
+    this.name = 'MediaInUseError'
+  }
+}
+
+// Nullable references to media(id) that were created without an ON DELETE
+// clause, so Postgres refuses to delete any media row one of them points at.
+// Before this, every album cover and news featured image failed to delete with
+// an opaque 500. Detaching first is the expected CMS behaviour: an article
+// falls back to the default news image and an album loses its cover.
+// album_photos and project_media already cascade and homepage_sections already
+// sets null, so they are deliberately absent.
+const MEDIA_REFERENCES: ReadonlyArray<{ table: string; column: string }> = [
+  { table: 'news', column: 'featured_image' },
+  { table: 'albums', column: 'cover_media_id' },
+  { table: 'company_info', column: 'featured_media_id' },
+  { table: 'services', column: 'media_id' },
+  { table: 'leadership', column: 'photo_media_id' },
+  { table: 'sponsors', column: 'logo_media_id' },
+  { table: 'partners', column: 'logo_media_id' },
+  { table: 'partnerships', column: 'logo_media_id' }
+]
+
+// Tables/columns that exist in the migrations but may be absent from a given
+// database; detaching from them is a no-op, not a failure.
+const MISSING_RELATION_CODES = new Set(['PGRST204', 'PGRST205', '42P01', '42703'])
+const FOREIGN_KEY_VIOLATION = '23503'
+
 export async function deleteMedia(id: string): Promise<{ ok: boolean; storagePath: string | null }> {
   const admin = getAdminSupabase()
   const item = await getMedia(id)
   if (!item) return { ok: false, storagePath: null }
 
+  // Only objects the admin uploaded are owned by this row alone. Seed assets
+  // migrated from public/ have no storage_path, and several of them are also
+  // hardcoded in rendered code (DEFAULT_NEWS_IMAGE, lib/newsData.ts), so their
+  // bucket objects are left in place: deleting one would break those pages,
+  // while an unreferenced object costs next to nothing to keep.
   let storagePath: string | null = null
   if (item.storage_path && item.provider === 'uploaded') {
     storagePath = item.storage_path
   }
 
+  for (const { table, column } of MEDIA_REFERENCES) {
+    const { error } = await (admin.from(table) as any).update({ [column]: null }).eq(column, id)
+    if (error && !MISSING_RELATION_CODES.has(error.code)) {
+      logError(`media.detach.${table}.${column}`, error)
+      throw error
+    }
+  }
+
   const { error } = await (admin.from('media') as any).delete().eq('id', id)
-  if (error) throw error
+  if (error) {
+    if (error.code === FOREIGN_KEY_VIOLATION) throw new MediaInUseError()
+    throw error
+  }
   return { ok: true, storagePath }
 }
 
@@ -243,4 +283,75 @@ export async function uploadMediaFile(file: File, buffer: Buffer, contentType: s
 
   const { data } = admin.storage.from(PUBLIC_MEDIA_BUCKET).getPublicUrl(storagePath)
   return { storagePath, publicUrl: data.publicUrl }
+}
+
+// Keys handed out for direct browser uploads. Completion accepts only keys of
+// exactly this shape, so it can never be pointed at a seed asset under media/
+// or images/, or at anything outside the upload prefix.
+const UPLOAD_KEY_PATTERN = new RegExp(
+  `^${R2_UPLOAD_PREFIX}/\\d{13}-[a-z0-9]{6}\\.(?:${Object.keys(IMAGE_MIME_BY_EXT).join('|')})$`
+)
+
+export function newUploadKey(ext: string): string {
+  const suffix = Math.random().toString(36).slice(2, 8).padEnd(6, '0')
+  return `${R2_UPLOAD_PREFIX}/${Date.now()}-${suffix}.${ext}`
+}
+
+export type RegisteredUpload = { ok: true; media: DbMedia } | { ok: false; error: string }
+
+/**
+ * Turns an object the browser uploaded directly to R2 into a media row.
+ *
+ * The browser controlled the bytes, so nothing about the object is trusted:
+ * the stored size is re-checked (a presigned PUT cannot enforce it) and the
+ * first bytes are sniffed exactly as validateUploadedImage does for proxied
+ * uploads. Anything that fails is deleted from the bucket rather than left
+ * orphaned. Safe to call twice for the same key.
+ */
+export async function registerUploadedImage(
+  key: string,
+  meta: { alt_en?: string | null; caption_en?: string | null; category?: string | null },
+  userId: string
+): Promise<RegisteredUpload> {
+  if (!UPLOAD_KEY_PATTERN.test(key)) return { ok: false, error: 'Invalid upload key.' }
+  if (!getR2Config()) return { ok: false, error: 'Image storage is not configured.' }
+
+  const admin = getAdminSupabase()
+  const { data: existing } = await admin.from('media').select().eq('storage_path', key).maybeSingle()
+  if (existing) return { ok: true, media: existing as DbMedia }
+
+  const head = await headObject(key)
+  if (!head) return { ok: false, error: 'The upload did not reach storage. Please try again.' }
+  if (head.size <= 0 || head.size > MAX_IMAGE_BYTES) {
+    await deleteObject(key)
+    return { ok: false, error: `Must be between 1 byte and ${MAX_IMAGE_BYTES / 1024 / 1024} MB.` }
+  }
+
+  const declared = IMAGE_TYPES[key.slice(key.lastIndexOf('.') + 1)]
+  const prefix = await readObjectPrefix(key, 64)
+  const sniffed = prefix ? sniffImageType(prefix) : null
+  if (!sniffed || sniffed !== declared) {
+    await deleteObject(key)
+    return { ok: false, error: sniffed ? 'The file content does not match its extension.' : 'The file is not a valid image.' }
+  }
+
+  try {
+    const media = await createMedia({
+      storage_path: key,
+      public_url: publicUrlFor(key),
+      type: 'photo',
+      provider: 'uploaded',
+      alt_en: meta.alt_en ?? null,
+      caption_en: meta.caption_en ?? null,
+      category: meta.category ?? null,
+      filesize: head.size,
+      created_by: userId
+    })
+    if (!media) throw new Error('No media row returned')
+    return { ok: true, media }
+  } catch (err) {
+    logError('media.register-upload', err)
+    await deleteObject(key)
+    return { ok: false, error: 'Unable to save the media record.' }
+  }
 }

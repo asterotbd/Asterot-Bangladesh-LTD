@@ -11,11 +11,8 @@ export const dynamic = 'force-dynamic'
 
 const ALLOWED_FIELDS = [
   'title_en',
-  '',
   'short_description_en',
-  '',
   'description_en',
-  '',
   'features',
   'media_id',
   'published',

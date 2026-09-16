@@ -24,12 +24,25 @@ if (r2PublicUrl) {
   )
 }
 
+// Admin uploads PUT files from the browser directly to the R2 S3 endpoint
+// (presigned URLs), so connect-src must allow that host. It is derived from
+// the endpoint the server signs against, so the two cannot disagree.
+let r2UploadHost = ''
+if (process.env.R2_S3_ENDPOINT) {
+  try {
+    r2UploadHost = new URL(process.env.R2_S3_ENDPOINT).host
+  } catch {
+    throw new Error(`R2_S3_ENDPOINT is not a valid URL: ${process.env.R2_S3_ENDPOINT}`)
+  }
+}
+
 // Browser-side Supabase calls (GoTrue auth tokens) target the project host,
 // which always lives under *.supabase.co. Dev also needs ws for HMR.
 const cspConnectSrc = [
   "'self'",
   'https://*.supabase.co',
   'wss://*.supabase.co',
+  ...(r2UploadHost ? [`https://${r2UploadHost}`] : []),
   ...(isProd ? [] : ['ws://localhost:*', 'http://localhost:*'])
 ].join(' ')
 

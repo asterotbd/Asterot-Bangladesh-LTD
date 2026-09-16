@@ -8,7 +8,7 @@ import { getVideo, updateVideo, deleteVideo } from '../../../../../lib/videos-se
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['caption_en', '', 'category', 'published']
+const ALLOWED_FIELDS = ['caption_en', 'category', 'published']
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   const check = await requireApiPermission('media.view')
@@ -43,22 +43,29 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const existing = await getVideo(params.id)
     if (!existing) return jsonError('Video not found.', 404)
 
+    // Partial update: the Publish/Hide toggle sends only `published`, and
+    // writing every absent field as null used to erase the caption and
+    // category each time a video was shown or hidden.
+    const provided = body as Record<string, unknown>
     const fields: Record<string, unknown> = {}
     for (const field of ALLOWED_FIELDS) {
-      const value = (body as Record<string, unknown>)[field]
+      if (!(field in provided)) continue
+      const value = provided[field]
       if (field === 'published') {
         fields.published = Boolean(value)
       } else if (value === null || value === undefined || value === '') {
         fields[field] = null
       } else if (typeof value === 'string') {
         const trimmed = value.trim()
-        const max = field === 'caption_en' || field === '' ? 300 : 120
+        const max = field === 'caption_en' ? 300 : 120
         if (trimmed.length > max) return jsonError(`${field} is too long.`, 400)
         fields[field] = trimmed
       } else {
         return jsonError(`Invalid ${field}.`, 400)
       }
     }
+
+    if (Object.keys(fields).length === 0) return jsonError('Nothing to update.', 400)
 
     const ok = await updateVideo(params.id, fields)
     if (!ok) return jsonError('Video not found.', 404)

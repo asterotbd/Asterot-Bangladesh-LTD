@@ -160,7 +160,7 @@ export function validateEventPayload(body: unknown, opts: { requireTitle: boolea
     fields.title_en = title
   }
 
-  for (const key of ['', 'description_en', '', 'location']) {
+  for (const key of ['description_en', 'location']) {
     const err = validateOptionalText(body, fields, key, EVENT_TEXT_LIMITS[key])
     if (err) return { error: err }
   }
@@ -252,7 +252,7 @@ export function validateNewsPayload(body: unknown, opts: { requireTitle: boolean
     fields.title_en = title
   }
 
-  for (const key of ['', 'subtitle_en', '', 'excerpt_en', '', 'content_en', '']) {
+  for (const key of ['subtitle_en', 'excerpt_en', 'content_en']) {
     const err = validateOptionalText(body, fields, key, NEWS_TEXT_LIMITS[key])
     if (err) return { error: err }
   }

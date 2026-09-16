@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import type { DbAlbumPhoto } from '../../lib/albums-server'
 import type { DbMedia } from '../../lib/media-server'
 import ConfirmDialog from './ConfirmDialog'
+import DeviceImageUploader, { type UploadSummary } from './DeviceImageUploader'
 
 type PickerMedia = DbMedia & { selected?: boolean }
 
@@ -14,6 +15,9 @@ const PICKER_PER_PAGE = 24
 export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, canEdit }: { albumId: string; coverMediaId: string | null; photos: DbAlbumPhoto[]; photoUrls: Record<string, string | null>; canEdit: boolean }) {
   const router = useRouter()
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [pickerTab, setPickerTab] = useState<'device' | 'library'>('device')
+  const [libraryLoaded, setLibraryLoaded] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [pickerMedia, setPickerMedia] = useState<PickerMedia[]>([])
   const [pickerLoading, setPickerLoading] = useState(false)
   const [pickerPage, setPickerPage] = useState(1)
@@ -37,10 +41,25 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
     }
   }
 
-  async function openPicker() {
-    setPickerOpen(true)
-    setPickerLoading(true)
+  function openPicker() {
+    setPickerTab('device')
+    setLibraryLoaded(false)
     setFeedback(null)
+    setPickerOpen(true)
+  }
+
+  function closePicker() {
+    if (busy || uploading) return
+    setPickerOpen(false)
+  }
+
+  // The library is fetched only when its tab is opened, so uploading from the
+  // device does not pay for a media query it never uses.
+  async function showLibrary() {
+    setPickerTab('library')
+    if (libraryLoaded) return
+    setLibraryLoaded(true)
+    setPickerLoading(true)
     const result = await fetchPickerPage(1)
     if (result) {
       const inAlbum = new Set(photos.map((p) => p.media_id))
@@ -49,6 +68,25 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
       setPickerTotalPages(result.totalPages)
     }
     setPickerLoading(false)
+  }
+
+  async function handleDeviceUpload({ mediaIds, failed }: UploadSummary) {
+    if (mediaIds.length === 0) return
+    // An album without a cover shows an empty card in the admin list, so the
+    // first photo uploaded into it becomes the cover. An existing cover is
+    // never replaced.
+    if (!coverMediaId) {
+      await fetch(`/api/admin/albums/${albumId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cover_media_id: mediaIds[0] })
+      }).catch(() => null)
+    }
+    router.refresh()
+    if (failed === 0) {
+      setPickerOpen(false)
+      setFeedback({ kind: 'success', message: `${mediaIds.length} photo${mediaIds.length === 1 ? '' : 's'} added to the album.` })
+    }
   }
 
   async function loadMore() {
@@ -196,22 +234,51 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
       </div>
 
       {photos.length === 0 ? (
-        <p className="py-10 text-center text-sm text-gray-500">No photos in this album yet. Use “Add Photos” to pick from the media library.</p>
+        <p className="py-10 text-center text-sm text-gray-500">No photos in this album yet. Use “Add Photos” to upload from your device or pick from the media library.</p>
       ) : (
         <PhotoGrid photos={photos} urls={photoUrls} coverMediaId={coverMediaId} canEdit={canEdit} onMove={move} onSetCover={setCover} onRemove={setRemoving} />
       )}
 
       {pickerOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/70" onClick={() => !busy && setPickerOpen(false)} />
+          <div className="absolute inset-0 bg-black/70" onClick={closePicker} />
           <div role="dialog" aria-modal="true" aria-label="Add photos" className="relative flex max-h-[85vh] w-full max-w-3xl flex-col rounded-2xl border border-white/10 bg-panel p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white">Add Photos</h3>
-            <p className="mt-1 text-sm text-gray-400">Select photos from the media library to add to this album.</p>
-            <div className="mt-4 flex-1 overflow-y-auto">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-semibold text-white">Add Photos</h3>
+                <p className="mt-1 text-sm text-gray-400">
+                  {pickerTab === 'device' ? 'Upload new photos from your device into this album.' : 'Select photos already in the media library.'}
+                </p>
+              </div>
+              <button type="button" onClick={closePicker} disabled={busy || uploading} aria-label="Close" className="rounded-lg px-2 py-1 text-xl leading-none text-gray-400 transition-colors hover:text-white disabled:opacity-40">×</button>
+            </div>
+
+            <div role="tablist" className="mt-4 inline-flex w-fit rounded-xl border border-white/10 bg-black/40 p-1">
+              {([['device', 'Upload from device'], ['library', 'Media library']] as const).map(([tab, label]) => (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={pickerTab === tab}
+                  disabled={uploading}
+                  onClick={() => (tab === 'library' ? void showLibrary() : setPickerTab('device'))}
+                  className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${pickerTab === tab ? 'bg-primary text-white' : 'text-gray-300 hover:text-white'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Kept mounted across tab switches so a selection is not lost. */}
+            <div className={`mt-4 flex-1 overflow-y-auto ${pickerTab === 'device' ? '' : 'hidden'}`}>
+              <DeviceImageUploader albumId={albumId} onBusyChange={setUploading} onUploaded={handleDeviceUpload} />
+            </div>
+
+            <div className={`mt-4 flex-1 overflow-y-auto ${pickerTab === 'library' ? '' : 'hidden'}`}>
               {pickerLoading ? (
                 <p className="py-10 text-center text-sm text-gray-500">Loading media…</p>
               ) : pickerMedia.length === 0 ? (
-                <p className="py-10 text-center text-sm text-gray-500">No photos in the media library yet. Upload some from the Media page first.</p>
+                <p className="py-10 text-center text-sm text-gray-500">No photos in the media library yet. Use “Upload from device” to add some.</p>
               ) : (
                 <>
                   <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
@@ -237,8 +304,8 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
                 </>
               )}
             </div>
-            <div className="mt-4 flex justify-end gap-3">
-              <button type="button" onClick={() => setPickerOpen(false)} disabled={busy} className="btn btn-ghost">Cancel</button>
+            <div className={`mt-4 justify-end gap-3 ${pickerTab === 'library' ? 'flex' : 'hidden'}`}>
+              <button type="button" onClick={closePicker} disabled={busy} className="btn btn-ghost">Cancel</button>
               <button type="button" onClick={addPhotos} disabled={busy || pickerLoading} className="btn btn-primary">
                 {busy ? 'Adding…' : `Add Selected (${pickerMedia.filter((m) => m.selected && !photos.some((p) => p.media_id === m.id)).length})`}
               </button>

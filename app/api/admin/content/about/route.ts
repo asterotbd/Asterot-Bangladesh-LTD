@@ -18,25 +18,16 @@ export const dynamic = 'force-dynamic'
 
 const COMPANY_FIELDS = [
   'name_en',
-  '',
   'founded_date',
   'location',
   'tagline_en',
-  '',
   'slogan_en',
-  '',
   'short_description_en',
-  '',
   'long_description_en',
-  '',
   'about_en',
-  '',
   'story_en',
-  '',
   'what_we_do_en',
-  '',
   'approach_en',
-  '',
   'seo_title',
   'seo_description',
   'featured_media_id',
@@ -48,9 +39,7 @@ const LEADER_FIELDS = [
   'position',
   'photo_media_id',
   'short_bio_en',
-  '',
   'full_bio_en',
-  '',
   'display_order'
 ]
 

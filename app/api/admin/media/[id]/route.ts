@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../../lib/auth'
-import { getMedia, updateMedia, deleteMedia, deleteStorageFile, MEDIA_TYPES } from '../../../../../lib/media-server'
+import { getMedia, updateMedia, deleteMedia, deleteStorageFile, MediaInUseError, MEDIA_TYPES } from '../../../../../lib/media-server'
 import { writeAuditLog } from '../../../../../lib/audit'
 import { isValidUuid, jsonError, logError, parseJsonBody } from '../../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../../lib/csrf'
@@ -8,7 +8,7 @@ import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../.
 
 export const dynamic = 'force-dynamic'
 
-const EDITABLE = ['alt_en', '', 'caption_en', '', 'category', 'type'] as const
+const EDITABLE = ['alt_en', 'caption_en', 'category', 'type'] as const
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
@@ -104,6 +104,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     await writeAuditLog(check.user.id, 'media.delete', 'media', params.id)
     return NextResponse.json({ ok: true })
   } catch (err) {
+    if (err instanceof MediaInUseError) return jsonError(err.message, 409)
     logError('admin.media.delete', err)
     return jsonError('Unable to delete the media item.', 500)
   }

@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { noStoreFetch } from './supabaseFetch'
 
 let adminClient: SupabaseClient<any> | null = null
 
@@ -10,7 +11,8 @@ export function getAdminSupabase(): SupabaseClient<any> {
     throw new Error('Missing Supabase admin credentials in server environment')
   }
   adminClient = createClient(url, serviceRole, {
-    auth: { persistSession: false }
+    auth: { persistSession: false },
+    global: { fetch: noStoreFetch }
   })
   return adminClient
 }
@@ -31,7 +33,8 @@ export function getAuthAdminSupabase(): SupabaseClient<any, 'auth', 'auth'> {
   }
   authAdminClient = createClient(url, serviceRole, {
     auth: { persistSession: false },
-    db: { schema: 'auth' }
+    db: { schema: 'auth' },
+    global: { fetch: noStoreFetch }
   })
   return authAdminClient
 }
