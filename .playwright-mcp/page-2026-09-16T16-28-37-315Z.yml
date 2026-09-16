@@ -1,0 +1,264 @@
+- generic [active] [ref=f29e1]:
+  - banner:
+    - navigation "Main navigation" [ref=f29e2]:
+      - link "Asterot home" [ref=f29e4] [cursor=pointer]:
+        - /url: /
+        - img "Asterot Bangladesh Limited" [ref=f29e5]
+        - generic [ref=f29e6]: Asterot
+      - generic [ref=f29e7]:
+        - link "Home" [ref=f29e9] [cursor=pointer]:
+          - /url: /
+        - link "Events" [ref=f29e12] [cursor=pointer]:
+          - /url: /events
+          - text: Events
+          - generic [aria-hidden] [ref=f29e13]: ▾
+        - link "News" [ref=f29e15] [cursor=pointer]:
+          - /url: /news
+        - link "Media" [ref=f29e18] [cursor=pointer]:
+          - /url: /media
+          - text: Media
+          - generic [aria-hidden] [ref=f29e19]: ▾
+        - link "About Us" [ref=f29e22] [cursor=pointer]:
+          - /url: /about
+          - text: About Us
+          - generic [aria-hidden] [ref=f29e23]: ▾
+        - link "Contact" [ref=f29e25] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f29e26]:
+        - link "Log in" [ref=f29e27] [cursor=pointer]:
+          - /url: /login
+        - link "Register" [ref=f29e28] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=f29e30]:
+      - link [ref=f29e31] [cursor=pointer]:
+        - /url: /
+        - text: Home
+      - generic [ref=f29e32]:
+        - button [ref=f29e33] [cursor=pointer]:
+          - text: Events
+          - generic [aria-hidden] [ref=f29e34]: ▾
+        - generic [ref=f29e35]:
+          - link [ref=f29e36] [cursor=pointer]:
+            - /url: /events/awakening-cup
+            - text: The Awakening Cup
+          - link [ref=f29e37] [cursor=pointer]:
+            - /url: /events
+            - text: All Events
+          - link [ref=f29e38] [cursor=pointer]:
+            - /url: /events/upcoming
+            - text: Upcoming Events
+          - link [ref=f29e39] [cursor=pointer]:
+            - /url: /events/past
+            - text: Past Events
+          - link [ref=f29e40] [cursor=pointer]:
+            - /url: /events/documentation
+            - text: Event Documentation
+      - link [ref=f29e41] [cursor=pointer]:
+        - /url: /news
+        - text: News
+      - generic [ref=f29e42]:
+        - button [ref=f29e43] [cursor=pointer]:
+          - text: Media
+          - generic [aria-hidden] [ref=f29e44]: ▾
+        - generic [ref=f29e45]:
+          - link [ref=f29e46] [cursor=pointer]:
+            - /url: /media
+            - text: Media Overview
+          - link [ref=f29e47] [cursor=pointer]:
+            - /url: /media/photos
+            - text: Photos
+          - link [ref=f29e48] [cursor=pointer]:
+            - /url: /media/videos
+            - text: Videos
+      - generic [ref=f29e49]:
+        - button [ref=f29e50] [cursor=pointer]:
+          - text: About Us
+          - generic [aria-hidden] [ref=f29e51]: ▾
+        - generic [ref=f29e52]:
+          - link [ref=f29e53] [cursor=pointer]:
+            - /url: /about
+            - text: Overview
+          - link [ref=f29e54] [cursor=pointer]:
+            - /url: /about/our-story
+            - text: Our Story
+          - link [ref=f29e55] [cursor=pointer]:
+            - /url: /about/mission-vision
+            - text: Mission & Vision
+          - link [ref=f29e56] [cursor=pointer]:
+            - /url: /about/values
+            - text: Our Values
+          - link [ref=f29e57] [cursor=pointer]:
+            - /url: /about/leadership
+            - text: Leadership
+          - link [ref=f29e58] [cursor=pointer]:
+            - /url: /about/future-vision
+            - text: Future Vision
+      - link [ref=f29e59] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact
+      - generic [ref=f29e60]:
+        - link [ref=f29e61] [cursor=pointer]:
+          - /url: /login
+          - text: Log in
+        - link [ref=f29e62] [cursor=pointer]:
+          - /url: /signup
+          - text: Register Now
+  - main [ref=f29e64]:
+    - generic [ref=f29e65]:
+      - generic [ref=f29e70]:
+        - generic [ref=f29e71]: Asterot Bangladesh Limited
+        - heading "Igniting Changewith every step." [level=1] [ref=f29e73]
+        - paragraph [ref=f29e75]: We don’t just create events. We create moments that inspire, connect, and leave a lasting impact.
+        - generic [ref=f29e76]:
+          - link "Explore What We Do" [ref=f29e77] [cursor=pointer]:
+            - /url: https://www.asterot.com/
+          - link "Learn More" [ref=f29e80] [cursor=pointer]:
+            - /url: /about
+      - generic [aria-hidden]:
+        - generic: SCROLL
+    - region "Companies We've Worked With" [ref=f29e84]:
+      - paragraph [ref=f29e85]: Companies We've Worked With
+    - generic [ref=f29e106]:
+      - generic [ref=f29e107]:
+        - paragraph [ref=f29e108]: Awakening Cup
+        - heading "A national moment, on its way" [level=2] [ref=f29e109]
+      - generic [ref=f29e110]:
+        - generic [ref=f29e112]:
+          - generic [ref=f29e113]:
+            - generic [ref=f29e114]: Upcoming 2026
+            - heading "The Awakening Cup — Chapter One" [level=3] [ref=f29e116]
+            - paragraph [ref=f29e117]: A nationwide university football movement built to celebrate leadership, unity, and the next generation of talent.
+            - paragraph [ref=f29e118]: The Awakening Cup is an upcoming national university football experience designed to bring together students from across Bangladesh through competition, teamwork, and ambition. More than a tournament, it is the beginning of a larger movement focused on youth empowerment, sportsmanship, and unforgettable moments on and off the field.
+            - generic [ref=f29e119]:
+              - generic [ref=f29e120]: Nationwide
+              - generic [ref=f29e122]: University Football
+              - generic [ref=f29e124]: Men & Women
+              - generic [ref=f29e126]: Live Experience
+              - generic [ref=f29e128]: Youth Movement
+            - generic [ref=f29e130]:
+              - link "Explore Event" [ref=f29e131] [cursor=pointer]:
+                - /url: /events/awakening-cup
+                - text: Explore Event
+                - generic [aria-hidden] [ref=f29e132]: →
+              - button "Watch Teaser" [ref=f29e133] [cursor=pointer]
+          - generic [ref=f29e137]:
+            - paragraph [ref=f29e142]: Reveal locked
+            - heading "Official countdown and reveal coming soon" [level=4] [ref=f29e143]
+            - paragraph [ref=f29e144]: Every detail drops when the moment is right — no leaks, no spoilers.
+            - generic [ref=f29e145]: Stay tuned
+        - paragraph [ref=f29e148]: Something bigger than a tournament is coming.
+    - generic [ref=f29e151]:
+      - generic [ref=f29e152]:
+        - paragraph [ref=f29e153]: Nationwide reach
+        - heading "We Serve Bangladesh" [level=2] [ref=f29e154]:
+          - text: We Serve
+          - generic [ref=f29e155]: Bangladesh
+        - paragraph [ref=f29e156]: From Dhaka to every corner of Bangladesh, we create experiences that bring people together.
+        - paragraph [ref=f29e157]: "Asterot serves all eight administrative divisions of Bangladesh: Dhaka, Chattogram, Rajshahi, Khulna, Barishal, Sylhet, Rangpur, and Mymensingh."
+      - generic [ref=f29e159]:
+        - img "Map of Bangladesh with eight divisions" [ref=f29e161]:
+          - generic "DHAKA division" [ref=f29e162] [cursor=pointer]
+          - generic "CHATTOGRAM division" [ref=f29e163] [cursor=pointer]
+          - generic "RAJSHAHI division" [ref=f29e164] [cursor=pointer]
+          - generic "KHULNA division" [ref=f29e165] [cursor=pointer]
+          - generic "BARISHAL division" [ref=f29e166] [cursor=pointer]
+          - generic "SYLHET division" [ref=f29e167] [cursor=pointer]
+          - generic "RANGPUR division" [ref=f29e168] [cursor=pointer]
+          - generic "MYMENSINGH division" [ref=f29e169] [cursor=pointer]
+        - generic [ref=f29e172]:
+          - paragraph [ref=f29e173]: Asterot in
+          - paragraph [ref=f29e175]: DHAKA
+        - paragraph [ref=f29e177]: 01/08
+    - generic [ref=f29e178]:
+      - generic [ref=f29e179]:
+        - generic [ref=f29e180]:
+          - paragraph [ref=f29e181]: Core services
+          - heading "Capabilities" [level=2] [ref=f29e182]
+          - paragraph [ref=f29e183]: Asterot provides a full range of event management capabilities for sports, corporate, entertainment and brand-focused programs.
+          - generic [ref=f29e184]:
+            - generic [ref=f29e185]:
+              - heading "Sports Events" [level=3] [ref=f29e189]
+              - paragraph [ref=f29e190]: Organization of sports events and tournaments
+            - generic [ref=f29e191]:
+              - heading "Concerts & Live Performances" [level=3] [ref=f29e195]
+              - paragraph [ref=f29e196]: Production and management of concerts and live entertainment programs
+            - generic [ref=f29e197]:
+              - heading "Corporate Events" [level=3] [ref=f29e201]
+              - paragraph [ref=f29e202]: Corporate event planning and delivery
+            - generic [ref=f29e203]:
+              - heading "Branding & Marketing" [level=3] [ref=f29e207]
+              - paragraph [ref=f29e208]: Branding, marketing and activation services
+        - generic [ref=f29e209]:
+          - generic [ref=f29e210]:
+            - paragraph [ref=f29e211]: Featured events
+            - heading "Event categories" [level=2] [ref=f29e212]
+            - paragraph [ref=f29e213]: Asterot’s event portfolio centers on sports tournaments, corporate gatherings, entertainment programs and branding activations.
+          - list [ref=f29e214]:
+            - listitem [ref=f29e215]:
+              - generic [aria-hidden] [ref=f29e217]: "01"
+              - heading "Sports tournaments and athletic events" [level=3] [ref=f29e218]
+            - listitem [ref=f29e219]:
+              - generic [aria-hidden] [ref=f29e221]: "02"
+              - heading "Corporate and conference programs" [level=3] [ref=f29e222]
+            - listitem [ref=f29e223]:
+              - generic [aria-hidden] [ref=f29e225]: "03"
+              - heading "Entertainment shows and live experiences" [level=3] [ref=f29e226]
+            - listitem [ref=f29e227]:
+              - generic [aria-hidden] [ref=f29e229]: "04"
+              - heading "Branding, marketing and sponsorship activations" [level=3] [ref=f29e230]
+          - generic [ref=f29e232]:
+            - paragraph [ref=f29e234]: End-to-End Event Delivery
+            - paragraph [ref=f29e235]: From strategy and planning to execution, Asterot delivers complete event experiences built for impact.
+            - link "Explore our events" [ref=f29e236] [cursor=pointer]:
+              - /url: /events
+              - text: Explore our events
+              - generic [aria-hidden] [ref=f29e237]: →
+      - region [ref=f29e238]:
+        - generic [ref=f29e239]:
+          - paragraph [ref=f29e240]: Frequently asked questions
+          - heading "Questions clients often ask" [level=2] [ref=f29e241]
+          - paragraph [ref=f29e242]: Everything you need to know about working with Asterot before you get in touch.
+          - link "View All FAQs" [ref=f29e244] [cursor=pointer]:
+            - /url: /faq
+      - generic [ref=f29e245]:
+        - paragraph [ref=f29e246]: Partner with Asterot
+        - heading "Let's deliver your next great event" [level=2] [ref=f29e247]
+        - paragraph [ref=f29e248]: From tournaments and conferences to concerts and brand activations, we handle the planning and production end to end.
+        - generic [ref=f29e249]:
+          - link "View Events" [ref=f29e250] [cursor=pointer]:
+            - /url: /events
+          - link "Contact Us" [ref=f29e251] [cursor=pointer]:
+            - /url: /contact
+  - contentinfo [ref=f29e252]:
+    - generic [ref=f29e254]:
+      - paragraph [ref=f29e255]: Asterot
+      - paragraph [ref=f29e256]: Bangladesh Limited
+      - generic [ref=f29e257]:
+        - generic [ref=f29e258]:
+          - generic [ref=f29e259]: Email
+          - link "asterotbd@gmail.com" [ref=f29e260] [cursor=pointer]:
+            - /url: mailto:asterotbd@gmail.com
+        - generic [ref=f29e262]:
+          - generic [ref=f29e263]: Phone
+          - link "+880 1325 274642" [ref=f29e264] [cursor=pointer]:
+            - /url: tel:+8801325274642
+        - generic [ref=f29e266]:
+          - generic [ref=f29e267]: Location
+          - paragraph [ref=f29e268]: 5B/5 Razia Sultana Road, Mohammadpur, Dhaka
+      - link "Contact Us" [ref=f29e269] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact Us
+        - generic [aria-hidden] [ref=f29e270]: →
+    - generic [ref=f29e272]:
+      - paragraph [ref=f29e273]: © 2026 Asterot Bangladesh Limited. All rights reserved.
+      - generic [ref=f29e274]:
+        - link "Privacy Policy" [ref=f29e275] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms of Service" [ref=f29e276] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=f29e278]:
+          - link "Facebook" [ref=f29e279] [cursor=pointer]:
+            - /url: https://www.facebook.com/603661469488647/
+          - link "YouTube" [ref=f29e282] [cursor=pointer]:
+            - /url: https://www.youtube.com/@AsterotBangladesh
+  - alert [ref=f29e285]

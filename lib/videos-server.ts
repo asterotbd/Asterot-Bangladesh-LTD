@@ -41,13 +41,30 @@ export async function listVideos({
     .from('media')
     .select(VIDEO_FIELDS, { count: 'exact' })
     .eq('type', 'video')
-    .eq('provider', 'youtube')
 
   const term = search.trim()
   if (term) {
     const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)
     query = query.or(`caption_en.ilike.%${escaped}%,category.ilike.%${escaped}%`)
   }
+  if (status === 'published') query = query.eq('published', true)
+  if (status === 'draft' || status === 'archived') query = query.eq('published', false)
+
+  const { data, count, error } = await query
+    .order('created_at', { ascending: false })
+    .range((safePage - 1) * safePerPage, safePage * safePerPage - 1)
+  if (error) throw error
+
+  const total = count ?? 0
+  return {
+    items: (data ?? []) as DbVideo[],
+    total,
+    page: safePage,
+    perPage: safePerPage,
+    totalPages: Math.max(1, Math.ceil(total / safePerPage))
+  }
+}
+
   if (status === 'published') query = query.eq('published', true)
   if (status === 'draft' || status === 'archived') query = query.eq('published', false)
 
@@ -88,6 +105,15 @@ export async function updateVideo(id: string, fields: Partial<DbVideo>): Promise
 
 export async function deleteVideo(id: string): Promise<boolean> {
   const admin = getAdminSupabase()
+  
+  const item = await admin.from('media').select('storage_path, storage_provider').eq('id', id).maybeSingle()
+  if (!item) return false
+
+  if (item.storage_provider === 'cloudflare_r2' && item.storage_path) {
+    const { deleteObject } = await import('./r2')
+    await deleteObject(item.storage_path)
+  }
+
   const { error } = await (admin.from('media') as any).delete().eq('id', id)
   if (error) {
     logError('videos.delete', error)

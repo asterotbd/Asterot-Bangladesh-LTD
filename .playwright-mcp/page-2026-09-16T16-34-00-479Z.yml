@@ -1,0 +1,223 @@
+- generic [active] [ref=f39e1]:
+  - banner:
+    - navigation "Main navigation" [ref=f39e2]:
+      - link "Asterot home" [ref=f39e4] [cursor=pointer]:
+        - /url: /
+        - img "Asterot Bangladesh Limited" [ref=f39e5]
+        - generic [ref=f39e6]: Asterot
+      - generic [ref=f39e7]:
+        - link "Home" [ref=f39e9] [cursor=pointer]:
+          - /url: /
+        - link "Events" [ref=f39e12] [cursor=pointer]:
+          - /url: /events
+          - text: Events
+          - generic [aria-hidden] [ref=f39e13]: ▾
+        - link "News" [ref=f39e15] [cursor=pointer]:
+          - /url: /news
+        - link "Media" [ref=f39e18] [cursor=pointer]:
+          - /url: /media
+          - text: Media
+          - generic [aria-hidden] [ref=f39e19]: ▾
+        - link "About Us" [ref=f39e22] [cursor=pointer]:
+          - /url: /about
+          - text: About Us
+          - generic [aria-hidden] [ref=f39e23]: ▾
+        - link "Contact" [ref=f39e25] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f39e26]:
+        - link "Log in" [ref=f39e27] [cursor=pointer]:
+          - /url: /login
+        - link "Register" [ref=f39e28] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=f39e30]:
+      - link [ref=f39e31] [cursor=pointer]:
+        - /url: /
+        - text: Home
+      - generic [ref=f39e32]:
+        - button [ref=f39e33] [cursor=pointer]:
+          - text: Events
+          - generic [aria-hidden] [ref=f39e34]: ▾
+        - generic [ref=f39e35]:
+          - link [ref=f39e36] [cursor=pointer]:
+            - /url: /events/awakening-cup
+            - text: The Awakening Cup
+          - link [ref=f39e37] [cursor=pointer]:
+            - /url: /events
+            - text: All Events
+          - link [ref=f39e38] [cursor=pointer]:
+            - /url: /events/upcoming
+            - text: Upcoming Events
+          - link [ref=f39e39] [cursor=pointer]:
+            - /url: /events/past
+            - text: Past Events
+          - link [ref=f39e40] [cursor=pointer]:
+            - /url: /events/documentation
+            - text: Event Documentation
+      - link [ref=f39e41] [cursor=pointer]:
+        - /url: /news
+        - text: News
+      - generic [ref=f39e42]:
+        - button [expanded] [ref=f39e43] [cursor=pointer]:
+          - text: Media
+          - generic [aria-hidden] [ref=f39e44]: ▾
+        - generic [ref=f39e46]:
+          - link [ref=f39e47] [cursor=pointer]:
+            - /url: /media
+            - text: Media Overview
+          - link [ref=f39e48] [cursor=pointer]:
+            - /url: /media/photos
+            - text: Photos
+          - link [ref=f39e49] [cursor=pointer]:
+            - /url: /media/videos
+            - text: Videos
+      - generic [ref=f39e50]:
+        - button [ref=f39e51] [cursor=pointer]:
+          - text: About Us
+          - generic [aria-hidden] [ref=f39e52]: ▾
+        - generic [ref=f39e53]:
+          - link [ref=f39e54] [cursor=pointer]:
+            - /url: /about
+            - text: Overview
+          - link [ref=f39e55] [cursor=pointer]:
+            - /url: /about/our-story
+            - text: Our Story
+          - link [ref=f39e56] [cursor=pointer]:
+            - /url: /about/mission-vision
+            - text: Mission & Vision
+          - link [ref=f39e57] [cursor=pointer]:
+            - /url: /about/values
+            - text: Our Values
+          - link [ref=f39e58] [cursor=pointer]:
+            - /url: /about/leadership
+            - text: Leadership
+          - link [ref=f39e59] [cursor=pointer]:
+            - /url: /about/future-vision
+            - text: Future Vision
+      - link [ref=f39e60] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact
+      - generic [ref=f39e61]:
+        - link [ref=f39e62] [cursor=pointer]:
+          - /url: /login
+          - text: Log in
+        - link [ref=f39e63] [cursor=pointer]:
+          - /url: /signup
+          - text: Register Now
+  - main [ref=f39e65]:
+    - generic [ref=f39e68]:
+      - generic [ref=f39e69]: Media · Photos
+      - heading "Photo Gallery" [level=1] [ref=f39e70]
+      - paragraph [ref=f39e71]: A look behind the scenes, our projects, people, and moments — organized into albums from tournaments, corporate events, celebrations, and more.
+    - generic [ref=f39e73]:
+      - generic [ref=f39e74]:
+        - generic [ref=f39e75]:
+          - generic [ref=f39e76]: Spotlight
+          - heading "A Story of Growth" [level=2] [ref=f39e77]
+        - paragraph [ref=f39e78]: Six chapters. One journey. From falling to fighting, rising to building — growing together until we can.
+      - group "Photo spotlight slideshow" [ref=f39e79]:
+        - generic [ref=f39e80]:
+          - img "Together We Fall" [ref=f39e81]
+          - generic [ref=f39e87]:
+            - heading "Together We Fall" [level=2] [ref=f39e88]
+            - paragraph [ref=f39e89]: 01/06
+    - generic [ref=f39e92]:
+      - generic [ref=f39e93]:
+        - generic [ref=f39e94]:
+          - generic [ref=f39e95]:
+            - generic [ref=f39e96]: Photo Albums
+            - heading "Browse Our Albums" [level=2] [ref=f39e97]
+          - paragraph [ref=f39e98]: Organized collections from tournaments, events, celebrations, and everything in between.
+        - generic [ref=f39e99]:
+          - link "Open Tournament album" [ref=f39e100] [cursor=pointer]:
+            - /url: /media/photos/tournament
+            - img "Tournament 1" [ref=f39e103]
+            - generic [ref=f39e123]:
+              - paragraph [ref=f39e124]: 20 PHOTOS
+              - heading "Tournament" [level=3] [ref=f39e126]
+          - link "Open Corporate Events album" [ref=f39e130] [cursor=pointer]:
+            - /url: /media/photos/corporate-events
+            - img "Corporate Events 1" [ref=f39e133]
+            - generic [ref=f39e144]:
+              - paragraph [ref=f39e145]: 11 PHOTOS
+              - heading "Corporate Events" [level=3] [ref=f39e147]
+          - link "Open Other Events album" [ref=f39e151] [cursor=pointer]:
+            - /url: /media/photos/other-events
+            - img "Other Events 1" [ref=f39e154]
+            - generic [ref=f39e163]:
+              - paragraph [ref=f39e164]: 9 PHOTOS
+              - heading "Other Events" [level=3] [ref=f39e166]
+          - link "Open Backstage Stories album" [ref=f39e170] [cursor=pointer]:
+            - /url: /media/photos/backstage-stories
+            - img "Backstage Stories 1" [ref=f39e173]
+            - generic [ref=f39e184]:
+              - paragraph [ref=f39e185]: 11 PHOTOS
+              - heading "Backstage Stories" [level=3] [ref=f39e187]
+          - link "Open The Crew album" [ref=f39e191] [cursor=pointer]:
+            - /url: /media/photos/the-crew
+            - img "The Crew 1" [ref=f39e194]
+            - generic [ref=f39e204]:
+              - paragraph [ref=f39e205]: 10 PHOTOS
+              - heading "The Crew" [level=3] [ref=f39e207]
+          - link "Open Celebrations album" [ref=f39e211] [cursor=pointer]:
+            - /url: /media/photos/celebrations
+            - img "Celebrations 1" [ref=f39e214]
+            - generic [ref=f39e225]:
+              - paragraph [ref=f39e226]: 11 PHOTOS
+              - heading "Celebrations" [level=3] [ref=f39e228]
+          - link "Open Opening Ceremony album" [ref=f39e232] [cursor=pointer]:
+            - /url: /media/photos/opening-ceremony
+            - generic [ref=f39e234]: Coming Soon
+            - generic [ref=f39e236]:
+              - paragraph [ref=f39e237]: Coming Soon
+              - heading "Opening Ceremony" [level=3] [ref=f39e239]
+          - link "Open Entertainment album" [ref=f39e243] [cursor=pointer]:
+            - /url: /media/photos/entertainment
+            - generic [ref=f39e245]: Coming Soon
+            - generic [ref=f39e247]:
+              - paragraph [ref=f39e248]: Coming Soon
+              - heading "Entertainment" [level=3] [ref=f39e250]
+          - link "Open Community album" [ref=f39e254] [cursor=pointer]:
+            - /url: /media/photos/community
+            - generic [ref=f39e256]: Coming Soon
+            - generic [ref=f39e258]:
+              - paragraph [ref=f39e259]: Coming Soon
+              - heading "Community" [level=3] [ref=f39e261]
+      - generic [ref=f39e266]:
+        - generic [ref=f39e267]:
+          - heading "Looking for video?" [level=2] [ref=f39e268]
+          - paragraph [ref=f39e269]: Watch our latest projects, stories, and behind-the-scenes moments.
+        - link "Browse Videos" [ref=f39e270] [cursor=pointer]:
+          - /url: /media/videos
+  - contentinfo [ref=f39e271]:
+    - generic [ref=f39e273]:
+      - paragraph [ref=f39e274]: Asterot
+      - paragraph [ref=f39e275]: Bangladesh Limited
+      - generic [ref=f39e276]:
+        - generic [ref=f39e277]:
+          - generic [ref=f39e278]: Email
+          - link "asterotbd@gmail.com" [ref=f39e279] [cursor=pointer]:
+            - /url: mailto:asterotbd@gmail.com
+        - generic [ref=f39e281]:
+          - generic [ref=f39e282]: Phone
+          - link "+880 1325 274642" [ref=f39e283] [cursor=pointer]:
+            - /url: tel:+8801325274642
+        - generic [ref=f39e285]:
+          - generic [ref=f39e286]: Location
+          - paragraph [ref=f39e287]: 5B/5 Razia Sultana Road, Mohammadpur, Dhaka
+      - link "Contact Us" [ref=f39e288] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact Us
+        - generic [aria-hidden] [ref=f39e289]: →
+    - generic [ref=f39e291]:
+      - paragraph [ref=f39e292]: © 2026 Asterot Bangladesh Limited. All rights reserved.
+      - generic [ref=f39e293]:
+        - link "Privacy Policy" [ref=f39e294] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms of Service" [ref=f39e295] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=f39e297]:
+          - link "Facebook" [ref=f39e298] [cursor=pointer]:
+            - /url: https://www.facebook.com/603661469488647/
+          - link "YouTube" [ref=f39e301] [cursor=pointer]:
+            - /url: https://www.youtube.com/@AsterotBangladesh
+  - alert [ref=f39e304]

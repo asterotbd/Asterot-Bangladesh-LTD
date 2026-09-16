@@ -1,0 +1,209 @@
+- generic [active] [ref=f49e1]:
+  - banner:
+    - navigation "Main navigation" [ref=f49e2]:
+      - link "Asterot home" [ref=f49e4] [cursor=pointer]:
+        - /url: /
+        - img "Asterot Bangladesh Limited" [ref=f49e5]
+        - generic [ref=f49e6]: Asterot
+      - generic [ref=f49e7]:
+        - link "Home" [ref=f49e9] [cursor=pointer]:
+          - /url: /
+        - link "Events" [ref=f49e12] [cursor=pointer]:
+          - /url: /events
+          - text: Events
+          - generic [aria-hidden] [ref=f49e13]: ▾
+        - link "News" [ref=f49e15] [cursor=pointer]:
+          - /url: /news
+        - link "Media" [ref=f49e18] [cursor=pointer]:
+          - /url: /media
+          - text: Media
+          - generic [aria-hidden] [ref=f49e19]: ▾
+        - link "About Us" [ref=f49e22] [cursor=pointer]:
+          - /url: /about
+          - text: About Us
+          - generic [aria-hidden] [ref=f49e23]: ▾
+        - link "Contact" [ref=f49e25] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=f49e26]:
+        - link "Log in" [ref=f49e27] [cursor=pointer]:
+          - /url: /login
+        - link "Register" [ref=f49e28] [cursor=pointer]:
+          - /url: /signup
+    - generic [ref=f49e30]:
+      - link [ref=f49e31] [cursor=pointer]:
+        - /url: /
+        - text: Home
+      - generic [ref=f49e32]:
+        - button [ref=f49e33] [cursor=pointer]:
+          - text: Events
+          - generic [aria-hidden] [ref=f49e34]: ▾
+        - generic [ref=f49e35]:
+          - link [ref=f49e36] [cursor=pointer]:
+            - /url: /events/awakening-cup
+            - text: The Awakening Cup
+          - link [ref=f49e37] [cursor=pointer]:
+            - /url: /events
+            - text: All Events
+          - link [ref=f49e38] [cursor=pointer]:
+            - /url: /events/upcoming
+            - text: Upcoming Events
+          - link [ref=f49e39] [cursor=pointer]:
+            - /url: /events/past
+            - text: Past Events
+          - link [ref=f49e40] [cursor=pointer]:
+            - /url: /events/documentation
+            - text: Event Documentation
+      - link [ref=f49e41] [cursor=pointer]:
+        - /url: /news
+        - text: News
+      - generic [ref=f49e42]:
+        - button [expanded] [ref=f49e43] [cursor=pointer]:
+          - text: Media
+          - generic [aria-hidden] [ref=f49e44]: ▾
+        - generic [ref=f49e46]:
+          - link [ref=f49e47] [cursor=pointer]:
+            - /url: /media
+            - text: Media Overview
+          - link [ref=f49e48] [cursor=pointer]:
+            - /url: /media/photos
+            - text: Photos
+          - link [ref=f49e49] [cursor=pointer]:
+            - /url: /media/videos
+            - text: Videos
+      - generic [ref=f49e50]:
+        - button [ref=f49e51] [cursor=pointer]:
+          - text: About Us
+          - generic [aria-hidden] [ref=f49e52]: ▾
+        - generic [ref=f49e53]:
+          - link [ref=f49e54] [cursor=pointer]:
+            - /url: /about
+            - text: Overview
+          - link [ref=f49e55] [cursor=pointer]:
+            - /url: /about/our-story
+            - text: Our Story
+          - link [ref=f49e56] [cursor=pointer]:
+            - /url: /about/mission-vision
+            - text: Mission & Vision
+          - link [ref=f49e57] [cursor=pointer]:
+            - /url: /about/values
+            - text: Our Values
+          - link [ref=f49e58] [cursor=pointer]:
+            - /url: /about/leadership
+            - text: Leadership
+          - link [ref=f49e59] [cursor=pointer]:
+            - /url: /about/future-vision
+            - text: Future Vision
+      - link [ref=f49e60] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact
+      - generic [ref=f49e61]:
+        - link [ref=f49e62] [cursor=pointer]:
+          - /url: /login
+          - text: Log in
+        - link [ref=f49e63] [cursor=pointer]:
+          - /url: /signup
+          - text: Register Now
+  - main [ref=f49e65]:
+    - generic [ref=f49e67]:
+      - link "Back to Albums" [ref=f49e68] [cursor=pointer]:
+        - /url: /media/photos
+      - generic [ref=f49e71]:
+        - generic [ref=f49e72]:
+          - generic [ref=f49e73]: Album
+          - heading "Tournament" [level=1] [ref=f49e74]
+          - paragraph [ref=f49e75]: A collection of moments from our tournaments.
+        - paragraph [ref=f49e76]: 20 Photos
+      - generic [ref=f49e77]:
+        - button "View photo 1 of Tournament" [ref=f49e78] [cursor=pointer]:
+          - img "Tournament photo 1" [ref=f49e79]
+          - generic [ref=f49e81]: 01/20
+        - button "View photo 2 of Tournament" [ref=f49e86] [cursor=pointer]:
+          - img "Tournament photo 2" [ref=f49e87]
+          - generic [ref=f49e89]: 02/20
+        - button "View photo 3 of Tournament" [ref=f49e94] [cursor=pointer]:
+          - img "Tournament photo 3" [ref=f49e95]
+          - generic [ref=f49e97]: 03/20
+        - button "View photo 4 of Tournament" [ref=f49e102] [cursor=pointer]:
+          - img "Tournament photo 4" [ref=f49e103]
+          - generic [ref=f49e105]: 04/20
+        - button "View photo 5 of Tournament" [ref=f49e110] [cursor=pointer]:
+          - img "Tournament photo 5" [ref=f49e111]
+          - generic [ref=f49e113]: 05/20
+        - button "View photo 6 of Tournament" [ref=f49e118] [cursor=pointer]:
+          - img "Tournament photo 6" [ref=f49e119]
+          - generic [ref=f49e121]: 06/20
+        - button "View photo 7 of Tournament" [ref=f49e126] [cursor=pointer]:
+          - img "Tournament photo 7" [ref=f49e127]
+          - generic [ref=f49e129]: 07/20
+        - button "View photo 8 of Tournament" [ref=f49e134] [cursor=pointer]:
+          - img "Tournament photo 8" [ref=f49e135]
+          - generic [ref=f49e137]: 08/20
+        - button "View photo 9 of Tournament" [ref=f49e142] [cursor=pointer]:
+          - img "Tournament photo 9" [ref=f49e143]
+          - generic [ref=f49e145]: 09/20
+        - button "View photo 10 of Tournament" [ref=f49e150] [cursor=pointer]:
+          - img "Tournament photo 10" [ref=f49e151]
+          - generic [ref=f49e153]: 10/20
+        - button "View photo 11 of Tournament" [ref=f49e158] [cursor=pointer]:
+          - img "Tournament photo 11" [ref=f49e159]
+          - generic [ref=f49e161]: 11/20
+        - button "View photo 12 of Tournament" [ref=f49e166] [cursor=pointer]:
+          - img "Tournament photo 12" [ref=f49e167]
+          - generic [ref=f49e169]: 12/20
+        - button "View photo 13 of Tournament" [ref=f49e174] [cursor=pointer]:
+          - img "Tournament photo 13" [ref=f49e175]
+          - generic [ref=f49e177]: 13/20
+        - button "View photo 14 of Tournament" [ref=f49e182] [cursor=pointer]:
+          - img "Tournament photo 14" [ref=f49e183]
+          - generic [ref=f49e185]: 14/20
+        - button "View photo 15 of Tournament" [ref=f49e190] [cursor=pointer]:
+          - img "Tournament photo 15" [ref=f49e191]
+          - generic [ref=f49e193]: 15/20
+        - button "View photo 16 of Tournament" [ref=f49e198] [cursor=pointer]:
+          - img "Tournament photo 16" [ref=f49e199]
+          - generic [ref=f49e201]: 16/20
+        - button "View photo 17 of Tournament" [ref=f49e206] [cursor=pointer]:
+          - img "Tournament photo 17" [ref=f49e207]
+          - generic [ref=f49e209]: 17/20
+        - button "View photo 18 of Tournament" [ref=f49e214] [cursor=pointer]:
+          - img "Tournament photo 18" [ref=f49e215]
+          - generic [ref=f49e217]: 18/20
+        - button "View photo 19 of Tournament" [ref=f49e222] [cursor=pointer]:
+          - img "Tournament photo 19" [ref=f49e223]
+          - generic [ref=f49e225]: 19/20
+        - button "View photo 20 of Tournament" [ref=f49e230] [cursor=pointer]:
+          - img "Tournament photo 20" [ref=f49e231]
+          - generic [ref=f49e233]: 20/20
+  - contentinfo [ref=f49e238]:
+    - generic [ref=f49e240]:
+      - paragraph [ref=f49e241]: Asterot
+      - paragraph [ref=f49e242]: Bangladesh Limited
+      - generic [ref=f49e243]:
+        - generic [ref=f49e244]:
+          - generic [ref=f49e245]: Email
+          - link "asterotbd@gmail.com" [ref=f49e246] [cursor=pointer]:
+            - /url: mailto:asterotbd@gmail.com
+        - generic [ref=f49e248]:
+          - generic [ref=f49e249]: Phone
+          - link "+880 1325 274642" [ref=f49e250] [cursor=pointer]:
+            - /url: tel:+8801325274642
+        - generic [ref=f49e252]:
+          - generic [ref=f49e253]: Location
+          - paragraph [ref=f49e254]: 5B/5 Razia Sultana Road, Mohammadpur, Dhaka
+      - link "Contact Us" [ref=f49e255] [cursor=pointer]:
+        - /url: /contact
+        - text: Contact Us
+        - generic [aria-hidden] [ref=f49e256]: →
+    - generic [ref=f49e258]:
+      - paragraph [ref=f49e259]: © 2026 Asterot Bangladesh Limited. All rights reserved.
+      - generic [ref=f49e260]:
+        - link "Privacy Policy" [ref=f49e261] [cursor=pointer]:
+          - /url: /privacy
+        - link "Terms of Service" [ref=f49e262] [cursor=pointer]:
+          - /url: /terms
+        - generic [ref=f49e264]:
+          - link "Facebook" [ref=f49e265] [cursor=pointer]:
+            - /url: https://www.facebook.com/603661469488647/
+          - link "YouTube" [ref=f49e268] [cursor=pointer]:
+            - /url: https://www.youtube.com/@AsterotBangladesh
+  - alert [ref=f49e271]

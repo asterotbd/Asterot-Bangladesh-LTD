@@ -54,6 +54,15 @@ const IMAGE_MIME: Record<string, string> = {
   bmp: 'image/bmp'
 }
 
+// Validate an uploaded video by inspecting its MIME type and requiring a supported format.
+export function validateUploadedVideo(file: File): { ok: true; contentType: string } | { ok: false; error: string } {
+  const supportedVideoMimes = ['video/mp4', 'video/webm', 'video/ogg']
+  if (!supportedVideoMimes.includes(file.type)) {
+    return { ok: false, error: 'Unsupported video format. Use MP4, WebM, or Ogg.' }
+  }
+  return { ok: true, contentType: file.type }
+}
+
 export type ImageValidation =
   | { ok: true; type: string; ext: string; contentType: string }
   | { ok: false; error: string }
@@ -261,17 +270,5 @@ export async function uploadMediaFile(file: File, buffer: Buffer, contentType: s
     }
   }
 
-  const admin = getAdminSupabase()
-  const storagePath = `admin/${name}`
-  const { error } = await admin.storage.from(PUBLIC_MEDIA_BUCKET).upload(storagePath, buffer, {
-    contentType,
-    cacheControl: '3600'
-  })
-  if (error) {
-    logError('media.storage-upload', error)
-    throw new Error(error.message)
-  }
-
-  const { data } = admin.storage.from(PUBLIC_MEDIA_BUCKET).getPublicUrl(storagePath)
-  return { storagePath, publicUrl: data.publicUrl }
+  throw new Error('Cloudflare R2 is not configured. Supabase Storage fallback is disabled for new uploads.')
 }

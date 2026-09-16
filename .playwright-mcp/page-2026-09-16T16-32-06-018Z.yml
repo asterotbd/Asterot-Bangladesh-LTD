@@ -1,0 +1,12 @@
+- generic [active] [ref=f30e1]:
+  - main [ref=f30e3]:
+    - generic [ref=f30e4]:
+      - heading "Sign In" [level=1] [ref=f30e5]
+      - generic [ref=f30e6]:
+        - text: Email
+        - textbox "Email" [ref=f30e7]
+      - generic [ref=f30e8]:
+        - text: Password
+        - textbox "Password" [ref=f30e9]
+      - button "Sign in" [ref=f30e10] [cursor=pointer]
+  - alert [ref=f30e11]
