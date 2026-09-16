@@ -15,7 +15,12 @@ const csp = [
   // 'unsafe-inline' is required by the Next.js App Router, which injects the
   // RSC flight payload as inline scripts (self.__next_f.push(...)); nonce
   // support is not available in this Next version.
-  "script-src 'self' 'unsafe-inline'",
+  //
+  // 'unsafe-eval' is dev-only: the webpack dev build wraps every module in
+  // eval(), so without it the browser blocks all client JS, React never
+  // hydrates, and pages render as the un-animated (opacity:0) SSR output.
+  // Production bundles never eval, so the relaxation stays out of prod.
+  `script-src 'self' 'unsafe-inline'${isProd ? '' : " 'unsafe-eval'"}`,
   // 'unsafe-inline' is required for framer-motion / inline style props.
   // https://fonts.googleapis.com serves the Google Fonts stylesheet.
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
