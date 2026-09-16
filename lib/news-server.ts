@@ -1,17 +1,14 @@
 import getAdminSupabase from './supabaseAdmin'
+import { asset } from './assets'
 import type { NewsArticle } from './newsData'
 
 export type DbNews = {
   id: string
   title_en: string
-  title_bn: string | null
   slug: string
   subtitle_en: string | null
-  subtitle_bn: string | null
   excerpt_en: string | null
-  excerpt_bn: string | null
   content_en: string | null
-  content_bn: string | null
   category_id: string | null
   author_id: string | null
   status: string | null
@@ -29,7 +26,7 @@ export type NewsCategory = {
 }
 
 const NEWS_FIELDS =
-  'id, title_en, title_bn, slug, subtitle_en, subtitle_bn, excerpt_en, excerpt_bn, content_en, content_bn, category_id, author_id, status, published, published_at, created_at, updated_at, featured_image'
+  'id, title_en, slug, subtitle_en, excerpt_en, content_en, category_id, author_id, status, published, published_at, created_at, updated_at, featured_image'
 
 const DEFAULT_NEWS_IMAGE = '/media/photos/corporate-events/AUM09214.jpg'
 
@@ -61,12 +58,12 @@ function mapToNewsArticle(item: RawNewsRow, featured: boolean): NewsArticle {
     ? (label as NewsArticle['category'])
     : 'Latest News'
   const media = Array.isArray(item.featured_media) ? item.featured_media[0] : item.featured_media
-  const image = media?.public_url || DEFAULT_NEWS_IMAGE
+  const image = asset(media?.public_url || DEFAULT_NEWS_IMAGE)
   return {
     slug: item.slug,
-    title: item.title_en || item.title_bn || item.slug,
+    title: item.title_en || item.slug,
     category,
-    excerpt: item.excerpt_en || item.excerpt_bn || '',
+    excerpt: item.excerpt_en || '',
     content: toParagraphs(item.content_en, item.excerpt_en),
     date: formatNewsDate(item.published_at || item.created_at),
     image,
@@ -151,7 +148,7 @@ export async function listNews({ page = 1, perPage = 20 }: { page?: number; perP
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  const NEWS_LIST_FIELDS = 'id, title_en, title_bn, slug, status, published, published_at, created_at, updated_at'
+  const NEWS_LIST_FIELDS = 'id, title_en, slug, status, published, published_at, created_at, updated_at'
   const { data, count, error } = await admin
     .from('news')
     .select(NEWS_LIST_FIELDS, { count: 'exact' })

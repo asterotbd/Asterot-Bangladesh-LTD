@@ -9,7 +9,6 @@ export default function AlbumForm({ album, canEdit }: { album?: DbAlbum | null; 
 
   const [form, setForm] = useState({
     title_en: album?.title_en ?? '',
-    title_bn: album?.title_bn ?? '',
     slug: album?.slug ?? '',
     description_en: album?.description_en ?? '',
     published: album?.published ?? false
@@ -39,7 +38,6 @@ export default function AlbumForm({ album, canEdit }: { album?: DbAlbum | null; 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          title_bn: form.title_bn || null,
           description_en: form.description_en || null,
           published: form.published
         })
@@ -66,15 +64,9 @@ export default function AlbumForm({ album, canEdit }: { album?: DbAlbum | null; 
     <form onSubmit={save} className="space-y-5">
       {error && <div className="rounded-xl border border-amber-400/25 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{error}</div>}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium text-gray-300" htmlFor="alb-title">Title *</label>
-          <input id="alb-title" type="text" value={form.title_en} maxLength={200} onChange={(e) => setForm({ ...form, title_en: e.target.value })} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-300" htmlFor="alb-title-bn">Title (Bangla)</label>
-          <input id="alb-title-bn" type="text" value={form.title_bn} maxLength={200} onChange={(e) => setForm({ ...form, title_bn: e.target.value })} className={inputClass} />
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-300" htmlFor="alb-title">Title *</label>
+        <input id="alb-title" type="text" value={form.title_en} maxLength={200} onChange={(e) => setForm({ ...form, title_en: e.target.value })} className={inputClass} />
       </div>
 
       <div>

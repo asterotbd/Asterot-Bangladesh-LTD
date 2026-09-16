@@ -83,8 +83,8 @@ export default async function Home() {
 
   const services = dbServices.length > 0
     ? dbServices.map((service) => ({
-        title: service.title_en || service.title_bn || 'Capability',
-        description: service.short_description_en || service.description_en || service.short_description_bn || service.description_bn || ''
+        title: service.title_en || 'Capability',
+        description: service.short_description_en || service.description_en || ''
       }))
     : fallbackServices
 

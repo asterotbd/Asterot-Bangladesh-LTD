@@ -3,10 +3,8 @@ import getAdminSupabase from './supabaseAdmin'
 export type DbEvent = {
   id: string
   title_en: string
-  title_bn: string | null
   slug: string
   description_en: string | null
-  description_bn: string | null
   category_id: string | null
   date: string | null
   time: string | null
@@ -27,7 +25,7 @@ export type EventCategory = {
 }
 
 const EVENT_FIELDS =
-  'id, title_en, title_bn, slug, description_en, description_bn, category_id, date, time, location, registration_deadline, capacity, status, featured, published, created_at, updated_at'
+  'id, title_en, slug, description_en, category_id, date, time, location, registration_deadline, capacity, status, featured, published, created_at, updated_at'
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10)
@@ -104,7 +102,7 @@ export async function listEvents({ page = 1, perPage = 20 }: { page?: number; pe
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  const EVENT_LIST_FIELDS = 'id, title_en, title_bn, slug, date, time, location, status, featured, published, created_at, updated_at'
+  const EVENT_LIST_FIELDS = 'id, title_en, slug, date, time, location, status, featured, published, created_at, updated_at'
   const { data, count, error } = await admin
     .from('events')
     .select(EVENT_LIST_FIELDS, { count: 'exact' })

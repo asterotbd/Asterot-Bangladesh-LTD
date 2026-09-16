@@ -1,20 +1,16 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../lib/auth'
-import getAdminSupabase from '../../../../lib/supabaseAdmin'
-import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES, deleteFromR2 } from '../../../../lib/media-server'
+import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, deleteStorageFile, MEDIA_TYPES } from '../../../../lib/media-server'
 import { writeAuditLog } from '../../../../lib/audit'
 import { jsonError, logError } from '../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
-import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
-  alt_bn: 300,
   caption_en: 500,
-  caption_bn: 500,
   category: 120
 }
 
@@ -84,46 +80,32 @@ export async function POST(request: Request) {
 
   const alt_en = cleanText(formData.get('alt_en'), TEXT_MAX.alt_en)
   if (!alt_en.ok) return jsonError('Invalid alt_en.', 400)
-  const alt_bn = cleanText(formData.get('alt_bn'), TEXT_MAX.alt_bn)
-  if (!alt_bn.ok) return jsonError('Invalid alt_bn.', 400)
   const caption_en = cleanText(formData.get('caption_en'), TEXT_MAX.caption_en)
   if (!caption_en.ok) return jsonError('Invalid caption_en.', 400)
-  const caption_bn = cleanText(formData.get('caption_bn'), TEXT_MAX.caption_bn)
-  if (!caption_bn.ok) return jsonError('Invalid caption_bn.', 400)
   const category = cleanText(formData.get('category'), TEXT_MAX.category)
   if (!category.ok) return jsonError('Invalid category.', 400)
 
-      try {
-        const { storagePath, publicUrl } = await uploadMediaFile(file, buffer, validated.contentType)
-        try {
-          const record = await createMedia({
-            storage_path: storagePath,
-            public_url: publicUrl,
-            type: 'photo',
-            provider: 'uploaded',
-            storage_provider: 'cloudflare_r2',
-            alt_en: alt_en.value,
-            alt_bn: alt_bn.value,
-            caption_en: caption_en.value,
-            caption_bn: caption_bn.value,
-            filesize: file.size,
-            category: category.value,
-            created_by: check.user.id
-          })
-if (!record) return jsonError('Unable to create media record.', 500)
-       await writeAuditLog(check.user.id, 'media.upload', 'media', record.id, { filename: file.name, size: file.size })
-       for (const path of ['/', '/media', '/media/photos', '/media/videos']) {
-         try { revalidatePath(path) } catch { /* best-effort */ }
-       }
-       return NextResponse.json({ data: record }, { status: 201 })
+  try {
+    const { storagePath, publicUrl } = await uploadMediaFile(file, buffer, validated.contentType)
+    try {
+      const record = await createMedia({
+        storage_path: storagePath,
+        public_url: publicUrl,
+        type: 'photo',
+        provider: 'uploaded',
+        alt_en: alt_en.value,
+        caption_en: caption_en.value,
+        filesize: file.size,
+        category: category.value,
+        created_by: check.user.id
+      })
+      if (!record) return jsonError('Unable to create media record.', 500)
+      await writeAuditLog(check.user.id, 'media.upload', 'media', record.id, { filename: file.name, size: file.size })
+      return NextResponse.json({ data: record }, { status: 201 })
     } catch (err) {
       // The file was uploaded but the metadata insert failed: clean up the
       // orphaned object so storage does not accumulate unreferenced files.
-      try {
-        await deleteFromR2(storagePath)
-      } catch {
-        // best-effort cleanup; the original error is what matters
-      }
+      await deleteStorageFile(storagePath)
       throw err
     }
   } catch (err) {

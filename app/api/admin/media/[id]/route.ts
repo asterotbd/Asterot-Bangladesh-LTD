@@ -8,13 +8,11 @@ import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../.
 
 export const dynamic = 'force-dynamic'
 
-const EDITABLE = ['alt_en', 'alt_bn', 'caption_en', 'caption_bn', 'category', 'type'] as const
+const EDITABLE = ['alt_en', '', 'caption_en', '', 'category', 'type'] as const
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
-  alt_bn: 300,
   caption_en: 500,
-  caption_bn: 500,
   category: 120
 }
 
@@ -103,7 +101,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     const result = await deleteMedia(params.id)
 
     if (!result.ok) {
-      return jsonError(result.error, 500)
+      return jsonError(result.error ?? 'Delete failed.', 500)
     }
 
     await writeAuditLog(check.user.id, 'media.delete', 'media', params.id, {

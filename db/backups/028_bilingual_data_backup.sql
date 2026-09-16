@@ -1,0 +1,17 @@
+-- Backup of every non-empty `_bn` value captured immediately before
+-- 028_remove_bilingual_columns.sql was written (2026-09-16).
+--
+-- A full sweep of media, news, events, albums, company_info, services and faq
+-- found exactly ONE row holding Bangla content, on a test event titled
+-- "Hudai". Every other `_bn` column was null or empty in every row.
+--
+-- To restore, re-add the column and replay the update:
+--
+--   alter table public.events add column if not exists description_bn text;
+--
+--   update public.events
+--      set description_bn = 'hudai'
+--    where id = '1ec77417-9ea7-4f0e-a669-49406b90b8a7';
+--
+-- The `public.translations` table dropped by the same migration was empty and
+-- was never referenced by application code.

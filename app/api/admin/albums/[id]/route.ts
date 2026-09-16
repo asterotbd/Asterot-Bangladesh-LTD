@@ -8,14 +8,12 @@ import { getAlbum, updateAlbum, deleteAlbum } from '../../../../../lib/albums-se
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['title_en', 'title_bn', 'slug', 'description_en', 'description_bn', 'cover_media_id', 'published']
+const ALLOWED_FIELDS = ['title_en', '', 'slug', 'description_en', '', 'cover_media_id', 'published']
 
 const TEXT_LIMITS: Record<string, number> = {
   title_en: 200,
-  title_bn: 200,
   slug: 200,
   description_en: 2000,
-  description_bn: 2000
 }
 
 function cleanText(value: unknown, key: string, max: number): string | null {

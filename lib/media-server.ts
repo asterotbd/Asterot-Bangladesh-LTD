@@ -1,16 +1,7 @@
+import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX } from './r2'
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
-import { revalidatePath } from 'next/cache'
-import {
-  uploadToR2,
-  deleteFromR2,
-  objectExistsInR2,
-  listR2Objects,
-  getR2ObjectKey,
-  getPublicUrlForObject,
-} from './cloudflare-r2'
 
-export { deleteFromR2 }
 export const MEDIA_TYPES = ['photo', 'video', 'embed'] as const
 export type MediaType = (typeof MEDIA_TYPES)[number]
 
@@ -22,9 +13,7 @@ export type DbMedia = {
   type: string | null
   provider: string | null
   alt_en: string | null
-  alt_bn: string | null
   caption_en: string | null
-  caption_bn: string | null
   width: number | null
   height: number | null
   filesize: number | null
@@ -41,9 +30,11 @@ export type MediaListResult = {
   totalPages: number
 }
 
-// Pages that consume media and should be revalidated after upload/delete.
-const MEDIA_REVALIDATE_PATHS = ['/', '/media', '/media/photos', '/media/videos']
+export const PUBLIC_MEDIA_BUCKET = 'public-media'
 
+// Raster image formats the media library accepts. SVG/HTML are intentionally
+// excluded: SVG can embed script and browsers execute it when the file is
+// served with image/svg+xml, and HTML is not an image.
 const IMAGE_TYPES: Record<string, string> = {
   jpg: 'jpeg',
   jpeg: 'jpeg',
@@ -67,6 +58,8 @@ export type ImageValidation =
   | { ok: true; type: string; ext: string; contentType: string }
   | { ok: false; error: string }
 
+// Validate an uploaded image by inspecting its magic bytes (not the spoofable
+// client-declared Content-Type) and requiring the file extension to match.
 export function validateUploadedImage(file: File, buffer: Buffer): ImageValidation {
   const rawExt = (file.name.split('.').pop() || '').toLowerCase()
   const ext = rawExt.replace(/[^a-z0-9]/g, '')
@@ -74,6 +67,7 @@ export function validateUploadedImage(file: File, buffer: Buffer): ImageValidati
   if (!declaredType) {
     return { ok: false, error: 'Unsupported file type. Use JPG, PNG, GIF, WebP, AVIF, or BMP.' }
   }
+
   const sniffedType = sniffImageType(buffer)
   if (!sniffedType) {
     return { ok: false, error: 'The file is not a valid image.' }
@@ -112,8 +106,12 @@ export async function listMedia({
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  let query = admin.from('media').select('id, storage_path, public_url, storage_provider, type, provider, alt_en, alt_bn, caption_en, caption_bn, width, height, filesize, category, created_by, created_at', { count: 'exact' })
+  let query = admin.from('media').select('id, storage_path, public_url, storage_provider, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at', { count: 'exact' })
 
+  // The Media Library must only contain media assets intended for the library.
+  // A media row that is a news article's featured image belongs to Admin → News
+  // (news.featured_image → media.id) and is therefore excluded here at the query
+  // layer. Existing news records and their images are never modified.
   const { data: newsFeaturedRows, error: newsFeaturedError } = await admin
     .from('news')
     .select('featured_image')
@@ -155,7 +153,7 @@ export async function getMedia(id: string): Promise<DbMedia | null> {
   const admin = getAdminSupabase()
   const { data, error } = await admin
     .from('media')
-    .select('id, storage_path, public_url, storage_provider, type, provider, alt_en, alt_bn, caption_en, caption_bn, width, height, filesize, category, created_by, created_at')
+    .select('id, storage_path, public_url, storage_provider, type, provider, alt_en, caption_en, width, height, filesize, category, created_by, created_at')
     .eq('id', id)
     .maybeSingle()
   if (error) throw error
@@ -182,41 +180,33 @@ export async function updateMedia(id: string, fields: Partial<DbMedia>): Promise
   return (data ?? []).length > 0
 }
 
-// Result of a complete media deletion attempt.
-export type DeleteMediaResult =
-  | { ok: true; storageDeleted: boolean; dbDeleted: true; storagePath: string | null; albumPhotoCount: number }
-  | { ok: true; storageDeleted: false; dbDeleted: true; storagePath: string | null; albumPhotoCount: number; storageError: string }
-  | { ok: false; error: string; storagePath: string | null; dbDeleted: boolean }
-
-// Delete R2 object first, then database record, then album_photos.
-// If R2 deletion fails, the database record is NOT deleted.
-export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
+export async function deleteMedia(id: string): Promise<{ ok: boolean; storageDeleted: boolean; storagePath: string | null; albumPhotoCount: number; error?: string }> {
   const admin = getAdminSupabase()
   const item = await getMedia(id)
-  if (!item) return { ok: false, error: 'Media not found.', storagePath: null, dbDeleted: false }
+  if (!item) return { ok: false, storageDeleted: false, storagePath: null, albumPhotoCount: 0 }
 
   const storagePath = item.storage_path ?? null
+  const provider = item.storage_provider
 
   // Determine which storage system to delete from.
-  if (item.storage_provider === 'cloudflare_r2' && storagePath) {
-    // Step 1: Delete from Cloudflare R2.
-    const deleteResult = await deleteFromR2(storagePath)
-    if (!deleteResult.ok) {
-      return { ok: false, error: deleteResult.error || 'Failed to delete R2 object.', storagePath, dbDeleted: false }
-    }
-  } else if (item.storage_provider === 'supabase_storage' && storagePath) {
-    // Legacy: delete from Supabase Storage for old records.
+  let storageDeleted = false
+  if (provider === 'cloudflare_r2' && storagePath) {
     try {
-      const { error: storageError } = await admin.storage.from('public-media').remove([storagePath])
-      if (storageError) {
-        return { ok: false, error: `Failed to delete legacy storage object: ${storageError.message}`, storagePath, dbDeleted: false }
-      }
+      await deleteObject(storagePath)
+      storageDeleted = true
     } catch (err) {
-      return { ok: false, error: `Failed to delete legacy storage object: ${(err as Error).message}`, storagePath, dbDeleted: false }
+      return { ok: false, storageDeleted: false, storagePath, albumPhotoCount: 0, error: (err as Error).message }
+    }
+  } else if (provider === 'supabase_storage' && storagePath) {
+    try {
+      await admin.storage.from(PUBLIC_MEDIA_BUCKET).remove([storagePath])
+      storageDeleted = true
+    } catch (err) {
+      return { ok: false, storageDeleted: false, storagePath, albumPhotoCount: 0, error: (err as Error).message }
     }
   }
 
-  // Step 2: Get album_photos count and delete relationships.
+  // Get album_photos count and delete relationships.
   const { data: albumPhotos } = await admin.from('album_photos').select('id').eq('media_id', id)
   const albumPhotoCount = (albumPhotos ?? []).length
 
@@ -225,105 +215,63 @@ export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
     logError('media.delete-album-photos', albumPhotoError)
   }
 
-  // Step 3: Delete the database record.
+  // Delete the database record.
   const { error: dbError } = await (admin.from('media') as any).delete().eq('id', id)
   if (dbError) {
     logError('media.delete-db', dbError)
-    return { ok: false, error: `Failed to delete database record: ${dbError.message}`, storagePath, dbDeleted: false }
+    return { ok: false, storageDeleted, storagePath, albumPhotoCount: 0, error: dbError.message }
   }
 
-  revalidatePaths()
+  return { ok: true, storageDeleted, storagePath, albumPhotoCount }
+}
 
-  return {
-    ok: true,
-    storageDeleted: true,
-    dbDeleted: true,
-    storagePath,
-    albumPhotoCount
+// Routes the delete to whichever backend holds the object. R2 uploads are
+// written under R2_UPLOAD_PREFIX and older Supabase Storage objects under
+// "admin/", so the stored path alone identifies the backend and media
+// uploaded before the R2 switch still deletes correctly.
+export async function deleteStorageFile(storagePath: string): Promise<void> {
+  if (storagePath.startsWith(`${R2_UPLOAD_PREFIX}/`)) {
+    await deleteObject(storagePath)
+    return
+  }
+  try {
+    const admin = getAdminSupabase()
+    await admin.storage.from(PUBLIC_MEDIA_BUCKET).remove([storagePath])
+  } catch (err) {
+    logError('media.storage-delete', err)
   }
 }
 
-// Upload file to Cloudflare R2 and create media record.
+// Uploads to Cloudflare R2 when it is configured, otherwise to the Supabase
+// Storage bucket. The fallback keeps the admin uploader working while R2
+// credentials are still being provisioned; once R2_* and
+// NEXT_PUBLIC_R2_PUBLIC_URL are set, every new upload goes to R2 and the
+// Supabase branch is only exercised by legacy deletes.
 export async function uploadMediaFile(file: File, buffer: Buffer, contentType: string): Promise<{ storagePath: string; publicUrl: string }> {
   const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '')
-  const type = (file.type.startsWith('image/') ? 'photo' : file.type.startsWith('video/') ? 'video' : 'media') as 'photo' | 'video' | 'media'
-  const objectKey = getR2ObjectKey(type, file.name, ext)
+  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
 
-  await uploadToR2(objectKey, buffer, contentType)
-
-  const publicUrl = getPublicUrlForObject(objectKey)
-  return { storagePath: objectKey, publicUrl }
-}
-
-// Find orphaned files in R2 that have no corresponding media record.
-export async function findOrphanFiles(): Promise<Array<{ name: string; fullName: string; storagePath: string }>> {
-  const admin = getAdminSupabase()
-  const orphans: Array<{ name: string; fullName: string; storagePath: string }> = []
-
-  try {
-    const mediaRows = await admin.from('media').select('storage_path, storage_provider')
-    const rows = (mediaRows?.data ?? []) as any[]
-    const referencedPaths = new Set(rows.map((r: any) => r.storage_path).filter((p: string) => p && p !== null))
-
-    const r2Keys = await listR2Objects('photos/')
-    const r2VideoKeys = await listR2Objects('videos/')
-    const allR2Keys = [...r2Keys, ...r2VideoKeys]
-
-    for (const key of allR2Keys) {
-      if (!referencedPaths.has(key)) {
-        orphans.push({
-          name: key.split('/').pop() || key,
-          fullName: key,
-          storagePath: key
-        })
-      }
-    }
-  } catch (err) {
-    logError('media.orphan-scan', err)
-  }
-
-  return orphans
-}
-
-// Delete orphaned files from R2 after explicit admin confirmation.
-export async function deleteOrphanFiles(paths: string[]): Promise<{ deleted: number; failed: number; errors: string[] }> {
-  let deleted = 0
-  let failed = 0
-  const errors: string[] = []
-
-  for (const path of paths) {
-    const result = await deleteFromR2(path)
-    if (result.ok) {
-      deleted++
-    } else {
-      failed++
-      errors.push(`${path}: ${result.error}`)
-    }
-  }
-
-  if (deleted > 0) {
-    revalidatePaths()
-  }
-
-  return { deleted, failed, errors }
-}
-
-export async function getOrphanCount(): Promise<number> {
-  const orphans = await findOrphanFiles()
-  return orphans.length
-}
-
-// Check if an object exists in R2.
-export async function checkR2ObjectExists(objectKey: string): Promise<boolean> {
-  return objectExistsInR2(objectKey)
-}
-
-function revalidatePaths(): void {
-  for (const path of MEDIA_REVALIDATE_PATHS) {
+  if (isR2Enabled()) {
     try {
-      revalidatePath(path)
-    } catch {
-      // best-effort
+      const { key, publicUrl } = await putObject(`${R2_UPLOAD_PREFIX}/${name}`, buffer, contentType)
+      return { storagePath: key, publicUrl }
+    } catch (err) {
+      logError('media.r2-upload', err)
+      throw err instanceof Error ? err : new Error('R2 upload failed')
     }
   }
+
+  const admin = getAdminSupabase()
+  const storagePath = `admin/${name}`
+  const { error } = await admin.storage.from(PUBLIC_MEDIA_BUCKET).upload(storagePath, buffer, {
+    contentType,
+    cacheControl: '3600'
+  })
+  if (error) {
+    logError('media.storage-upload', error)
+    throw new Error(error.message)
+  }
+
+  const { data } = admin.storage.from(PUBLIC_MEDIA_BUCKET).getPublicUrl(storagePath)
+  return { storagePath, publicUrl: data.publicUrl }
 }

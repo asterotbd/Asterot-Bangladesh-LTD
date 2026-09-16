@@ -17,8 +17,8 @@ export const dynamic = 'force-dynamic'
 const ALLOWED_FIELDS = [
   'question_en',
   'answer_en',
-  'question_bn',
-  'answer_bn',
+  '',
+  '',
   'category',
   'display_order',
   'status'
@@ -27,8 +27,6 @@ const ALLOWED_FIELDS = [
 const TEXT_LIMITS: Record<string, number> = {
   question_en: 500,
   answer_en: 5000,
-  question_bn: 500,
-  answer_bn: 5000,
   category: 100
 }
 

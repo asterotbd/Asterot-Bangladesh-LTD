@@ -6,7 +6,6 @@ import { listMedia, MEDIA_TYPES } from '../../../../lib/media-server'
 import PageHeader from '../../../../components/admin/PageHeader'
 import Pagination from '../../../../components/admin/Pagination'
 import { Panel, EmptyState, ErrorState } from '../../../../components/admin/Panel'
-import MediaUploader from '../../../../components/admin/MediaUploader'
 import MediaGrid from '../../../../components/admin/MediaGrid'
 import BatchPhotoUploader from '../../../../components/admin/BatchPhotoUploader'
 
@@ -39,8 +38,13 @@ export default async function AdminMediaPage({ searchParams }: { searchParams: {
       <PageHeader
         title="Media"
         description="Uploaded files and media references used across the website."
-        actions={canManage ? <BatchPhotoUploader /> : undefined}
       />
+
+      {canManage && (
+        <Panel title="Add photos" description="Upload photos to an album in bulk.">
+          <BatchPhotoUploader />
+        </Panel>
+      )}
 
       <form method="get" action="/admin/media" className="flex flex-wrap items-end gap-3">
         <label className="block flex-1 min-w-[12rem]">
