@@ -1,5 +1,5 @@
--- 028_storage_provider.sql
--- Add storage_provider and storage_provider_path fields to support Cloudflare R2.
+-- 029_storage_provider.sql
+-- Add storage_provider column to support Cloudflare R2.
 -- Existing records keep their Supabase Storage paths in storage_path.
 -- New uploads will use storage_provider = 'cloudflare_r2' and storage_path = R2 object key.
 

@@ -173,6 +173,7 @@ export async function POST(request: Request) {
         const record = await createMedia({
           storage_path: storagePath,
           public_url: publicUrl,
+          storage_provider: 'cloudflare_r2',
           type: 'photo',
           provider: 'uploaded',
           alt_en: altFields.value,
