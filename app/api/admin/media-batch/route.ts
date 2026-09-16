@@ -3,16 +3,13 @@ import { requireApiPermission } from '../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
 import { jsonError, logError } from '../../../../lib/api-utils'
-import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES } from '../../../../lib/media-server'
+import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, deleteStorageFile, MEDIA_TYPES } from '../../../../lib/media-server'
 import { writeAuditLog } from '../../../../lib/audit'
-import { getAdminSupabase } from '../../../../lib/supabaseAdmin'
 import { getAlbum, listAlbumPhotos, addPhotoToAlbum } from '../../../../lib/albums-server'
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
-  alt_bn: 300,
   caption_en: 500,
-  caption_bn: 500,
   category: 120
 }
 
@@ -159,19 +156,12 @@ export async function POST(request: Request) {
 
         // Get form fields for this file
         const altFields = getTextField(formData, `alt_${uploadFile.name}`)
-        const alt_bnFields = getTextField(formData, `alt_bn_${uploadFile.name}`)
         const captionFields = getTextField(formData, `caption_${uploadFile.name}`)
-        const caption_bnFields = getTextField(formData, `caption_bn_${uploadFile.name}`)
         const categoryFields = getTextField(formData, `category_${uploadFile.name}`)
 
-        if (!altFields.ok || !alt_bnFields.ok || !captionFields.ok || !caption_bnFields.ok || !categoryFields.ok) {
+        if (!altFields.ok || !captionFields.ok || !categoryFields.ok) {
           // Clean up uploaded file if metadata validation fails
-          try {
-            const admin = getAdminSupabase()
-            await admin.storage.from('public-media').remove([storagePath])
-          } catch {
-            // best-effort cleanup
-          }
+          await deleteStorageFile(storagePath)
           results.push({
             name: uploadFile.name,
             ok: false,
@@ -186,9 +176,7 @@ export async function POST(request: Request) {
           type: 'photo',
           provider: 'uploaded',
           alt_en: altFields.value,
-          alt_bn: alt_bnFields.value,
           caption_en: captionFields.value,
-          caption_bn: caption_bnFields.value,
           filesize: uploadFile.size,
           category: categoryFields.value,
           created_by: check.user.id
@@ -196,12 +184,7 @@ export async function POST(request: Request) {
 
         if (!record) {
           // Clean up uploaded file if metadata insert fails
-          try {
-            const admin = getAdminSupabase()
-            await admin.storage.from('public-media').remove([storagePath])
-          } catch {
-            // best-effort cleanup
-          }
+          await deleteStorageFile(storagePath)
           results.push({
             name: uploadFile.name,
             ok: false,

@@ -22,10 +22,8 @@ function rejectUnknownKeys(body: Record<string, unknown>, allowed: Record<string
 
 const EVENT_FIELDS: Record<string, true> = {
   title_en: true,
-  title_bn: true,
   slug: true,
   description_en: true,
-  description_bn: true,
   category_id: true,
   date: true,
   time: true,
@@ -39,14 +37,10 @@ const EVENT_FIELDS: Record<string, true> = {
 
 const NEWS_FIELDS: Record<string, true> = {
   title_en: true,
-  title_bn: true,
   slug: true,
   subtitle_en: true,
-  subtitle_bn: true,
   excerpt_en: true,
-  excerpt_bn: true,
   content_en: true,
-  content_bn: true,
   category_id: true,
   status: true,
   published: true,
@@ -55,20 +49,14 @@ const NEWS_FIELDS: Record<string, true> = {
 }
 
 const EVENT_TEXT_LIMITS: Record<string, number> = {
-  title_bn: 200,
   description_en: 20000,
-  description_bn: 20000,
   location: 200
 }
 
 const NEWS_TEXT_LIMITS: Record<string, number> = {
-  title_bn: 200,
   subtitle_en: 300,
-  subtitle_bn: 300,
   excerpt_en: 500,
-  excerpt_bn: 500,
   content_en: 50000,
-  content_bn: 50000
 }
 
 function validateSlug(body: Record<string, unknown>, fields: Record<string, unknown>): string | null {
@@ -172,7 +160,7 @@ export function validateEventPayload(body: unknown, opts: { requireTitle: boolea
     fields.title_en = title
   }
 
-  for (const key of ['title_bn', 'description_en', 'description_bn', 'location']) {
+  for (const key of ['', 'description_en', '', 'location']) {
     const err = validateOptionalText(body, fields, key, EVENT_TEXT_LIMITS[key])
     if (err) return { error: err }
   }
@@ -264,7 +252,7 @@ export function validateNewsPayload(body: unknown, opts: { requireTitle: boolean
     fields.title_en = title
   }
 
-  for (const key of ['title_bn', 'subtitle_en', 'subtitle_bn', 'excerpt_en', 'excerpt_bn', 'content_en', 'content_bn']) {
+  for (const key of ['', 'subtitle_en', '', 'excerpt_en', '', 'content_en', '']) {
     const err = validateOptionalText(body, fields, key, NEWS_TEXT_LIMITS[key])
     if (err) return { error: err }
   }

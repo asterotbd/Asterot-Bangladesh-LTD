@@ -66,10 +66,10 @@ export default async function AdminNewsDetailPage({ params }: { params: { id: st
         </div>
       </Panel>
 
-      {(article.content_en || article.content_bn) && (
+      {(article.content_en) && (
         <Panel title="Content Preview">
           <div className="prose prose-invert max-w-none text-sm text-gray-300">
-            {(article.content_en ?? article.content_bn ?? '').split(/\n\s*\n/).map((p, i) => (
+            {(article.content_en ?? '').split(/\n\s*\n/).map((p, i) => (
               <p key={i} className="mb-3">{p}</p>
             ))}
           </div>

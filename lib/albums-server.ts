@@ -1,13 +1,12 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
+import { asset } from './assets'
 
 export type DbAlbum = {
   id: string
   title_en: string | null
-  title_bn: string | null
   slug: string | null
   description_en: string | null
-  description_bn: string | null
   cover_media_id: string | null
   published: boolean | null
   created_by: string | null
@@ -32,7 +31,7 @@ export type AlbumListResult = {
 }
 
 export const ALBUM_FIELDS =
-  'id, title_en, title_bn, slug, description_en, description_bn, cover_media_id, published, created_by, created_at, updated_at'
+  'id, title_en, slug, description_en, cover_media_id, published, created_by, created_at, updated_at'
 
 export const ALBUM_PHOTO_FIELDS = 'id, album_id, media_id, order, created_at'
 
@@ -51,7 +50,7 @@ export async function listAlbums({
   const safePage = Math.max(1, Math.floor(page))
   const safePerPage = Math.min(100, Math.max(1, Math.floor(perPage)))
 
-  let query = admin.from('albums').select('id, title_en, title_bn, slug, description_en, description_bn, cover_media_id, published, created_by, created_at, updated_at, album_photos(id)', { count: 'exact' })
+  let query = admin.from('albums').select('id, title_en, slug, description_en, cover_media_id, published, created_by, created_at, updated_at, album_photos(id)', { count: 'exact' })
   const term = search.trim()
   if (term) {
     const escaped = term.replace(/[%_]/g, (m) => `\\${m}`)
@@ -75,7 +74,7 @@ export async function listAlbums({
       logError('albums.list-cover-media', mediaError)
     } else {
       for (const m of (mediaRows ?? []) as { id: string; public_url: string | null }[]) {
-        coverUrlById.set(m.id, m.public_url)
+        coverUrlById.set(m.id, asset(m.public_url))
       }
     }
   }
@@ -84,10 +83,8 @@ export async function listAlbums({
     return {
       id: row.id,
       title_en: row.title_en,
-      title_bn: row.title_bn,
       slug: row.slug,
       description_en: row.description_en,
-      description_bn: row.description_bn,
       cover_media_id: row.cover_media_id,
       published: row.published,
       created_by: row.created_by,
@@ -112,7 +109,7 @@ export async function getMediaPublicUrl(mediaId: string): Promise<string | null>
   const admin = getAdminSupabase()
   const { data, error } = await admin.from('media').select('public_url').eq('id', mediaId).maybeSingle()
   if (error || !data) return null
-  return (data as { public_url: string | null }).public_url
+  return asset((data as { public_url: string | null }).public_url)
 }
 
 export async function listMediaPublicUrls(mediaIds: string[]): Promise<Record<string, string | null>> {
@@ -123,7 +120,7 @@ export async function listMediaPublicUrls(mediaIds: string[]): Promise<Record<st
   if (error) throw error
   const map: Record<string, string | null> = {}
   for (const row of (data ?? []) as { id: string; public_url: string | null }[]) {
-    map[row.id] = row.public_url
+    map[row.id] = asset(row.public_url)
   }
   return map
 }
@@ -253,7 +250,7 @@ export async function getPublishedAlbums(): Promise<
       logError('albums.public-media', mediaError)
     } else {
       for (const m of (mediaRows ?? []) as { id: string; public_url: string | null }[]) {
-        if (m.public_url) mediaUrlById.set(m.id, m.public_url)
+        if (m.public_url) mediaUrlById.set(m.id, asset(m.public_url))
       }
     }
   }

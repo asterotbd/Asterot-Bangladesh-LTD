@@ -1,3 +1,5 @@
+import { asset } from './assets'
+
 export type PhotoAlbum = {
   id: string
   title: string
@@ -6,7 +8,7 @@ export type PhotoAlbum = {
   photos: string[]
 }
 
-export const photoAlbums: PhotoAlbum[] = [
+const localAlbums: PhotoAlbum[] = [
   {
     id: 'tournament',
     title: 'Tournament',
@@ -150,6 +152,14 @@ export const photoAlbums: PhotoAlbum[] = [
     photos: []
   }
 ]
+
+// Photo paths are authored as local "/media/..." values and resolved to their
+// public host here, so every consumer (grid, album page, sitemap) gets the
+// same URL without knowing where media is hosted.
+export const photoAlbums: PhotoAlbum[] = localAlbums.map((album) => ({
+  ...album,
+  photos: album.photos.map((photo) => asset(photo))
+}))
 
 export function getAlbumBySlug(slug: string): PhotoAlbum | undefined {
   return photoAlbums.find(album => album.slug === slug)

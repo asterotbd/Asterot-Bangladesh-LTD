@@ -5,7 +5,6 @@ export type DbVideo = {
   id: string
   public_url: string | null
   caption_en: string | null
-  caption_bn: string | null
   category: string | null
   published: boolean | null
   metadata: Record<string, unknown> | null
@@ -21,7 +20,7 @@ export type VideoListResult = {
 }
 
 export const VIDEO_FIELDS =
-  'id, public_url, caption_en, caption_bn, category, published, metadata, created_at'
+  'id, public_url, caption_en, category, published, metadata, created_at'
 
 export async function listVideos({
   page = 1,

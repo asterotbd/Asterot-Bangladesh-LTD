@@ -61,7 +61,7 @@ export default function MediaUploader() {
           <div className="absolute inset-0 bg-black/70" onClick={() => !busy && setOpen(false)} />
           <div role="dialog" aria-modal="true" aria-label="Upload media" className="relative w-full max-w-lg rounded-2xl border border-white/10 bg-panel p-6 shadow-2xl">
             <h3 className="text-lg font-semibold text-white">Upload Media</h3>
-            <p className="mt-1 text-sm text-gray-400">Image files up to 15 MB are stored in the public-media bucket.</p>
+            <p className="mt-1 text-sm text-gray-400">Image files up to 15 MB. Stored on Cloudflare R2.</p>
 
             <form onSubmit={submit} className="mt-5 space-y-4">
               <div>

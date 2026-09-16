@@ -11,11 +11,11 @@ export const dynamic = 'force-dynamic'
 
 const ALLOWED_FIELDS = [
   'title_en',
-  'title_bn',
+  '',
   'short_description_en',
-  'short_description_bn',
+  '',
   'description_en',
-  'description_bn',
+  '',
   'features',
   'media_id',
   'published',
@@ -24,11 +24,8 @@ const ALLOWED_FIELDS = [
 
 const TEXT_LIMITS: Record<string, number> = {
   title_en: 200,
-  title_bn: 200,
   short_description_en: 500,
-  short_description_bn: 500,
   description_en: 5000,
-  description_bn: 5000
 }
 
 function cleanText(value: unknown, key: string, max: number): string | null {

@@ -4,11 +4,8 @@ import { logError } from './api-utils'
 export type DbService = {
   id: string
   title_en: string | null
-  title_bn: string | null
   short_description_en: string | null
-  short_description_bn: string | null
   description_en: string | null
-  description_bn: string | null
   features: unknown
   media_id: string | null
   published: boolean | null
@@ -18,7 +15,7 @@ export type DbService = {
 }
 
 export const SERVICE_FIELDS =
-  'id, title_en, title_bn, short_description_en, short_description_bn, description_en, description_bn, features, media_id, published, display_order, created_at, updated_at'
+  'id, title_en, short_description_en, description_en, features, media_id, published, display_order, created_at, updated_at'
 
 export async function listServices({ status = '' }: { status?: string } = {}): Promise<DbService[]> {
   const admin = getAdminSupabase()

@@ -8,7 +8,7 @@ import { listVideos, updateVideo, getVideo } from '../../../../lib/videos-server
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_FIELDS = ['caption_en', 'caption_bn', 'category', 'published']
+const ALLOWED_FIELDS = ['caption_en', '', 'category', 'published']
 
 export async function GET(request: Request) {
   const check = await requireApiPermission('media.view')
@@ -59,7 +59,7 @@ export async function PUT(request: Request) {
         fields[field] = null
       } else if (typeof value === 'string') {
         const trimmed = value.trim()
-        const max = field === 'caption_en' || field === 'caption_bn' ? 300 : 120
+        const max = field === 'caption_en' || field === '' ? 300 : 120
         if (trimmed.length > max) return jsonError(`${field} is too long.`, 400)
         fields[field] = trimmed
       } else {

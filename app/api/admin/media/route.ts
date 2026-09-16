@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../lib/auth'
-import getAdminSupabase from '../../../../lib/supabaseAdmin'
-import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES } from '../../../../lib/media-server'
+import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, deleteStorageFile, MEDIA_TYPES } from '../../../../lib/media-server'
 import { writeAuditLog } from '../../../../lib/audit'
 import { jsonError, logError } from '../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
@@ -11,9 +10,7 @@ export const dynamic = 'force-dynamic'
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
-  alt_bn: 300,
   caption_en: 500,
-  caption_bn: 500,
   category: 120
 }
 
@@ -83,12 +80,8 @@ export async function POST(request: Request) {
 
   const alt_en = cleanText(formData.get('alt_en'), TEXT_MAX.alt_en)
   if (!alt_en.ok) return jsonError('Invalid alt_en.', 400)
-  const alt_bn = cleanText(formData.get('alt_bn'), TEXT_MAX.alt_bn)
-  if (!alt_bn.ok) return jsonError('Invalid alt_bn.', 400)
   const caption_en = cleanText(formData.get('caption_en'), TEXT_MAX.caption_en)
   if (!caption_en.ok) return jsonError('Invalid caption_en.', 400)
-  const caption_bn = cleanText(formData.get('caption_bn'), TEXT_MAX.caption_bn)
-  if (!caption_bn.ok) return jsonError('Invalid caption_bn.', 400)
   const category = cleanText(formData.get('category'), TEXT_MAX.category)
   if (!category.ok) return jsonError('Invalid category.', 400)
 
@@ -101,9 +94,7 @@ export async function POST(request: Request) {
         type: 'photo',
         provider: 'uploaded',
         alt_en: alt_en.value,
-        alt_bn: alt_bn.value,
         caption_en: caption_en.value,
-        caption_bn: caption_bn.value,
         filesize: file.size,
         category: category.value,
         created_by: check.user.id
@@ -114,12 +105,7 @@ export async function POST(request: Request) {
     } catch (err) {
       // The file was uploaded but the metadata insert failed: clean up the
       // orphaned object so storage does not accumulate unreferenced files.
-      try {
-        const admin = getAdminSupabase()
-        await admin.storage.from('public-media').remove([storagePath])
-      } catch {
-        // best-effort cleanup; the original error is what matters
-      }
+      await deleteStorageFile(storagePath)
       throw err
     }
   } catch (err) {
