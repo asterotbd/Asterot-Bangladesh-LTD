@@ -1,3 +1,5 @@
+import { asset } from './assets'
+
 export type LeadershipMember = {
   name: string
   role: string
@@ -5,7 +7,7 @@ export type LeadershipMember = {
   bio: string
 }
 
-export const leadershipMembers: LeadershipMember[] = [
+const localMembers: LeadershipMember[] = [
   {
     name: 'Jaky All Naiem Jihan',
     role: 'Chairman',
@@ -43,3 +45,8 @@ export const leadershipMembers: LeadershipMember[] = [
     bio: 'Helping build a future where young people have the platform to lead and create.'
   }
 ]
+
+export const leadershipMembers: LeadershipMember[] = localMembers.map((member) => ({
+  ...member,
+  image: asset(member.image)
+}))

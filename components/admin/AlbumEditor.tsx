@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react'
 import Image from 'next/image'
+import { asset } from '../../lib/assets'
 import { useRouter } from 'next/navigation'
 import type { DbAlbumPhoto } from '../../lib/albums-server'
 import type { DbMedia } from '../../lib/media-server'
@@ -105,7 +106,7 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
     const target = index + dir
     if (index < 0 || target < 0 || target >= photos.length) return
     const reordered = photos.map((p) => p.id)
-    ;[reordered[index], reordered[target]] = [reordered[target], reordered[index]]
+      ;[reordered[index], reordered[target]] = [reordered[target], reordered[index]]
     await persistOrder(reordered)
   }
 
@@ -221,7 +222,7 @@ export default function AlbumEditor({ albumId, coverMediaId, photos, photoUrls, 
                         onClick={() => setPickerMedia((prev) => prev.map((x) => x.id === m.id ? { ...x, selected: !x.selected } : x))}
                         className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${m.selected ? 'border-primary' : 'border-transparent'}`}
                       >
-                        <Image src={m.public_url ?? ''} alt={m.alt_en ?? ''} fill sizes="20vw" className="object-cover" loading="lazy" />
+                        <Image src={asset(m.public_url) ?? ''} alt={m.alt_en ?? ''} fill sizes="20vw" className="object-cover" loading="lazy" />
                         {m.selected && <span className="absolute right-1 top-1 rounded-full bg-primary px-1.5 text-xs text-white">✓</span>}
                       </button>
                     ))}

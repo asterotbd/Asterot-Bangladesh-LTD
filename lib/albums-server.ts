@@ -1,5 +1,6 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
+import { asset } from './assets'
 
 export type DbAlbum = {
   id: string
@@ -73,7 +74,7 @@ export async function listAlbums({
       logError('albums.list-cover-media', mediaError)
     } else {
       for (const m of (mediaRows ?? []) as { id: string; public_url: string | null }[]) {
-        coverUrlById.set(m.id, m.public_url)
+        coverUrlById.set(m.id, asset(m.public_url))
       }
     }
   }
@@ -108,7 +109,7 @@ export async function getMediaPublicUrl(mediaId: string): Promise<string | null>
   const admin = getAdminSupabase()
   const { data, error } = await admin.from('media').select('public_url').eq('id', mediaId).maybeSingle()
   if (error || !data) return null
-  return (data as { public_url: string | null }).public_url
+  return asset((data as { public_url: string | null }).public_url)
 }
 
 export async function listMediaPublicUrls(mediaIds: string[]): Promise<Record<string, string | null>> {
@@ -119,7 +120,7 @@ export async function listMediaPublicUrls(mediaIds: string[]): Promise<Record<st
   if (error) throw error
   const map: Record<string, string | null> = {}
   for (const row of (data ?? []) as { id: string; public_url: string | null }[]) {
-    map[row.id] = row.public_url
+    map[row.id] = asset(row.public_url)
   }
   return map
 }
@@ -249,7 +250,7 @@ export async function getPublishedAlbums(): Promise<
       logError('albums.public-media', mediaError)
     } else {
       for (const m of (mediaRows ?? []) as { id: string; public_url: string | null }[]) {
-        if (m.public_url) mediaUrlById.set(m.id, m.public_url)
+        if (m.public_url) mediaUrlById.set(m.id, asset(m.public_url))
       }
     }
   }

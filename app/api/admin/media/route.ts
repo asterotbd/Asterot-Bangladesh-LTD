@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { requireApiPermission } from '../../../../lib/auth'
-import getAdminSupabase from '../../../../lib/supabaseAdmin'
-import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES } from '../../../../lib/media-server'
+import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, deleteStorageFile, MEDIA_TYPES } from '../../../../lib/media-server'
 import { writeAuditLog } from '../../../../lib/audit'
 import { jsonError, logError } from '../../../../lib/api-utils'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
@@ -106,12 +105,7 @@ export async function POST(request: Request) {
     } catch (err) {
       // The file was uploaded but the metadata insert failed: clean up the
       // orphaned object so storage does not accumulate unreferenced files.
-      try {
-        const admin = getAdminSupabase()
-        await admin.storage.from('public-media').remove([storagePath])
-      } catch {
-        // best-effort cleanup; the original error is what matters
-      }
+      await deleteStorageFile(storagePath)
       throw err
     }
   } catch (err) {

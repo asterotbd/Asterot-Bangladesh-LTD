@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { asset } from '../lib/assets'
 
 /**
  * A single company/partner logo entry for the marquee.
@@ -44,10 +45,10 @@ const DEFAULT_HEADING = "Companies We've Worked With"
  * `href` / `alt`. Do not invent company names here.
  */
 const SPONSOR_LOGOS: MarqueeLogo[] = [
-  { id: 'sponsor-1', src: '/media/photos/logo/sponsor-logo/1.png' },
-  { id: 'sponsor-2', src: '/media/photos/logo/sponsor-logo/2.png' },
-  { id: 'sponsor-3', src: '/media/photos/logo/sponsor-logo/3.png' },
-  { id: 'sponsor-4', src: '/media/photos/logo/sponsor-logo/4.png' }
+  { id: 'sponsor-1', src: asset('/media/photos/logo/sponsor-logo/1.png') },
+  { id: 'sponsor-2', src: asset('/media/photos/logo/sponsor-logo/2.png') },
+  { id: 'sponsor-3', src: asset('/media/photos/logo/sponsor-logo/3.png') },
+  { id: 'sponsor-4', src: asset('/media/photos/logo/sponsor-logo/4.png') }
 ]
 
 type LogoItemProps = {

@@ -1,4 +1,5 @@
 import getAdminSupabase from './supabaseAdmin'
+import { asset } from './assets'
 import type { NewsArticle } from './newsData'
 
 export type DbNews = {
@@ -57,7 +58,7 @@ function mapToNewsArticle(item: RawNewsRow, featured: boolean): NewsArticle {
     ? (label as NewsArticle['category'])
     : 'Latest News'
   const media = Array.isArray(item.featured_media) ? item.featured_media[0] : item.featured_media
-  const image = media?.public_url || DEFAULT_NEWS_IMAGE
+  const image = asset(media?.public_url || DEFAULT_NEWS_IMAGE)
   return {
     slug: item.slug,
     title: item.title_en || item.slug,

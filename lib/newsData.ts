@@ -1,3 +1,5 @@
+import { asset } from './assets'
+
 export type NewsArticle = {
   slug: string
   title: string
@@ -11,7 +13,7 @@ export type NewsArticle = {
 
 export const newsCategories = ['Latest News', 'Announcements', 'Articles / Updates'] as const
 
-export const newsArticles: NewsArticle[] = [
+const localArticles: NewsArticle[] = [
   {
     slug: 'asterot-bangladesh-limited-launches-its-official-youtube-channel',
     title: 'Asterot Bangladesh Limited Launches Its Official YouTube Channel',
@@ -90,3 +92,8 @@ export const newsArticles: NewsArticle[] = [
     featured: false
   }
 ]
+
+export const newsArticles: NewsArticle[] = localArticles.map((article) => ({
+  ...article,
+  image: asset(article.image)
+}))

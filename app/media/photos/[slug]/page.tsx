@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import PhotoAlbumPage from '../../../../components/PhotoAlbumPage'
 import type { PhotoAlbum } from '../../../../lib/photoAlbums'
 import { getAlbumBySlug, photoAlbums } from '../../../../lib/photoAlbums'
+import { asset } from '../../../../lib/assets'
 import { getAlbumBySlug as getDbAlbumBySlug, listAlbumPhotos } from '../../../../lib/albums-server'
 import getAdminSupabase from '../../../../lib/supabaseAdmin'
 
@@ -36,7 +37,7 @@ const loadDbAlbum = cache(async (slug: string): Promise<DbAlbumResult> => {
         console.error('Album detail media load error', mediaError.message)
       } else {
         for (const m of (mediaRows ?? []) as { id: string; public_url: string | null }[]) {
-          if (m.public_url) urlById.set(m.id, m.public_url)
+          if (m.public_url) urlById.set(m.id, asset(m.public_url))
         }
       }
     }

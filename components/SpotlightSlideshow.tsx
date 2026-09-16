@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
+import { asset } from '../lib/assets'
 
 type SpotlightSlide = {
   src: string
   title: string
 }
 
-export const spotlightImages: SpotlightSlide[] = [
+const localSpotlight: SpotlightSlide[] = [
   { src: '/media/photos/spotlight/1.jpg', title: 'Together We Fall' },
   { src: '/media/photos/spotlight/2.jpg', title: 'Together We Fight' },
   { src: '/media/photos/spotlight/3.jpg', title: 'Together We Rise' },
@@ -16,6 +17,11 @@ export const spotlightImages: SpotlightSlide[] = [
   { src: '/media/photos/spotlight/5.jpg', title: 'Together We Grow' },
   { src: '/media/photos/spotlight/6.jpg', title: 'Together We Can' }
 ]
+
+export const spotlightImages: SpotlightSlide[] = localSpotlight.map((slide) => ({
+  ...slide,
+  src: asset(slide.src)
+}))
 
 const SLIDE_DURATION = 5000
 const FADE_DURATION = 900

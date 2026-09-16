@@ -1,5 +1,6 @@
 import getAdminSupabase from './supabaseAdmin'
 import { logError } from './api-utils'
+import { putObject, deleteObject, isR2Enabled, R2_UPLOAD_PREFIX } from './r2'
 
 export const MEDIA_TYPES = ['photo', 'video', 'embed'] as const
 export type MediaType = (typeof MEDIA_TYPES)[number]
@@ -193,7 +194,15 @@ export async function deleteMedia(id: string): Promise<{ ok: boolean; storagePat
   return { ok: true, storagePath }
 }
 
+// Routes the delete to whichever backend holds the object. R2 uploads are
+// written under R2_UPLOAD_PREFIX and older Supabase Storage objects under
+// "admin/", so the stored path alone identifies the backend and media
+// uploaded before the R2 switch still deletes correctly.
 export async function deleteStorageFile(storagePath: string): Promise<void> {
+  if (storagePath.startsWith(`${R2_UPLOAD_PREFIX}/`)) {
+    await deleteObject(storagePath)
+    return
+  }
   try {
     const admin = getAdminSupabase()
     await admin.storage.from(PUBLIC_MEDIA_BUCKET).remove([storagePath])
@@ -202,11 +211,27 @@ export async function deleteStorageFile(storagePath: string): Promise<void> {
   }
 }
 
+// Uploads to Cloudflare R2 when it is configured, otherwise to the Supabase
+// Storage bucket. The fallback keeps the admin uploader working while R2
+// credentials are still being provisioned; once R2_* and
+// NEXT_PUBLIC_R2_PUBLIC_URL are set, every new upload goes to R2 and the
+// Supabase branch is only exercised by legacy deletes.
 export async function uploadMediaFile(file: File, buffer: Buffer, contentType: string): Promise<{ storagePath: string; publicUrl: string }> {
-  const admin = getAdminSupabase()
   const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '')
-  const storagePath = `admin/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+  const name = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
 
+  if (isR2Enabled()) {
+    try {
+      const { key, publicUrl } = await putObject(`${R2_UPLOAD_PREFIX}/${name}`, buffer, contentType)
+      return { storagePath: key, publicUrl }
+    } catch (err) {
+      logError('media.r2-upload', err)
+      throw err instanceof Error ? err : new Error('R2 upload failed')
+    }
+  }
+
+  const admin = getAdminSupabase()
+  const storagePath = `admin/${name}`
   const { error } = await admin.storage.from(PUBLIC_MEDIA_BUCKET).upload(storagePath, buffer, {
     contentType,
     cacheControl: '3600'

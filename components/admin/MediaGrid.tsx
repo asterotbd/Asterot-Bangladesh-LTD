@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react'
 import Image from 'next/image'
+import { asset } from '../../lib/assets'
 import { useRouter } from 'next/navigation'
 import ConfirmDialog from './ConfirmDialog'
 import type { DbMedia } from '../../lib/media-server'
@@ -93,7 +94,7 @@ export default function MediaGrid({ items, canManage }: { items: DbMedia[]; canM
                   <span className="text-xs text-gray-500">{item.provider === 'youtube' ? 'YouTube' : item.type}</span>
                 ) : (
                   <Image
-                    src={item.public_url ?? ''}
+                    src={asset(item.public_url) ?? ''}
                     alt={item.alt_en ?? item.caption_en ?? 'Media'}
                     fill
                     sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

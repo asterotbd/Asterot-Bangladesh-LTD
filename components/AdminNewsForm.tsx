@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from './Button'
+import { asset } from '../lib/assets'
 
 type AdminNews = {
   id?: string
@@ -58,7 +59,7 @@ export default function AdminNewsForm({ news, categories }: { news?: AdminNews |
 
   const pickFeatured = (item: MediaItem) => {
     setForm(prev => ({ ...prev, featured_image: item.id }))
-    setFeaturedPreviewUrl(item.public_url)
+    setFeaturedPreviewUrl(asset(item.public_url))
     setPickerOpen(false)
   }
 
@@ -111,7 +112,7 @@ export default function AdminNewsForm({ news, categories }: { news?: AdminNews |
     fetch(`/api/admin/media/${news.featured_image}`)
       .then(res => (res.ok ? res.json() : null))
       .then(data => {
-        const url = (data as { data?: MediaItem } | null)?.data?.public_url ?? null
+        const url = asset((data as { data?: MediaItem } | null)?.data?.public_url ?? null)
         if (url) setFeaturedPreviewUrl(url)
         else setPreviewError(true)
       })
@@ -265,7 +266,7 @@ export default function AdminNewsForm({ news, categories }: { news?: AdminNews |
                       className={`relative aspect-square overflow-hidden rounded-lg border-2 transition-all ${form.featured_image === m.id ? 'border-primary' : 'border-transparent'}`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={m.public_url ?? ''} alt={m.alt_en ?? ''} className="h-full w-full object-cover" />
+                      <img src={asset(m.public_url) ?? ''} alt={m.alt_en ?? ''} className="h-full w-full object-cover" />
                       {form.featured_image === m.id && <span className="absolute right-1 top-1 rounded-full bg-primary px-1.5 text-xs text-white">✓</span>}
                     </button>
                   ))}
