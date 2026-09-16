@@ -22,8 +22,8 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com",
   // YouTube thumbnails are rendered via next/image (same-origin); the extra
   // hosts are kept defensively for any raw thumbnail URLs.
-  "img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com https://*.ytimg.com",
-  "media-src 'self' blob:",
+  "img-src 'self' data: blob: https://img.youtube.com https://i.ytimg.com https://*.ytimg.com https://pub-67c6d567950d419f9f3429a1cc66dfb3.r2.dev",
+  "media-src 'self' blob: https://pub-67c6d567950d419f9f3429a1cc66dfb3.r2.dev",
   // YouTube iframe embeds (components/VideoGallery.tsx).
   "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
   `connect-src ${cspConnectSrc}`,
@@ -45,7 +45,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'img.youtube.com' },
       { protocol: 'https', hostname: 'i.ytimg.com' },
       { protocol: 'https', hostname: '*.ytimg.com' },
-      { protocol: 'https', hostname: '*.supabase.co' }
+      { protocol: 'https', hostname: 'pub-67c6d567950d419f9f3429a1cc66dfb3.r2.dev' }
     ]
   },
   async headers() {

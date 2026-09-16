@@ -3,10 +3,11 @@ import { requireApiPermission } from '../../../../lib/auth'
 import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
 import { jsonError, logError } from '../../../../lib/api-utils'
-import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES } from '../../../../lib/media-server'
+import { listMedia, createMedia, uploadMediaFile, validateUploadedImage, MEDIA_TYPES, deleteFromR2 } from '../../../../lib/media-server'
 import { writeAuditLog } from '../../../../lib/audit'
 import { getAdminSupabase } from '../../../../lib/supabaseAdmin'
 import { getAlbum, listAlbumPhotos, addPhotoToAlbum } from '../../../../lib/albums-server'
+import { revalidatePath } from 'next/cache'
 
 const TEXT_MAX: Record<string, number> = {
   alt_en: 300,
@@ -167,8 +168,7 @@ export async function POST(request: Request) {
         if (!altFields.ok || !alt_bnFields.ok || !captionFields.ok || !caption_bnFields.ok || !categoryFields.ok) {
           // Clean up uploaded file if metadata validation fails
           try {
-            const admin = getAdminSupabase()
-            await admin.storage.from('public-media').remove([storagePath])
+            await deleteFromR2(storagePath)
           } catch {
             // best-effort cleanup
           }
@@ -185,6 +185,7 @@ export async function POST(request: Request) {
           public_url: publicUrl,
           type: 'photo',
           provider: 'uploaded',
+          storage_provider: 'cloudflare_r2',
           alt_en: altFields.value,
           alt_bn: alt_bnFields.value,
           caption_en: captionFields.value,
@@ -197,8 +198,7 @@ export async function POST(request: Request) {
         if (!record) {
           // Clean up uploaded file if metadata insert fails
           try {
-            const admin = getAdminSupabase()
-            await admin.storage.from('public-media').remove([storagePath])
+            await deleteFromR2(storagePath)
           } catch {
             // best-effort cleanup
           }
@@ -255,6 +255,10 @@ export async function POST(request: Request) {
       failed,
       fileNames: results.map(r => r.name)
     })
+  }
+
+  for (const path of ['/', '/media', '/media/photos', '/media/videos', `/admin/media?albumId=${albumIdValid}`]) {
+    try { revalidatePath(path) } catch { /* best-effort */ }
   }
 
   return NextResponse.json({
