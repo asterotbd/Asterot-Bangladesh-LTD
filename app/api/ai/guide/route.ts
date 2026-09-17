@@ -237,8 +237,9 @@ export async function POST(request: Request) {
 
   let geminiData: GeminiResponse
   try {
-    // Call Gemini server-side with URLSearchParams
-    const geminiUrl = new URL('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent')
+    // Call Gemini server-side with URLSearchParams.
+    // gemini-1.5-flash was retired (404 on every request); gemini-3.5-flash-lite is the current free-tier replacement.
+    const geminiUrl = new URL('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent')
     geminiUrl.searchParams.set('key', geminiApiKey)
 
     const payload = {
