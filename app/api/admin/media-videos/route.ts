@@ -4,7 +4,7 @@ import { verifyCsrfRequest } from '../../../../lib/csrf'
 import { isRateLimited, RATE_LIMIT_WINDOW_SECONDS, RATE_LIMIT_RULES } from '../../../../lib/rate-limit'
 import { jsonError, logError } from '../../../../lib/api-utils'
 import { writeAuditLog } from '../../../../lib/audit'
-import { createMedia, uploadMediaFile, validateUploadedVideo } from '../../../../lib/media-server'
+import { createMedia, uploadMediaFile, validateUploadedVideo, deleteStorageFile } from '../../../../lib/media-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,14 +30,20 @@ export async function POST(request: Request) {
   if (file.size > 100 * 1024 * 1024) return jsonError('File is too large (max 100 MB).', 400)
   if (!file.type.startsWith('video/')) return jsonError('Only video files are supported.', 400)
 
-  const validated = validateUploadedVideo(file)
+  let buffer: Buffer
+  let validated
+  try {
+    buffer = Buffer.from(await file.arrayBuffer())
+    validated = validateUploadedVideo(file, buffer)
+  } catch {
+    return jsonError('Unable to read the uploaded file.', 400)
+  }
   if (!validated.ok) return jsonError(validated.error, 400)
 
   const caption_en = (formData.get('caption_en') as string || '').trim() || null
   const category = (formData.get('category') as string || '').trim() || null
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer())
     const { storagePath, publicUrl } = await uploadMediaFile(file, buffer, validated.contentType)
     
     try {
@@ -52,12 +58,18 @@ export async function POST(request: Request) {
         filesize: file.size,
         created_by: check.user.id
       })
-      if (!record) return jsonError('Unable to create media record.', 500)
+      if (!record) {
+        await deleteStorageFile(storagePath)
+        return jsonError('Unable to create media record.', 500)
+      }
       await writeAuditLog(check.user.id, 'media.video-upload', 'media', record.id, { filename: file.name, size: file.size })
       return NextResponse.json({ data: record }, { status: 201 })
     } catch (err) {
-      // We can't easily call deleteStorageFile here if it's not exported or available, 
-      // but we know deleteMedia handles it. For now, let's just log.
+      // The R2 upload above already succeeded, so on any DB failure the
+      // object must be cleaned up here or it is orphaned with no DB row to
+      // ever reference it again (deleteStorageFile logs its own failures and
+      // never throws, so it can't mask the original error below).
+      await deleteStorageFile(storagePath)
       logError('admin.media-video.upload-db-fail', err)
       throw err
     }

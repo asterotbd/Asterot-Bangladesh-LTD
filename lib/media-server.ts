@@ -46,11 +46,40 @@ const IMAGE_MIME: Record<string, string> = Object.fromEntries(
   Object.values(IMAGE_MIME_BY_EXT).map((mime) => [mime.split('/')[1], mime])
 )
 
-// Validate an uploaded video by inspecting its MIME type and requiring a supported format.
-export function validateUploadedVideo(file: File): { ok: true; contentType: string } | { ok: false; error: string } {
-  const supportedVideoMimes = ['video/mp4', 'video/webm', 'video/ogg']
-  if (!supportedVideoMimes.includes(file.type)) {
+const VIDEO_CONTAINER_BY_MIME: Record<string, 'mp4' | 'webm' | 'ogg'> = {
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'video/ogg': 'ogg'
+}
+
+// Sniffs the container format from well-known magic bytes:
+//  - MP4/ISO-BMFF: a box-size word followed by the ASCII box type 'ftyp'.
+//  - WebM/Matroska: the fixed EBML header magic number.
+//  - Ogg: the 'OggS' page capture pattern.
+// This confirms the upload is a well-formed container of the claimed type;
+// it does not decode or validate the audio/video codec inside the container.
+function sniffVideoContainer(buffer: Buffer): 'mp4' | 'webm' | 'ogg' | null {
+  if (buffer.length < 12) return null
+  if (buffer.toString('latin1', 4, 8) === 'ftyp') return 'mp4'
+  if (buffer[0] === 0x1a && buffer[1] === 0x45 && buffer[2] === 0xdf && buffer[3] === 0xa3) return 'webm'
+  if (buffer.toString('latin1', 0, 4) === 'OggS') return 'ogg'
+  return null
+}
+
+// Validate an uploaded video: the declared MIME type must be one of the
+// supported formats, and the file's magic bytes must match that container
+// (not just the spoofable client-declared Content-Type).
+export function validateUploadedVideo(file: File, buffer: Buffer): { ok: true; contentType: string } | { ok: false; error: string } {
+  const declaredContainer = VIDEO_CONTAINER_BY_MIME[file.type]
+  if (!declaredContainer) {
     return { ok: false, error: 'Unsupported video format. Use MP4, WebM, or Ogg.' }
+  }
+  const sniffedContainer = sniffVideoContainer(buffer)
+  if (!sniffedContainer) {
+    return { ok: false, error: 'The file is not a recognized video container.' }
+  }
+  if (sniffedContainer !== declaredContainer) {
+    return { ok: false, error: 'The file content does not match its declared video format.' }
   }
   return { ok: true, contentType: file.type }
 }
@@ -190,6 +219,16 @@ export class MediaInUseError extends Error {
   }
 }
 
+// Thrown when the row's stored file could not be confirmed deleted from R2.
+// The row is left in place in this case - see deleteMedia - so this is a
+// distinct, generic-500 case from both "not found" and MediaInUseError.
+export class MediaStorageDeleteError extends Error {
+  constructor(message: string) {
+    super(`Unable to delete the stored file: ${message}`)
+    this.name = 'MediaStorageDeleteError'
+  }
+}
+
 // Nullable references to media(id) that were created without an ON DELETE
 // clause, so Postgres refuses to delete any media row one of them points at.
 // Before this, every album cover and news featured image failed to delete with
@@ -220,9 +259,22 @@ export type DeleteMediaResult =
 /**
  * Deletes a media row and, when the row owns it, its stored file.
  *
- * Order matters: references are detached, the row is deleted, and only then
- * the file. Removing the file first leaves a row that then fails to delete
- * pointing at a missing object, which the site renders as a broken image.
+ * Storage is deleted first and the row is only ever touched once that is
+ * confirmed successful (or the object was already gone - 404 counts as
+ * success): a media/video row must never be permanently deleted while we
+ * know its underlying object could not be deleted, or the object is
+ * orphaned with nothing left pointing at it (see deleteStorageFile).
+ *
+ * Once storage is confirmed gone, references are detached and then the row
+ * is deleted, matching the reasoning in the reference table below: detaching
+ * first means the delete itself does not fail pointing at a media row whose
+ * file is already gone. This does not fully eliminate the reverse failure
+ * mode (storage deleted, then the row delete itself fails - e.g. a
+ * transient DB error, or an FK reference this table doesn't know about) -
+ * Supabase/R2 offer no cross-system transaction to make that atomic. That
+ * residual case surfaces as MediaInUseError (409) or a thrown DB error, with
+ * the row left in place pointing at an already-deleted object, and needs a
+ * manual fix; it is called out here rather than silently assumed away.
  *
  * The storage backend is chosen from the stored key (deleteStorageFile), not
  * from media.storage_provider: migration 029 labelled every existing row
@@ -239,6 +291,13 @@ export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
   // bucket objects are left in place: deleting one would break those pages,
   // while an unreferenced object costs next to nothing to keep.
   const storagePath = item.storage_path && item.provider === 'uploaded' ? item.storage_path : null
+
+  if (storagePath) {
+    const storageResult = await deleteStorageFile(storagePath)
+    if (!storageResult.ok) {
+      throw new MediaStorageDeleteError(storageResult.message)
+    }
+  }
 
   // For the audit trail only: album_photos rows cascade with the media row.
   const { count: albumPhotoCount } = await admin
@@ -260,9 +319,6 @@ export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
     throw error
   }
 
-  // Best-effort: deleteStorageFile logs rather than throws, and the row is
-  // already gone, so a failure here only leaves an unreferenced object.
-  if (storagePath) await deleteStorageFile(storagePath)
   return { ok: true, storagePath, storageDeleted: Boolean(storagePath), albumPhotoCount: albumPhotoCount ?? 0 }
 }
 
@@ -270,10 +326,18 @@ export async function deleteMedia(id: string): Promise<DeleteMediaResult> {
 // written under R2_UPLOAD_PREFIX and older Supabase Storage objects under
 // "admin/", so the stored path alone identifies the backend and media
 // uploaded before the R2 switch still deletes correctly.
-export async function deleteStorageFile(storagePath: string): Promise<void> {
+//
+// R2 failures are surfaced truthfully (see lib/r2.ts deleteObject) so
+// deleteMedia can refuse to delete a row whose file didn't actually go away.
+// Legacy Supabase Storage deletes stay best-effort, as they always were:
+// that backend predates this requirement and no caller depends on strict
+// success there.
+export type StorageDeleteResult = { ok: true; notFound?: boolean } | { ok: false; message: string }
+
+export async function deleteStorageFile(storagePath: string): Promise<StorageDeleteResult> {
   if (storagePath.startsWith(`${R2_UPLOAD_PREFIX}/`)) {
-    await deleteObject(storagePath)
-    return
+    const result = await deleteObject(storagePath)
+    return result.ok ? { ok: true, notFound: result.notFound } : { ok: false, message: result.message }
   }
   try {
     const admin = getAdminSupabase()
@@ -281,6 +345,7 @@ export async function deleteStorageFile(storagePath: string): Promise<void> {
   } catch (err) {
     logError('media.storage-delete', err)
   }
+  return { ok: true }
 }
 
 // Uploads to Cloudflare R2 when it is configured, otherwise to the Supabase

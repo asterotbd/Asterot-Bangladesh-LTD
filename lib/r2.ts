@@ -145,8 +145,19 @@ export async function putObject(
   return { key, publicUrl: `${cfg.publicUrl}/${encodeKey(key)}` }
 }
 
-/** Best-effort delete; a failure is logged rather than thrown. */
-export async function deleteObject(key: string): Promise<void> {
+/**
+ * Delete result. Never throws for a transport/HTTP-level failure - callers
+ * that care about consistency (e.g. deleting a DB row only after the object
+ * is confirmed gone) must check `ok`; callers doing best-effort cleanup can
+ * ignore the result exactly as before. A missing object (404) counts as a
+ * successful, idempotent delete since the end state - "not in R2" - is the
+ * same as after a fresh delete.
+ */
+export type R2DeleteResult =
+  | { ok: true; notFound: boolean }
+  | { ok: false; message: string }
+
+export async function deleteObject(key: string): Promise<R2DeleteResult> {
   try {
     // Inside the try: getR2Config throws when unconfigured, and a delete that
     // runs after its database row is gone must never turn into a failure.
@@ -154,11 +165,14 @@ export async function deleteObject(key: string): Promise<void> {
     const { url, headers } = signed(cfg, 'DELETE', key, '')
     const res = await fetch(url, { method: 'DELETE', headers, ...NO_STORE })
     // R2 returns 204 for a successful delete and 404 when already gone.
-    if (!res.ok && res.status !== 404) {
-      logError('r2.delete', new Error(`${res.status} ${res.statusText}`))
-    }
+    if (res.ok) return { ok: true, notFound: false }
+    if (res.status === 404) return { ok: true, notFound: true }
+    const message = `${res.status} ${res.statusText}`
+    logError('r2.delete', new Error(message))
+    return { ok: false, message }
   } catch (err) {
     logError('r2.delete', err)
+    return { ok: false, message: err instanceof Error ? err.message : 'R2 delete request failed' }
   }
 }
 

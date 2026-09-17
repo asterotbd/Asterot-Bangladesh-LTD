@@ -23,6 +23,10 @@ type SyncResult = {
   removed: number
   total: number
   channelId: string
+  // True when stale-video pruning was skipped because the fetched list could
+  // not be established as the channel's complete upload set (see
+  // loadSyncedVideos / upsertVideos below).
+  pruneSkipped: boolean
 }
 
 function getChannelId(): string {
@@ -94,14 +98,21 @@ async function resolveUploadsPlaylistId(channelId: string, signal?: AbortSignal)
   return uploadsId
 }
 
+// Fetches every upload playlist item, up to a 10-page (500-video) cap.
+// `complete` is true only when the loop stopped because YouTube reported no
+// further pageToken - i.e. we actually reached the end of the playlist. If
+// the cap is hit while a pageToken is still pending, the result is a
+// truncated view of a larger channel and must never be treated as the
+// authoritative full video list (see loadSyncedVideos).
 async function fetchAllUploadVideoIds(
   uploadsPlaylistId: string,
   signal?: AbortSignal
-): Promise<string[]> {
+): Promise<{ ids: string[]; complete: boolean }> {
   const apiKey = getApiKey()
   if (!apiKey) throw new Error('Missing YOUTUBE_API_KEY')
   const ids: string[] = []
   let pageToken = ''
+  let complete = false
   for (let page = 0; page < 10; page += 1) {
     const url = `${YOUTUBE_API_BASE}/playlistItems?part=contentDetails&playlistId=${uploadsPlaylistId}&maxResults=50&key=${apiKey}${pageToken ? `&pageToken=${pageToken}` : ''}`
     const body = await ytFetchJson(url, signal)
@@ -109,9 +120,12 @@ async function fetchAllUploadVideoIds(
       if (item?.contentDetails?.videoId) ids.push(item.contentDetails.videoId)
     }
     pageToken = body?.nextPageToken
-    if (!pageToken) break
+    if (!pageToken) {
+      complete = true
+      break
+    }
   }
-  return ids
+  return { ids, complete }
 }
 
 async function fetchVideoDetails(
@@ -190,13 +204,13 @@ function assignCategories(
   })
 }
 
-async function fetchVideosFromApi(channelId: string, signal?: AbortSignal): Promise<SyncedVideo[]> {
+async function fetchVideosFromApi(channelId: string, signal?: AbortSignal): Promise<{ videos: SyncedVideo[]; complete: boolean }> {
   const uploadsPlaylistId = await resolveUploadsPlaylistId(channelId, signal)
-  const videoIds = await fetchAllUploadVideoIds(uploadsPlaylistId, signal)
+  const { ids: videoIds, complete } = await fetchAllUploadVideoIds(uploadsPlaylistId, signal)
   const details = await fetchVideoDetails(videoIds, signal)
   const { categoryMap, playlistOrder } = await fetchChannelPlaylistCategories(channelId, signal)
   const categorized = assignCategories(details, categoryMap, playlistOrder)
-  return details.map((d, index) => ({
+  const videos: SyncedVideo[] = details.map((d, index) => ({
     youtubeId: d.youtubeId,
     videoType: d.durationIso && isoDurationToSeconds(d.durationIso) <= 60 ? 'short' : 'video',
     title: d.title,
@@ -208,6 +222,7 @@ async function fetchVideosFromApi(channelId: string, signal?: AbortSignal): Prom
     category: categorized[index].category,
     categories: categorized[index].categories
   }))
+  return { videos, complete }
 }
 
 function parseRssVideos(xml: string): SyncedVideo[] {
@@ -244,13 +259,21 @@ async function fetchVideosFromRss(channelId: string, signal?: AbortSignal): Prom
   return parseRssVideos(xml)
 }
 
-async function loadSyncedVideos(signal?: AbortSignal): Promise<{ videos: SyncedVideo[]; source: SyncResult['source'] }> {
+// `allowPrune` tells upsertVideos() whether the fetched list may be treated
+// as the channel's complete upload set for stale-row deletion:
+//   - API path: only when fetchAllUploadVideoIds() reached the real end of
+//     the playlist (not the page cap) - see fetchAllUploadVideoIds.
+//   - RSS fallback: never. The feed only ever returns the ~15 most recent
+//     entries, so it can never represent the full upload history.
+async function loadSyncedVideos(signal?: AbortSignal): Promise<{ videos: SyncedVideo[]; source: SyncResult['source']; allowPrune: boolean }> {
   const channelId = getChannelId()
   const apiKey = getApiKey()
   if (apiKey) {
-    return { videos: await fetchVideosFromApi(channelId, signal), source: 'youtube-api' }
+    const { videos, complete } = await fetchVideosFromApi(channelId, signal)
+    return { videos, source: 'youtube-api', allowPrune: complete }
   }
-  return { videos: await fetchVideosFromRss(channelId, signal), source: 'youtube-rss' }
+  const videos = await fetchVideosFromRss(channelId, signal)
+  return { videos, source: 'youtube-rss', allowPrune: false }
 }
 
 function videoToRow(video: SyncedVideo) {
@@ -281,7 +304,7 @@ function videoToRow(video: SyncedVideo) {
 // that is not on the channel (a partner's video, say) the next night.
 const isManual = (metadata: unknown) => (metadata as { source?: unknown } | null)?.source === 'manual'
 
-async function upsertVideos(videos: SyncedVideo[]): Promise<{ inserted: number; updated: number; removed: number }> {
+async function upsertVideos(videos: SyncedVideo[], allowPrune: boolean): Promise<{ inserted: number; updated: number; removed: number; pruneSkipped: boolean }> {
   const supabase = getAdminSupabase()
   const rows = videos.map(videoToRow)
 
@@ -341,33 +364,43 @@ async function upsertVideos(videos: SyncedVideo[]): Promise<{ inserted: number; 
     }
   }
 
+  // Pruning deletes any synced YouTube row absent from `videos`, so it must
+  // only run when `videos` is demonstrably the channel's complete upload
+  // list (allowPrune) - otherwise a truncated/partial/RSS-limited fetch
+  // would delete videos that are still live on the channel. An empty result
+  // is treated the same as "not complete" even if the caller claims
+  // otherwise: an empty list is far more likely an API/feed anomaly than an
+  // actual empty channel, and pruning on it would wipe every synced video.
   let removed = 0
-  const { data: allRows, error: allError } = await supabase
-    .from('media')
-    .select('id, metadata')
-    .eq('provider', 'youtube')
-  if (allError) throw new Error(`Failed to list current videos: ${allError.message}`)
+  const safeToPrune = allowPrune && videos.length > 0
+  if (safeToPrune) {
+    const { data: allRows, error: allError } = await supabase
+      .from('media')
+      .select('id, metadata')
+      .eq('provider', 'youtube')
+    if (allError) throw new Error(`Failed to list current videos: ${allError.message}`)
 
-  const currentIds = new Set(videos.map((v) => v.youtubeId))
-  const staleIds: string[] = []
-  for (const row of (allRows as any[]) ?? []) {
-    const youtubeId = row?.metadata?.youtubeId
-    if (isManual(row?.metadata)) continue
-    if (youtubeId && !currentIds.has(youtubeId)) staleIds.push(row.id)
-  }
-  if (staleIds.length > 0) {
-    const { error: deleteError } = await supabase.from('media').delete().in('id', staleIds)
-    if (deleteError) throw new Error(`Failed to remove stale videos: ${deleteError.message}`)
-    removed = staleIds.length
+    const currentIds = new Set(videos.map((v) => v.youtubeId))
+    const staleIds: string[] = []
+    for (const row of (allRows as any[]) ?? []) {
+      const youtubeId = row?.metadata?.youtubeId
+      if (isManual(row?.metadata)) continue
+      if (youtubeId && !currentIds.has(youtubeId)) staleIds.push(row.id)
+    }
+    if (staleIds.length > 0) {
+      const { error: deleteError } = await supabase.from('media').delete().in('id', staleIds)
+      if (deleteError) throw new Error(`Failed to remove stale videos: ${deleteError.message}`)
+      removed = staleIds.length
+    }
   }
 
-  return { inserted, updated, removed }
+  return { inserted, updated, removed, pruneSkipped: !safeToPrune }
 }
 
 export async function syncYoutubeVideos(signal?: AbortSignal): Promise<SyncResult> {
   const channelId = getChannelId()
-  const { videos, source } = await loadSyncedVideos(signal)
-  const { inserted, updated, removed } = await upsertVideos(videos)
+  const { videos, source, allowPrune } = await loadSyncedVideos(signal)
+  const { inserted, updated, removed, pruneSkipped } = await upsertVideos(videos, allowPrune)
   const total = videos.length
-  return { source, inserted, updated, removed, total, channelId }
+  return { source, inserted, updated, removed, total, channelId, pruneSkipped }
 }

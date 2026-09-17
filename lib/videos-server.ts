@@ -72,6 +72,7 @@ export async function listVideos({
 }
 
 export async function getVideo(id: string): Promise<DbVideo | null> {
+
   const admin = getAdminSupabase()
   const { data, error } = await admin.from('media').select(VIDEO_FIELDS).eq('id', id).maybeSingle()
   if (error) throw error
@@ -101,18 +102,28 @@ export async function deleteVideo(id: string): Promise<boolean> {
   if (readError) throw readError
   if (!item) return false
 
+  // Uploaded video files live in R2 under the upload prefix; YouTube rows have
+  // no stored object. The key decides the backend rather than
+  // storage_provider, which migration 029 mislabelled for existing rows.
+  //
+  // The object must be confirmed deleted (or already gone) before the row is
+  // permanently deleted - otherwise a real R2 failure would be hidden behind
+  // a successful DB delete and the object orphaned with nothing left
+  // pointing at it.
+  const storagePath = (item as { storage_path: string | null }).storage_path
+  if (storagePath?.startsWith(`${R2_UPLOAD_PREFIX}/`)) {
+    const result = await deleteObject(storagePath)
+    if (!result.ok) {
+      logError('videos.delete-storage', new Error(result.message))
+      throw new Error(`Failed to delete video storage object: ${result.message}`)
+    }
+  }
+
   const { error } = await (admin.from('media') as any).delete().eq('id', id)
   if (error) {
     logError('videos.delete', error)
     throw error
   }
-
-  // Uploaded video files live in R2 under the upload prefix; YouTube rows have
-  // no stored object. The row goes first so a failed delete never leaves it
-  // pointing at a removed file, and the key decides the backend because
-  // storage_provider was mislabelled for existing rows by migration 029.
-  const storagePath = (item as { storage_path: string | null }).storage_path
-  if (storagePath?.startsWith(`${R2_UPLOAD_PREFIX}/`)) await deleteObject(storagePath)
   return true
 }
 
