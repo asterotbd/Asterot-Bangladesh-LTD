@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { AuthProvider } from '../components/AuthProvider'
+import AsterotAI from '../components/ai/AsterotAI'
 
 export const metadata = {
   metadataBase: new URL('https://www.asterot.com'),
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </AuthProvider>
         <Footer />
+        <AsterotAI />
       </body>
     </html>
   )
